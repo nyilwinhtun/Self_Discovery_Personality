@@ -1,4 +1,8 @@
 # Changelog
+## 1.9.2 — GitHub Pages deployment setup
+  * Added a GitHub Actions workflow to validate, build, and deploy the Vite `dist/` output to GitHub Pages.
+  * Configured the Vite base path for the `Self_Discovery_Personality` repository.
+  * Added a deployment guide and kept assessment, scoring, and browser-storage implementation unchanged.
 
 ## 1.9.1 — Public Beta notice and tester guidance
 

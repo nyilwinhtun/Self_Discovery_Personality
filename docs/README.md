@@ -15,6 +15,7 @@
 ## အရေးကြီးသော စာတမ်းများ
 
 ### Project
+- [GitHub Pages Deployment Guide](./01-project/GITHUB_PAGES_DEPLOY_GUIDE.md)
 - [Beta Test Guide](./01-project/BETA_TEST_GUIDE.md)
 - [Phase 1 Specification](./01-project/PHASE_1_SPEC.md)
 - [Methodology and Sources](./01-project/METHODOLOGY_AND_SOURCES.md)

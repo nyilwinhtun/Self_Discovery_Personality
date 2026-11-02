@@ -25,6 +25,10 @@
 
 BondSense, ValueMap နှင့် Skills Assessment တို့သည် အနာဂတ်တွင် တည်ဆောက်ရန် စီစဉ်ထားသော အပိုင်းများဖြစ်သည်။
 
+## GitHub Pages ဖြင့် ထုတ်ဝေခြင်း
+
+ဤ React + Vite Project ကို GitHub Pages တွင် ထုတ်ဝေရာ၌ Source Code ကို တိုက်ရိုက် Publish မလုပ်ဘဲ Vite Build ထွက်လာသော `dist/` ကိုသာ Deploy လုပ်ရပါမည်။ `.github/workflows/deploy.yml` ကို ထည့်သွင်းထားပြီး `main` branch သို့ Push လုပ်သည့်အခါ Validate → Build → Deploy အလိုအလျောက် လုပ်ဆောင်မည်ဖြစ်သည်။ GitHub Repository ရှိ **Settings → Pages → Build and deployment → Source** ကို **GitHub Actions** ဟု သတ်မှတ်ပါ။ အသေးစိတ်ကို [`GitHub Pages Deployment Guide`](./docs/01-project/GITHUB_PAGES_DEPLOY_GUIDE.md) တွင် ဖတ်ပါ။
+
 ## စတင်အသုံးပြုရန်
 
 လိုအပ်ချက်: Node.js 20.19+ သို့မဟုတ် 22.12+ ကို အသုံးပြုရန် အကြံပြုသည်။
