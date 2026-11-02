@@ -18,6 +18,8 @@
 
 ## လက်ရှိပါဝင်သည့်အပိုင်းများ
 
+- **Knowledge Center (Beta Draft)** — စိတ်ပညာဆိုင်ရာ စကားလုံး ၃၀ ကို အုပ်စု ၆ ခုဖြင့် ရှာဖွေဖတ်ရှုနိုင်သည်။ အကြောင်းအရာအားလုံးသည် မူကြမ်းဖြစ်ပြီး ဘာသာစကားနှင့် စိတ်ပညာကျွမ်းကျင်သူ စစ်ဆေးမှု မပြီးသေးပါ။
+
 - **TraitLens** — ပင်ကိုစရိုက်ကို လေ့လာခြင်း။ မေးခွန်း ၃၀ / ၆၀ / ၁၂၀။
 - **InnerCompass** — စိတ်နေသဘောထားကို လေ့လာခြင်း။ မေးခွန်း ၃၀ ပါ Pilot Reflection ဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု မဟုတ်သေးပါ။
 - **Career Interest** — စိတ်ဝင်စားသည့် လုပ်ဆောင်မှုအမျိုးအစားများကို လေ့လာသည့် သီးခြား Module။
@@ -56,6 +58,7 @@ self-discovery-personality/
 │   ├── 04-career/                # Career Interest လမ်းညွှန်
 │   ├── 05-data-safety/           # Backup / Restore လမ်းညွှန်
 │   ├── 07-quality-review/       # Design QA နှင့် Preview Assets
+│   ├── 08-knowledge-center/     # Knowledge Center စာတမ်းနှင့် မူကြမ်းဝေါဟာရများ
 │   └── 99-archive/               # အဟောင်း Release မှတ်တမ်းများ
 ├── index.html
 ├── package.json
@@ -90,5 +93,6 @@ npm run validate:innercompass-v02
 npm run validate:innercompass-flow
 npm run validate:innercompass-v03
 npm run validate:docs
+npm run validate:knowledge-center
 npm run validate:all
 ```

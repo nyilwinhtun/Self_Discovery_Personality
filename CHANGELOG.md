@@ -1,4 +1,15 @@
 # Changelog
+
+## v1.10.0-beta.1 — Knowledge Center Beta Draft
+
+- Added a standalone Knowledge Center page accessible from the main navigation and home page.
+- Added search by English term, Burmese term, definition, example, and distinction.
+- Added six category filters and detail views for the initial 30 glossary terms.
+- Added visible Draft 0.1.0 notices, separate pending language/psychology review notices, cautions, and source links.
+- Kept all glossary entries unpublished and reviewer fields empty until actual qualified human reviews are completed.
+- Preserved existing TraitLens/InnerCompass questions, scoring modules, LocalStorage logic, History, and Backup/Restore implementation.
+- Added `validate:knowledge-center` and included it in `validate:all`.
+
 ## 1.9.2 — GitHub Pages deployment setup
   * Added a GitHub Actions workflow to validate, build, and deploy the Vite `dist/` output to GitHub Pages.
   * Configured the Vite base path for the `Self_Discovery_Personality` repository.

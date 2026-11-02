@@ -13,6 +13,7 @@ import { ANSWER_OPTIONS, FACETS, getQuestionsForLevel, QUESTION_BANK_VERSION, TR
 import { buildResult, getPersonalityProfile, getScoreBand } from './utils/scoring.js'
 import CareerInterestModule from './components/CareerInterestModule.jsx'
 import InnerCompassModule from './components/InnerCompassModule.jsx'
+import KnowledgeCenter from './components/KnowledgeCenter.jsx'
 import { TraitLensLogo, InnerCompassLogo, BondSenseLogo, ValueMapLogo } from './components/AssessmentLogos.jsx'
 import {
   clearDraft, clearHistory, createBackupSnapshot, deleteAssessment, inspectBackupSnapshot,
@@ -65,7 +66,7 @@ function Brand({ onClick }) {
   )
 }
 
-function Header({ onHome, onHistory, active }) {
+function Header({ onHome, onHistory, onKnowledge, active }) {
   return (
     <header className="no-print sticky top-0 z-30 border-b border-[#eee5ed] bg-[#fbf9fa]/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
@@ -76,6 +77,9 @@ function Header({ onHome, onHistory, active }) {
           </button>
           <button onClick={onHistory} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'history' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#8f8293] hover:text-[#614b6b]')}>
             <History size={15} /> <span className="hidden sm:inline">မှတ်တမ်း</span>
+          </button>
+          <button onClick={onKnowledge} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'knowledge' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#8f8293] hover:text-[#614b6b]')}>
+            <BookOpen size={15} /> <span className="hidden sm:inline">အသိပညာ</span>
           </button>
         </nav>
       </div>
@@ -107,7 +111,7 @@ function getDraftStats(draft, level) {
   return { total, answered, skipped, remaining: Math.max(0, total - answered), progress: total ? Math.round((answered / total) * 100) : 0 }
 }
 
-function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass }) {
+function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenKnowledge }) {
   const completedCount = history.length
   const draftCount = Object.values(drafts || {}).reduce((sum, group) => {
     return sum + (group && typeof group === 'object' ? Object.keys(group).length : 0)
@@ -219,6 +223,19 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
           <span className="text-[10px] font-medium text-[#97899b] sm:text-xs">ယခုအသုံးပြုနိုင်သော စမ်းသပ်မှု</span>
           <p className="mt-1 text-xl font-bold tabular-nums text-[#8b876b] sm:text-2xl">၃ မျိုး</p>
         </article>
+      </section>
+
+      <section className="mt-7 rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
+        <div className="flex items-start gap-4">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#f3edf5] text-[#80678f]"><BookOpen size={22}/></span>
+          <div>
+            <div className="flex flex-wrap items-center gap-2"><h2 className="text-base font-bold text-[#514357]">Knowledge Center</h2><span className="rounded-full bg-[#fff5e6] px-2 py-0.5 text-[9px] font-bold text-[#98713a]">မူကြမ်း 0.1.0</span></div>
+            <p className="mt-1 text-xs font-semibold text-[#80678f]">စိတ်ပညာနဲ့ လူ့အပြုအမူဆိုင်ရာ အသိပညာများ</p>
+            <p className="mt-2 max-w-2xl text-[11px] leading-6 text-[#8b808e]">ခက်ခဲတဲ့ စိတ်ပညာဆိုင်ရာ စကားလုံးတွေကို မြန်မာလို အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာနဲ့ ကွာခြားချက်တွေကို ဖတ်ရှုနိုင်ပါတယ်။ လက်ရှိအကြောင်းအရာတွေဟာ ကျွမ်းကျင်သူစစ်ဆေးမှု မပြီးသေးတဲ့ မူကြမ်းများ ဖြစ်ပါတယ်။</p>
+            <p className="mt-2 text-[10px] text-[#9b8da0]">စကားလုံး ၃၀ · အုပ်စု ၆ ခု · ရောဂါရှာဖွေရေး မဟုတ်ပါ</p>
+          </div>
+        </div>
+        <button onClick={onOpenKnowledge} className="mt-4 inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d9cce0] bg-[#f7f2f8] px-4 py-2.5 text-xs font-semibold text-[#6f587a] transition hover:bg-[#eee6f1] sm:mt-0 sm:w-auto">စကားလုံးများ လေ့လာမယ် <ArrowRight size={15}/></button>
       </section>
 
       <section id="assessment-dashboard" className="mt-10 scroll-mt-24">
@@ -1001,10 +1018,20 @@ export default function App() {
     setPage('history')
   }
 
+  const handleNavigateKnowledge = () => {
+    if (page === 'assessment' || page === 'review') persistDraft()
+    if (page === 'careerInterest') careerPersistRef.current?.()
+    if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    setAppData(loadAppData())
+    setPage('knowledge')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <div className="min-h-screen bg-[#f8f5f6] text-[#403747]">
-      <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} active={page === 'history' ? 'history' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} />}
+      <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenKnowledge={handleNavigateKnowledge} />}
+      {page === 'knowledge' && <KnowledgeCenter onBack={handleNavigateHome} />}
       {page === 'careerInterest' && <CareerInterestModule key={activeRecord?.id || 'career-new'} record={activeRecord?.assessmentType === 'careerInterest' ? activeRecord : null} onHome={handleNavigateHome} onDataChange={setAppData} persistRef={careerPersistRef} />}
       {page === 'instructions' && <InstructionsPage level={level} onBack={() => setPage('home')} onBegin={handleBegin} />}
       {page === 'innerCompass' && <InnerCompassModule key={activeRecord?.id || 'inner-compass-active'} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} />}

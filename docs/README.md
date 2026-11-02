@@ -38,3 +38,10 @@
 - [Design QA Report](./07-quality-review/DESIGN_QA_REPORT_V2.md)
 - [Logo Scale Review](./07-quality-review/assets/logo-scale-review.png)
 - [InnerCompass Mobile Guide Preview](./07-quality-review/assets/innercompass-guide-mobile-preview.png)
+
+
+## 08 — Knowledge Center
+
+- `08-knowledge-center/KNOWLEDGE_CENTER_SPEC_V1.md` — Knowledge Center လုပ်ဆောင်ချက်နှင့် Review စံနှုန်း။
+- `08-knowledge-center/KNOWLEDGE_GLOSSARY_DRAFT_V0_1.md` — စကားလုံး ၃၀ မူကြမ်း။
+- `08-knowledge-center/CONTENT_QA_REPORT_V0_1.md` — အလိုအလျောက် QA အခြေအနေနှင့် ကျွမ်းကျင်သူစစ်ဆေးရန်ကျန်ရှိချက်များ။
