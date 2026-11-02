@@ -1,0 +1,33 @@
+{
+  "name": "self-discovery-personality",
+  "private": true,
+  "version": "1.9.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "validate:assessment": "node scripts/validate-assessment.mjs",
+    "validate:backup": "node scripts/validate-backup.mjs",
+    "validate:career": "node scripts/validate-career.mjs",
+    "validate:all": "npm run validate:assessment && npm run validate:backup && npm run validate:career && npm run validate:design && npm run validate:innercompass-draft && npm run validate:innercompass-v02 && npm run validate:innercompass-flow && npm run validate:innercompass-v03 && npm run validate:docs",
+    "validate:design": "node scripts/validate-design.mjs",
+    "validate:innercompass-draft": "node scripts/validate-innercompass-draft.mjs",
+    "validate:innercompass-v02": "node scripts/validate-innercompass-v02.mjs",
+    "validate:innercompass-flow": "node scripts/validate-innercompass-flow.mjs",
+    "validate:innercompass-v03": "node scripts/validate-innercompass-v03.mjs",
+    "validate:docs": "node scripts/validate-docs.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "recharts": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "latest",
+    "tailwindcss": "latest",
+    "vite": "latest",
+    "@vitejs/plugin-react": "latest"
+  }
+}
