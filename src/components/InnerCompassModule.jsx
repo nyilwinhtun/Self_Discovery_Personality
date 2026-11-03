@@ -16,6 +16,7 @@ import {
   INNERCOMPASS_V02_VERSION,
 } from '../data/innerCompassDraftV02.js'
 import { scoreInnerCompassV02 } from '../utils/innerCompassV02Scoring.js'
+import { getInnerCompassReportInsight, REPORT_INTERPRETATION_NOTICE } from '../utils/resultInterpretations.js'
 import { clearDraft, loadAppData, loadDraft, saveAssessment, saveDraft } from '../utils/storage.js'
 
 const ASSESSMENT_TYPE = 'innerCompass'
@@ -219,15 +220,29 @@ function ResultView({ record, onHome, onRetake }) {
   if (!record || !result.complete) return null
   const chartData = result.dimensions.map((item) => ({ area: item.shortName, score: item.index }))
   const ordered = [...result.dimensions].sort((a, b) => b.index - a.index)
+  const dimensionInsights = result.dimensions.map((dimension) => ({
+    ...dimension,
+    insight: getInnerCompassReportInsight(dimension.id, dimension.index),
+  }))
 
   const downloadReport = () => {
     const lines = [
       'Self Discovery — InnerCompass ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုအစီရင်ခံစာ',
       `မေးခွန်းဗားရှင်း: ${record.questionBankVersion || INNERCOMPASS_V02_VERSION}`,
       `ဖြေဆိုသည့်နေ့: ${formatDate(record.createdAt)}`,
-      'မှတ်ချက်: ဤရလဒ်သည် မူကြမ်းအဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု အညွှန်းသာဖြစ်ပြီး အတည်ပြုထားသော စိတ်ပညာစမ်းသပ်မှု၊ လူဦးရေစံနှုန်း သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။',
+      'ဤရလဒ်သည် မူကြမ်းအဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု အညွှန်းသာဖြစ်သည်။',
       '',
-      ...result.dimensions.map((dimension) => `${dimension.name}: ${dimension.index}/100 (ပျမ်းမျှ ${dimension.average}/5)`),
+      ...dimensionInsights.flatMap((dimension) => [
+        `${dimension.name}: ${dimension.index}/100 (ပျမ်းမျှ ${dimension.average}/5)`,
+        dimension.insight?.label || '',
+        dimension.insight?.interpretation || '',
+        `နေ့စဉ်ဘဝ ဥပမာ: ${dimension.insight?.example || ''}`,
+        `ပြန်လည်စဉ်းစားရန်: ${dimension.insight?.reflection || ''}`,
+        `စမ်းကြည့်ရန်: ${dimension.insight?.tryThis || ''}`,
+        '',
+      ]),
+      REPORT_INTERPRETATION_NOTICE,
+      'InnerCompass သည် စမ်းသပ်အဆင့် ကိုယ်ပိုင်ရေးဆွဲထားသော reflection tool ဖြစ်ပြီး validated clinical/personality instrument သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။',
     ]
     const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
@@ -248,17 +263,33 @@ function ResultView({ record, onHome, onRetake }) {
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
           <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#4f6680]">အဓိက အချက် ၆ ချက်၏ ရမှတ်</h2><span className="text-[10px] text-[#8da0b3]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="70%"><PolarGrid stroke="#e1eaf3"/><PolarAngleAxis dataKey="area" tick={{ fill: '#657f99', fontSize: 10, fontFamily: 'Noto Sans Myanmar' }}/><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#9aafc2', fontSize: 9 }} axisLine={false}/><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#9db9d5" fillOpacity={0.55} strokeWidth={2}/><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#dce6f0', fontSize: 12 }}/></RadarChart></ResponsiveContainer></div><p className="text-center text-[10px] leading-5 text-[#8da0b3]">ဒီအညွှန်းဟာ ဖြေဆိုထားတဲ့အဖြေတွေကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါတယ်။</p></div>
           <div className="flex flex-col gap-3">
-            {ordered.slice(0, 2).map((dimension, index) => <article key={dimension.id} className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#7d94aa]">ရမှတ် ပိုမြင့်နေသော အချက် {index + 1}</p><h3 className="mt-2 text-sm font-bold leading-6 text-[#3f5873]">{dimension.name}</h3><p className="mt-1 text-xl font-bold text-[#527daa]">{dimension.index} / 100</p><p className="mt-2 text-xs leading-7 text-[#70859a]">{INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === dimension.id)?.description}</p></article>)}
+            {ordered.slice(0, 2).map((dimension, index) => <article key={dimension.id} className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#7d94aa]">ဒီဖြေဆိုမှုအတွင်း အညွှန်းရမှတ် ပိုမြင့်နေသော အချက် {index + 1}</p><h3 className="mt-2 text-sm font-bold leading-6 text-[#3f5873]">{dimension.name}</h3><p className="mt-1 text-xl font-bold text-[#527daa]">{dimension.index} / 100</p><p className="mt-2 text-[11px] font-semibold leading-6 text-[#527daa]">{getInnerCompassReportInsight(dimension.id, dimension.index)?.label}</p><p className="mt-2 text-xs leading-7 text-[#70859a]">{INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === dimension.id)?.description}</p></article>)}
             <div className="rounded-[1.5rem] border border-[#dce6f0] bg-white/75 p-5"><p className="text-xs font-bold text-[#4f6680]">ရလဒ်ကို ဖတ်ရှုရာတွင်</p><p className="mt-2 text-xs leading-7 text-[#70859a]">ရမှတ်ပိုမြင့်ခြင်းဟာ ဒီမေးခွန်းအုပ်စုထဲက အပြုသဘောဖော်ပြထားတဲ့ အချက်တွေနဲ့ ပိုမိုကိုက်ညီတဲ့အဖြေတွေ ရှိတယ်လို့သာ အဓိပ္ပာယ်ရပါတယ်။ အခြားသူတွေနဲ့ နှိုင်းယှဉ်ထားတဲ့ ရမှတ်မဟုတ်သလို ကောင်းခြင်း၊ မကောင်းခြင်းကိုလည်း မဆုံးဖြတ်ပါ။</p></div>
           </div>
         </div>
       </section>
-      <section className="mt-8"><div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#7d94aa]">YOUR REFLECTION AREAS</p><h2 className="mt-1 text-xl font-bold text-[#3f5873]">အချက်တစ်ခုချင်းစီ၏ ရလဒ်</h2><p className="mt-2 text-xs leading-6 text-[#7d90a4]">ရမှတ်တွေကို ကိုယ့်အတွေ့အကြုံနဲ့ ပြန်လည်စဉ်းစားဖို့ အညွှန်းအဖြစ်သာ အသုံးပြုပါ။</p></div>
-        <div className="grid gap-3 md:grid-cols-2">{result.dimensions.map((dimension) => <article key={dimension.id} className="rounded-2xl border border-[#e4edf5] bg-white p-5 shadow-sm"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold leading-6 text-[#4f6680]">{dimension.name}</p><p className="mt-1 text-xs leading-6 text-[#8094a8]">{INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === dimension.id)?.description}</p></div><span className="shrink-0 rounded-xl bg-[#eef4fa] px-3 py-2 text-sm font-bold tabular-nums text-[#527daa]">{dimension.index}/100</span></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-[#edf2f7]"><div className="h-full rounded-full bg-gradient-to-r from-[#6e94bc] to-[#adc5dc]" style={{ width: `${dimension.index}%` }}/></div><p className="mt-2 text-[10px] text-[#96a7b8]">အဖြေ {dimension.itemCount} ခု · ပျမ်းမျှ {dimension.average}/5</p></article>)}</div>
+      <section className="mt-8">
+        <div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#7d94aa]">UNDERSTANDING YOUR SIX AREAS</p><h2 className="mt-1 text-xl font-bold text-[#3f5873]">အချက် ၆ ချက်ကို တစ်ခုချင်း နားလည်ကြည့်ရအောင်</h2><p className="mt-2 text-xs leading-7 text-[#7d90a4]">အညွှန်းရမှတ်တစ်ခုချင်းစီအတွက် အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာ၊ ကိုယ်တိုင်ပြန်မေးရန်နဲ့ စမ်းကြည့်နိုင်တဲ့ အဆင့်ငယ်တွေကို ဖော်ပြထားပါတယ်။ ဒီအချက်တွေဟာ မူကြမ်းအဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်ရန်သာ ဖြစ်ပါတယ်။</p></div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          {dimensionInsights.map((dimension) => (
+            <article key={dimension.id} className="rounded-2xl border border-[#e4edf5] bg-white p-5 shadow-sm sm:p-6">
+              <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold leading-6 text-[#4f6680]">{dimension.name}</p><p className="mt-1 text-[10px] leading-5 text-[#91a2b3]">{dimension.itemCount} မေးခွန်း · ပျမ်းမျှ {dimension.average}/5</p></div><span className="shrink-0 rounded-xl bg-[#eef4fa] px-3 py-2 text-sm font-bold tabular-nums text-[#527daa]">{dimension.index}/100</span></div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#edf2f7]"><div className="h-full rounded-full bg-gradient-to-r from-[#6e94bc] to-[#adc5dc]" style={{ width: `${dimension.index}%` }}/></div>
+              {dimension.insight && <>
+                <p className="mt-3 rounded-xl bg-[#f4f8fc] px-3 py-2 text-[11px] font-semibold leading-6 text-[#527daa]">{dimension.insight.label}</p>
+                <div className="mt-4 space-y-3 text-xs leading-7 text-[#70859a]">
+                  <div><p className="font-bold text-[#4f6680]">ဒီအဖြေတွေက ဘာကို ညွှန်းနိုင်သလဲ။</p><p>{dimension.insight.interpretation}</p></div>
+                  <div className="rounded-xl bg-[#f7fafd] p-3"><p className="font-bold text-[#536f8b]">နေ့စဉ်ဘဝ ဥပမာ</p><p>{dimension.insight.example}</p></div>
+                  <div><p className="font-bold text-[#4f6680]">ကိုယ့်ကိုယ်ကို ပြန်မေးကြည့်ရန်</p><p>{dimension.insight.reflection}</p></div>
+                  <div className="rounded-xl border border-[#e4edf5] p-3"><p className="font-bold text-[#527daa]">စမ်းကြည့်နိုင်တဲ့ အဆင့်ငယ်</p><p>{dimension.insight.tryThis}</p></div>
+                </div>
+              </>}
+            </article>
+          ))}
+        </div>
       </section>
-      <section className="mt-8 rounded-[1.75rem] border border-[#dce6f0] bg-white p-5 sm:p-7"><div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#eef4fa] text-[#527daa]"><Sparkles size={18}/></span><div><p className="text-xs font-semibold text-[#7d94aa]">REFLECTION PROMPTS</p><h2 className="text-lg font-bold text-[#3f5873]">ကိုယ့်ကိုယ်ကို ပြန်မေးကြည့်ရန်</h2></div></div><div className="mt-4 grid gap-3 sm:grid-cols-2">{INNERCOMPASS_V02_DIMENSIONS.map((dimension) => <article key={dimension.id} className="rounded-xl bg-[#f7fafd] p-4"><p className="text-xs font-bold text-[#536f8b]">{dimension.shortName}</p><p className="mt-1 text-xs leading-6 text-[#7a8fa4]">ဒီအချက်နဲ့ပတ်သက်ပြီး လတ်တလော ကြုံခဲ့ရတဲ့ အဖြစ်အပျက်တစ်ခုကို မှတ်မိပါသလား။ အဲဒီအခါ ဘယ်လိုတုံ့ပြန်ခဲ့သလဲ။</p></article>)}</div></section>
       <section className="no-print mt-8 flex flex-wrap justify-center gap-3"><SecondaryButton onClick={onHome}>ပင်မစာမျက်နှာသို့ ပြန်မယ်</SecondaryButton><PrimaryButton onClick={onRetake} icon={RotateCcw}>ပြန်လည်ဖြေဆိုမယ်</PrimaryButton></section>
-      <p className="mt-5 text-center text-[11px] leading-6 text-[#91a2b3]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။</p>
+      <p className="mt-5 text-center text-[11px] leading-6 text-[#91a2b3]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p>
     </main>
   )
 }

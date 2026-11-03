@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.11.0-beta.1] - 2026-11-03
+
+### Added
+- Expanded TraitLens result reports with score-aware, plain-language interpretation for all five areas.
+- Added an everyday example, a self-reflection prompt, and a small optional practice for each TraitLens area.
+- Expanded InnerCompass pilot reports with score-aware explanations for all six dimensions, examples, reflection prompts, and optional small practices.
+- Included the expanded interpretations in downloadable text reports.
+- Added report-content validation across all five TraitLens traits and six InnerCompass dimensions.
+
+### Changed
+- Reframed the TraitLens report header to avoid presenting the highest-scoring combination as a fixed personality type.
+- Replaced low-score-only growth advice with balanced interpretation for every trait.
+- Reiterated that score bands are descriptive indicators within this questionnaire and are not population norms or diagnoses.
+
+### Preserved
+- Assessment question text and IDs.
+- Scoring and reverse-scoring logic.
+- LocalStorage keys, draft/history records, and JSON backup/restore formats.
+
+---
+
 ## v1.10.1-beta.1 — 2026-11-03
 
 ### Added

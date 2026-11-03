@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft, ArrowRight, BookOpen, Brain, BriefcaseBusiness, Check, CheckCircle2,
   ChevronRight, CircleHelp, ClipboardCheck, Clock3, Download, Heart, History,
-  Home, Lightbulb, LockKeyhole, PauseCircle, RotateCcw, ShieldCheck, Sparkles,
+  Home, LockKeyhole, PauseCircle, RotateCcw, ShieldCheck, Sparkles,
   Target, Trash2, Users, X, Upload, FileJson,
 } from 'lucide-react'
 import {
@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import { ANSWER_OPTIONS, FACETS, getQuestionsForLevel, QUESTION_BANK_VERSION, TRAITS } from './data/questions.js'
 import { buildResult, getPersonalityProfile, getScoreBand } from './utils/scoring.js'
+import { getTraitReportInsight, REPORT_INTERPRETATION_NOTICE } from './utils/resultInterpretations.js'
 import CareerInterestModule from './components/CareerInterestModule.jsx'
 import InnerCompassModule from './components/InnerCompassModule.jsx'
 import KnowledgeCenter from './components/KnowledgeCenter.jsx'
@@ -579,13 +580,28 @@ function ReviewPage({ questions, answers, skippedQuestionIds, onGoTo, onFinish, 
   )
 }
 
-function ScoreBar({ trait, score }) {
-  const band = getScoreBand(score)
+function TraitReportCard({ trait, score }) {
+  const insight = getTraitReportInsight(trait.id, score)
   return (
-    <div className="rounded-2xl border border-[#f0eaf0] bg-white p-4">
-      <div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-2.5"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f5eff6] text-[#80678f]"><TraitIcon id={trait.id} size={17} /></span><div className="min-w-0"><h3 className="text-sm font-bold leading-6 text-[#58495e]">{trait.name}</h3><p className="mt-0.5 text-[10px] text-[#a297a6]">{trait.en}</p></div></div><div className="shrink-0 text-right"><div className="text-lg font-bold tabular-nums text-[#80678f]">{score}<span className="text-[10px] font-medium text-[#aa9eae]"> / 100</span></div><div className="text-[10px] text-[#96899a]">{band}</div></div></div>
+    <article className="rounded-2xl border border-[#eee5ed] bg-white p-5 shadow-sm sm:p-6">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f5eff6] text-[#80678f]"><TraitIcon id={trait.id} size={18} /></span>
+          <div className="min-w-0"><h3 className="text-sm font-bold leading-6 text-[#58495e]">{trait.name}</h3><p className="mt-0.5 text-[10px] text-[#a297a6]">{trait.en}</p></div>
+        </div>
+        <div className="shrink-0 text-right"><div className="text-lg font-bold tabular-nums text-[#80678f]">{score}<span className="text-[10px] font-medium text-[#aa9eae]"> / 100</span></div><div className="text-[10px] text-[#96899a]">{getScoreBand(score)}</div></div>
+      </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#f2edf3]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${score}%` }} /></div>
-    </div>
+      {insight && <>
+        <p className="mt-3 rounded-xl bg-[#faf7fb] px-3 py-2 text-[11px] font-semibold leading-6 text-[#80678f]">{insight.label}</p>
+        <div className="mt-4 space-y-3 text-xs leading-7 text-[#7f7384]">
+          <div><p className="font-bold text-[#625368]">ဒီအဖြေတွေက ဘာကို ညွှန်းနိုင်သလဲ။</p><p>{insight.interpretation}</p></div>
+          <div className="rounded-xl bg-[#fbf8f6] p-3"><p className="font-bold text-[#8b7162]">နေ့စဉ်ဘဝ ဥပမာ</p><p>{insight.example}</p></div>
+          <div><p className="font-bold text-[#625368]">ကိုယ့်ကိုယ်ကို ပြန်မေးကြည့်ရန်</p><p>{insight.reflection}</p></div>
+          <div className="rounded-xl border border-[#eee7ef] p-3"><p className="font-bold text-[#80678f]">စမ်းကြည့်နိုင်တဲ့ အဆင့်ငယ်</p><p>{insight.tryThis}</p></div>
+        </div>
+      </>}
+    </article>
   )
 }
 
@@ -599,22 +615,33 @@ function ResultsPage({ record, onHome, onRetake }) {
   const { scores, profile, facetScores } = result
   const chartNames = { openness: 'စူးစမ်းမှု', conscientiousness: 'တာဝန်ယူမှု', extraversion: 'တက်ကြွမှု', agreeableness: 'စာနာမှု', emotionalStability: 'စိတ်တည်ငြိမ်မှု' }
   const chartData = TRAITS.map((trait) => ({ trait: chartNames[trait.id], score: scores[trait.id]?.score ?? 0 }))
-  const lowestTraits = [...TRAITS].sort((a, b) => (scores[a.id]?.score ?? 0) - (scores[b.id]?.score ?? 0)).slice(0, 2)
+  const primaryInsight = getTraitReportInsight(profile.primary.id, scores[profile.primary.id]?.score ?? 0)
+  const secondaryInsight = getTraitReportInsight(profile.secondary.id, scores[profile.secondary.id]?.score ?? 0)
   const narrative = profile.topScoresAreClose
-    ? `သင့်ရလဒ်မှာ ${profile.primary.name} နဲ့ ${profile.secondary.name} တို့ရဲ့ အညွှန်းရမှတ်တွေ အနီးစပ်ဆုံး ဖြစ်နေပါတယ်။ ဒါကြောင့် ဒီအချက်နှစ်ခုလုံးကို သင့်ရဲ့ ထင်ရှားတဲ့ စရိုက်လက္ခဏာများအဖြစ် စဉ်းစားနိုင်ပါတယ်။ ${profile.primary.high} ${profile.secondary.high}`
-    : `သင့်ရလဒ်မှာ ${profile.primary.name} နဲ့ ${profile.secondary.name} ဘက်က အညွှန်းရမှတ်တွေ ပိုမိုမြင့်နေပါတယ်။ ${profile.primary.high} ${profile.secondary.high}`
+    ? `သင့်အဖြေတွေထဲမှာ ${profile.primary.name} နဲ့ ${profile.secondary.name} ဆိုင်ရာ အညွှန်းရမှတ်တွေ နီးစပ်နေပါတယ်။ ဒီအချက်နှစ်ခုကို သင့်အတွေ့အကြုံနဲ့ ဆက်စပ်ပြီး လေ့လာကြည့်နိုင်ပါတယ်။ ရလဒ်က သင့်ကို အမျိုးအစားတစ်ခုတည်းအဖြစ် အပြီးသတ်သတ်မှတ်တာ မဟုတ်ပါ။`
+    : `ဒီဆန်းစစ်မှုရဲ့ အချက် ၅ ချက်အတွင်း နှိုင်းယှဉ်ကြည့်တဲ့အခါ ${profile.primary.name} နဲ့ ${profile.secondary.name} ဆိုင်ရာ အညွှန်းရမှတ်တွေ ပိုမြင့်နေပါတယ်။ ဒီအချက်တွေက သင့်ရဲ့ လက်ရှိအဖြေရွေးချယ်မှုပုံစံကို ဖော်ပြတာဖြစ်ပြီး အမြဲတမ်းတူညီနေမယ်လို့ မဆိုလိုပါ။`
 
   const downloadReport = () => {
     const lines = [
       'ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း — ပင်ကိုစရိုက်အစီရင်ခံစာ',
       `ဖြေဆိုသည့်နေ့: ${formatDate(record.createdAt)}`,
       `ဆန်းစစ်မှုအဆင့်: ${record.level || record.questionCount || 30} မေးခွန်း`,
-      `ကိုယ်ပိုင်ပင်ကိုစရိုက်အကျဉ်း: ${profile.title}`,
-      '', 'ပင်ကိုစရိုက် အချက် ၅ ချက်၏ ရလဒ်:',
-      ...TRAITS.map((trait) => `${trait.name}: ${scores[trait.id]?.score ?? 0}/100 (${getScoreBand(scores[trait.id]?.score ?? 0)})`),
+      'အကျဉ်းချုပ်: သင့်အဖြေများအတွင်း ပိုမိုထင်ရှားနေသော အချက်များ',
+      narrative,
+      '', 'ပင်ကိုစရိုက် အချက် ၅ ချက်၏ ရလဒ်နှင့် ရှင်းလင်းချက်:',
+      ...TRAITS.flatMap((trait) => {
+        const score = scores[trait.id]?.score ?? 0
+        const insight = getTraitReportInsight(trait.id, score)
+        return [
+          `${trait.name}: ${score}/100 (${getScoreBand(score)})`,
+          insight?.label || '', insight?.interpretation || '',
+          `နေ့စဉ်ဘဝ ဥပမာ: ${insight?.example || ''}`,
+          `ပြန်လည်စဉ်းစားရန်: ${insight?.reflection || ''}`,
+          `စမ်းကြည့်ရန်: ${insight?.tryThis || ''}`, '',
+        ]
+      }),
       ...(record.level >= 120 && facetScores ? ['', 'အသေးစိတ် အချက် ၃၀ ၏ အညွှန်းရမှတ်:', ...FACETS.map((facet) => `${facet.name}: ${facetScores[facet.id]?.score ?? 0}/100`)] : []),
-      '', 'အကျဉ်းချုပ်:', narrative,
-      '', 'မှတ်ချက်: ဤရလဒ်သည် ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်ရန်အတွက်သာ ဖြစ်ပြီး ဆေးဘက်ဆိုင်ရာ Diagnosis မဟုတ်ပါ။',
+      '', REPORT_INTERPRETATION_NOTICE,
     ]
     const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
@@ -629,16 +656,19 @@ function ResultsPage({ record, onHome, onRetake }) {
     <main className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12 lg:px-8">
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#897b8e] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={BookOpen}>Print</SecondaryButton></div></div>
       <section className="print-card overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f7edf0] p-6 card-shadow sm:p-10">
-        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#80678f]"><CheckCircle2 size={14} /> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><p className="mt-5 text-xs font-semibold tracking-[0.15em] text-[#a18fa7]">TRAITLENS · PERSONALITY PROFILE</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#493a4e] sm:text-3xl">{profile.title}</h1><p className="mt-2 text-xs text-[#9a8d9e]">{record.level || record.questionCount || 30} မေးခွန်း · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#76697b]">{narrative}</p></div>
+        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#80678f]"><CheckCircle2 size={14} /> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><p className="mt-5 text-xs font-semibold tracking-[0.15em] text-[#a18fa7]">TRAITLENS · PERSONALITY PROFILE</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#493a4e] sm:text-3xl">သင့်အဖြေများအတွင်း ပိုမိုထင်ရှားနေသော အချက်များ</h1><p className="mt-2 text-xs text-[#9a8d9e]">{record.level || record.questionCount || 30} မေးခွန်း · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#76697b]">{narrative}</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
           <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#5b4b60]">ပင်ကိုစရိုက် အချက် ၅ ချက်၏ ရမှတ်</h2><span className="text-[10px] text-[#a397a6]">0–100</span></div><div className="mt-2 h-[290px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="73%"><PolarGrid stroke="#e8dfe9" /><PolarAngleAxis dataKey="trait" tick={{ fill: '#85758b', fontSize: 11, fontFamily: 'Noto Sans Myanmar' }} /><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#b1a5b4', fontSize: 9 }} axisLine={false} /><Radar name="ရမှတ်" dataKey="score" stroke="#8c719b" fill="#bda9c8" fillOpacity={0.55} strokeWidth={2} /><Tooltip formatter={(value) => [`${value}/100`, 'ရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#eee4ed', fontSize: 12 }} /></RadarChart></ResponsiveContainer></div><p className="text-center text-[10px] leading-5 text-[#a397a6]">ဂရပ်သည် သင့်ဖြေဆိုချက်များမှ တွက်ချက်ထားသော အညွှန်းရမှတ်များကို ပြထားခြင်းဖြစ်သည်။</p></div>
           <div className="flex flex-col gap-3">
-            <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#9b8ba0]">{profile.topScoresAreClose ? 'အမှတ်နီးစပ်နေသော အချက် (၁)' : 'အမှတ်အမြင့်ဆုံး အချက်'}</p><div className="mt-3 flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f2eaf5] text-[#80678f]"><TraitIcon id={profile.primary.id} size={21} /></span><div><h3 className="text-sm font-bold leading-6 text-[#5b4b60]">{profile.primary.name}</h3><p className="mt-0.5 text-xs text-[#988b9c]">{scores[profile.primary.id]?.score ?? 0} / 100</p></div></div><p className="mt-3 text-xs leading-7 text-[#827585]">{profile.primary.high}</p></div>
-            <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#9b8ba0]">{profile.topScoresAreClose ? 'အမှတ်နီးစပ်နေသော အချက် (၂)' : 'ဒုတိယ အမှတ်အမြင့်ဆုံး အချက်'}</p><div className="mt-3 flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f9edf0] text-[#a77c8d]"><TraitIcon id={profile.secondary.id} size={21} /></span><div><h3 className="text-sm font-bold leading-6 text-[#5b4b60]">{profile.secondary.name}</h3><p className="mt-0.5 text-xs text-[#988b9c]">{scores[profile.secondary.id]?.score ?? 0} / 100</p></div></div><p className="mt-3 text-xs leading-7 text-[#827585]">{profile.secondary.high}</p></div>
+            <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#9b8ba0]">{profile.topScoresAreClose ? 'အမှတ်နီးစပ်နေသော အချက် (၁)' : 'အမှတ်အမြင့်ဆုံး အချက်'}</p><div className="mt-3 flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f2eaf5] text-[#80678f]"><TraitIcon id={profile.primary.id} size={21} /></span><div><h3 className="text-sm font-bold leading-6 text-[#5b4b60]">{profile.primary.name}</h3><p className="mt-0.5 text-xs text-[#988b9c]">{scores[profile.primary.id]?.score ?? 0} / 100</p></div></div><p className="mt-3 text-xs font-semibold leading-6 text-[#80678f]">{primaryInsight?.label}</p><p className="mt-2 text-xs leading-7 text-[#827585]">{profile.primary.short}</p></div>
+            <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#9b8ba0]">{profile.topScoresAreClose ? 'အမှတ်နီးစပ်နေသော အချက် (၂)' : 'ဒုတိယ အမှတ်အမြင့်ဆုံး အချက်'}</p><div className="mt-3 flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f9edf0] text-[#a77c8d]"><TraitIcon id={profile.secondary.id} size={21} /></span><div><h3 className="text-sm font-bold leading-6 text-[#5b4b60]">{profile.secondary.name}</h3><p className="mt-0.5 text-xs text-[#988b9c]">{scores[profile.secondary.id]?.score ?? 0} / 100</p></div></div><p className="mt-3 text-xs font-semibold leading-6 text-[#a77c8d]">{secondaryInsight?.label}</p><p className="mt-2 text-xs leading-7 text-[#827585]">{profile.secondary.short}</p></div>
           </div>
         </div>
       </section>
-      <section className="mt-8"><div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">YOUR FIVE PERSONALITY AREAS</p><h2 className="mt-1 text-xl font-bold text-[#514357]">သင့်ရဲ့ ပင်ကိုစရိုက်ရမှတ်များ</h2><p className="mt-2 text-xs leading-6 text-[#938796]">ရမှတ်မြင့်ခြင်း၊ နိမ့်ခြင်းဟာ ကောင်းခြင်း၊ ဆိုးခြင်းကို မဆိုလိုပါ။ ကိုယ့်အကြောင်းကို ပြန်လည်နားလည်ဖို့ အညွှန်းတစ်ခုအဖြစ်သာ ဖတ်ရှုပါ။</p></div><div className="grid gap-3 md:grid-cols-2">{TRAITS.map((trait) => <ScoreBar key={trait.id} trait={trait} score={scores[trait.id]?.score ?? 0} />)}</div></section>
+      <section className="mt-8">
+        <div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">UNDERSTANDING YOUR FIVE AREAS</p><h2 className="mt-1 text-xl font-bold text-[#514357]">အချက် ၅ ချက်ကို တစ်ခုချင်း နားလည်ကြည့်ရအောင်</h2><p className="mt-2 text-xs leading-7 text-[#938796]">ရမှတ်တစ်ခုချင်းစီအတွက် အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာ၊ ကိုယ်တိုင်ပြန်မေးရန်နဲ့ စမ်းကြည့်နိုင်တဲ့ အဆင့်ငယ်တွေကို ဖော်ပြထားပါတယ်။ ရမှတ်နိမ့်ခြင်း၊ မြင့်ခြင်းဟာ ကောင်းခြင်း၊ ဆိုးခြင်းကို မဆိုလိုပါ။</p></div>
+        <div className="grid gap-4 lg:grid-cols-2">{TRAITS.map((trait) => <TraitReportCard key={trait.id} trait={trait} score={scores[trait.id]?.score ?? 0} />)}</div>
+      </section>
       {record.level >= 120 && facetScores && (
         <section className="mt-8">
           <div className="mb-4">
@@ -667,8 +697,7 @@ function ResultsPage({ record, onHome, onRetake }) {
           </div>
         </section>
       )}
-      <section className="mt-8 rounded-[1.75rem] border border-[#eee4ed] bg-white p-5 sm:p-7"><div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f4edf6] text-[#80678f]"><Lightbulb size={18} /></span><div><p className="text-xs font-semibold text-[#a18fa7]">SMALL STEPS FOR GROWTH</p><h2 className="text-lg font-bold text-[#514357]">စမ်းကြည့်နိုင်တဲ့ တိုးတက်မှုအဆင့်များ</h2></div></div><p className="mt-4 text-xs leading-7 text-[#8b7f8f]">အမှတ်နိမ့်တဲ့ အချက်တွေဟာ အားနည်းချက်လို့ မဆိုလိုပါဘူး။ ကိုယ်စိတ်ဝင်စားရင် စမ်းကြည့်နိုင်တဲ့ အလေ့အကျင့်အကြံပြုချက်တွေအဖြစ်သာ ဖတ်ရှုပါ။</p><div className="mt-4 grid gap-3 md:grid-cols-2">{lowestTraits.map((trait) => <div key={trait.id} className="rounded-2xl bg-[#faf7fa] p-4"><div className="flex items-center justify-between gap-3"><h3 className="text-sm font-bold leading-6 text-[#65556a]">{trait.name}</h3><span className="text-xs tabular-nums text-[#9b8aa0]">{scores[trait.id]?.score ?? 0}/100</span></div><p className="mt-2 text-xs leading-7 text-[#8b7f8f]">{trait.advice}</p></div>)}</div></section>
-      <section className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fbf8fb] p-5"><div className="flex items-start gap-3"><CircleHelp size={18} className="mt-0.5 shrink-0 text-[#9a85a2]" /><div><h3 className="text-sm font-bold text-[#66576b]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</h3><p className="mt-2 text-xs leading-7 text-[#918595]">ဤဆန်းစစ်မှုသည် ပင်ကိုစရိုက် အချက် ၅ ချက်ကို လေ့လာရန် မြန်မာဘာသာဖြင့် ကိုယ်ပိုင်ရေးဆွဲထားသော မေးခွန်းများကို အသုံးပြုထားသည်။ 0–100 ရမှတ်သည် သင်ရွေးချယ်ထားသော အဖြေများကို အညွှန်းအဖြစ် ပြောင်းလဲဖော်ပြခြင်းသာဖြစ်ပြီး ရာခိုင်နှုန်းအဆင့်၊ လူဦးရေအတွင်း အဆင့်သတ်မှတ်ချက် သို့မဟုတ် အခြားသူများနှင့် နှိုင်းယှဉ်ထားသော ရလဒ် မဟုတ်ပါ။ ရမှတ်အဆင့်များသည် ဤ Version အတွက် သတ်မှတ်ထားသော အညွှန်းများသာဖြစ်ပြီး လူဦးရေစံနှုန်းများဖြင့် အတည်ပြုထားခြင်း မရှိသေးပါ။ Personality Profile အမည်သည် ဖတ်ရှုရလွယ်ရန် ဖော်ပြထားသော အကျဉ်းချုပ်ဖြစ်ပြီး သင့်ကို Type တစ်ခုတည်းဖြင့် အပြီးသတ်သတ်မှတ်ခြင်း မဟုတ်ပါ။ စိတ်ကျန်းမာရေးဆိုင်ရာ Diagnosis အဖြစ် မသုံးပါနှင့်။</p></div></div></section>
+      <section className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fbf8fb] p-5"><div className="flex items-start gap-3"><CircleHelp size={18} className="mt-0.5 shrink-0 text-[#9a85a2]" /><div><h3 className="text-sm font-bold text-[#66576b]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</h3><p className="mt-2 text-xs leading-7 text-[#918595]">ဤဆန်းစစ်မှုသည် မြန်မာဘာသာဖြင့် ကိုယ်ပိုင်ရေးဆွဲထားသော မေးခွန်းများကို အသုံးပြုထားသည်။ 0–100 ရမှတ်သည် သင်ရွေးချယ်ထားသော အဖြေများကို အညွှန်းအဖြစ် ပြောင်းလဲဖော်ပြခြင်းသာဖြစ်ပြီး လူဦးရေအဆင့် သို့မဟုတ် အခြားသူများနှင့် နှိုင်းယှဉ်ထားသော ရလဒ် မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p></div></div></section>
       <div className="no-print mt-8 flex flex-col justify-center gap-3 sm:flex-row"><PrimaryButton onClick={onRetake} icon={RotateCcw}>ထပ်မံဖြေဆိုမယ်</PrimaryButton><SecondaryButton onClick={onHome} icon={Home}>ပင်မစာမျက်နှာသို့</SecondaryButton></div>
     </main>
   )

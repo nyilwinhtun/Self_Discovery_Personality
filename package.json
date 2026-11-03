@@ -1,7 +1,7 @@
 {
   "name": "self-discovery-personality",
   "private": true,
-  "version": "1.10.1-beta.1",
+  "version": "1.11.0-beta.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,7 @@
     "validate:assessment": "node scripts/validate-assessment.mjs",
     "validate:backup": "node scripts/validate-backup.mjs",
     "validate:career": "node scripts/validate-career.mjs",
-    "validate:all": "npm run validate:assessment && npm run validate:backup && npm run validate:career && npm run validate:design && npm run validate:innercompass-draft && npm run validate:innercompass-v02 && npm run validate:innercompass-flow && npm run validate:innercompass-v03 && npm run validate:docs && npm run validate:knowledge-center && npm run validate:knowledge-links",
+    "validate:all": "npm run validate:assessment && npm run validate:backup && npm run validate:career && npm run validate:design && npm run validate:innercompass-draft && npm run validate:innercompass-v02 && npm run validate:innercompass-flow && npm run validate:innercompass-v03 && npm run validate:docs && npm run validate:knowledge-center && npm run validate:knowledge-links && npm run validate:reports",
     "validate:design": "node scripts/validate-design.mjs",
     "validate:innercompass-draft": "node scripts/validate-innercompass-draft.mjs",
     "validate:innercompass-v02": "node scripts/validate-innercompass-v02.mjs",
@@ -18,7 +18,8 @@
     "validate:innercompass-v03": "node scripts/validate-innercompass-v03.mjs",
     "validate:docs": "node scripts/validate-docs.mjs",
     "validate:knowledge-center": "node scripts/validate-knowledge-center.mjs",
-    "validate:knowledge-links": "node scripts/validate-knowledge-links.mjs"
+    "validate:knowledge-links": "node scripts/validate-knowledge-links.mjs",
+    "validate:reports": "node scripts/validate-reports.mjs"
   },
   "dependencies": {
     "lucide-react": "latest",
