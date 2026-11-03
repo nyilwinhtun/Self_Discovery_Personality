@@ -9,6 +9,8 @@ import {
 } from 'recharts'
 import { InnerCompassLogo } from './AssessmentLogos.jsx'
 import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
+import MobileQuestionActions from './MobileQuestionActions.jsx'
+import ReportSectionNavigation from './ReportSectionNavigation.jsx'
 import {
   INNERCOMPASS_V02_ANSWER_OPTIONS,
   INNERCOMPASS_V02_DIMENSIONS,
@@ -143,7 +145,7 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
   const selectedAnswer = answers[question.id]
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-12">
+    <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
       <div className="mb-7 flex items-center justify-between gap-3">
         <button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6d8299] hover:text-[#3f5873]"><ArrowLeft size={16}/> ခဏရပ်ပြီး ထွက်မယ်</button>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6d8299] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
@@ -166,7 +168,7 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
             </button>
           })}
         </div>
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#edf2f7] pt-5">
+        <div className="no-print mt-8 hidden flex-wrap items-center justify-between gap-3 border-t border-[#edf2f7] pt-5 sm:flex">
           <SecondaryButton onClick={onPrevious} icon={ArrowLeft} disabled={questionIndex === 0}>ယခင်</SecondaryButton>
           <div className="flex flex-wrap items-center gap-2">
             {selectedAnswer === undefined && <button onClick={onSkip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-[#c5d6e7] bg-[#f8fbfe] px-4 py-2.5 text-sm font-semibold text-[#55799e] hover:bg-[#eff5fb]">ဒီမေးခွန်းကို ကျော်မယ် <ArrowRight size={15}/></button>}
@@ -175,6 +177,17 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f7fafd] px-4 py-3"><p className="text-[11px] leading-5 text-[#7d91a5]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#527daa] hover:text-[#3f648c]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
+      <MobileQuestionActions
+        accent="blue"
+        onPrevious={onPrevious}
+        onNext={isLast ? onReview : onNext}
+        onSkip={onSkip}
+        onReview={onReview}
+        canPrevious={questionIndex > 0}
+        canNext={selectedAnswer !== undefined}
+        showSkip={selectedAnswer === undefined}
+        isLast={isLast}
+      />
       <p className="mt-5 text-center text-[11px] leading-6 text-[#91a2b3]">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
     </main>
   )
@@ -256,9 +269,14 @@ function ResultView({ record, onHome, onRetake }) {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12 lg:px-8">
+    <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6d8299] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
-      <section className="print-card overflow-hidden rounded-[2rem] border border-[#d4e0ef] bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 card-shadow sm:p-10">
+      <ReportSectionNavigation tone="blue" items={[
+        { id: 'inner-report-overview', label: 'အနှစ်ချုပ်' },
+        { id: 'inner-report-areas', label: 'အချက် ၆ ချက်' },
+        { id: 'inner-report-notes', label: 'ရလဒ်ဖတ်ရှုရန်' },
+      ]} />
+      <section id="inner-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#d4e0ef] bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 card-shadow sm:p-10">
         <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#527daa]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#527daa] shadow-sm"><InnerCompassLogo size={50}/></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#6d8eaf]">INNERCOMPASS · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#3f5873] sm:text-3xl">သင့်ရဲ့ ဖြေဆိုမှုအကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#8196aa]">မေးခွန်း ၃၀ · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#5f748b]">အောက်ပါရလဒ်တွေက ဒီမေးခွန်းမူကြမ်းအတွင်း သင်ရွေးချယ်ထားတဲ့ အဖြေတွေကို အချက် ၆ ချက်အလိုက် စုစည်းပြသထားပါတယ်။ ဒါတွေက သင့်ပင်ကိုစရိုက်ကို အပြီးသတ်သတ်မှတ်ပေးတာ မဟုတ်ပါ။</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
           <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#4f6680]">အဓိက အချက် ၆ ချက်၏ ရမှတ်</h2><span className="text-[10px] text-[#8da0b3]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="70%"><PolarGrid stroke="#e1eaf3"/><PolarAngleAxis dataKey="area" tick={{ fill: '#657f99', fontSize: 10, fontFamily: 'Noto Sans Myanmar' }}/><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#9aafc2', fontSize: 9 }} axisLine={false}/><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#9db9d5" fillOpacity={0.55} strokeWidth={2}/><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#dce6f0', fontSize: 12 }}/></RadarChart></ResponsiveContainer></div><p className="text-center text-[10px] leading-5 text-[#8da0b3]">ဒီအညွှန်းဟာ ဖြေဆိုထားတဲ့အဖြေတွေကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါတယ်။</p></div>
@@ -268,7 +286,7 @@ function ResultView({ record, onHome, onRetake }) {
           </div>
         </div>
       </section>
-      <section className="mt-8">
+      <section id="inner-report-areas" className="mt-8 scroll-mt-28">
         <div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#7d94aa]">UNDERSTANDING YOUR SIX AREAS</p><h2 className="mt-1 text-xl font-bold text-[#3f5873]">အချက် ၆ ချက်ကို တစ်ခုချင်း နားလည်ကြည့်ရအောင်</h2><p className="mt-2 text-xs leading-7 text-[#7d90a4]">အညွှန်းရမှတ်တစ်ခုချင်းစီအတွက် အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာ၊ ကိုယ်တိုင်ပြန်မေးရန်နဲ့ စမ်းကြည့်နိုင်တဲ့ အဆင့်ငယ်တွေကို ဖော်ပြထားပါတယ်။ ဒီအချက်တွေဟာ မူကြမ်းအဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်ရန်သာ ဖြစ်ပါတယ်။</p></div>
         <div className="grid gap-4 lg:grid-cols-2">
           {dimensionInsights.map((dimension) => (
@@ -289,7 +307,7 @@ function ResultView({ record, onHome, onRetake }) {
         </div>
       </section>
       <section className="no-print mt-8 flex flex-wrap justify-center gap-3"><SecondaryButton onClick={onHome}>ပင်မစာမျက်နှာသို့ ပြန်မယ်</SecondaryButton><PrimaryButton onClick={onRetake} icon={RotateCcw}>ပြန်လည်ဖြေဆိုမယ်</PrimaryButton></section>
-      <p className="mt-5 text-center text-[11px] leading-6 text-[#91a2b3]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p>
+      <p id="inner-report-notes" className="mt-5 scroll-mt-28 text-center text-[11px] leading-6 text-[#91a2b3]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p>
     </main>
   )
 }

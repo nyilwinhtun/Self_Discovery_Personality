@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.11.1-beta.1] – 2026-11-03
+
+### Added
+- Added a four-item mobile bottom navigation for Home, Assessments, Knowledge Center, and History on the top-level screens.
+- Added fixed mobile Previous / Next / Skip / Question List controls to TraitLens, InnerCompass, and Career Interest question screens; desktop controls remain unchanged.
+- Added compact horizontal section navigation to TraitLens and InnerCompass result reports.
+- Added safe-area viewport support for phones with display cutouts and gesture areas.
+
+### Preserved
+- Assessment question banks and IDs, scoring and reverse-scoring logic, LocalStorage keys, draft/history records, and backup/restore formats.
+- Existing desktop navigation and desktop question controls.
+
+---
+
 ## [1.11.0-beta.1] - 2026-11-03
 
 ### Added

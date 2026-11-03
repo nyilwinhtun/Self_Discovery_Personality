@@ -16,6 +16,9 @@ import CareerInterestModule from './components/CareerInterestModule.jsx'
 import InnerCompassModule from './components/InnerCompassModule.jsx'
 import KnowledgeCenter from './components/KnowledgeCenter.jsx'
 import KnowledgeInlineHelp from './components/KnowledgeInlineHelp.jsx'
+import MobileBottomNavigation from './components/MobileBottomNavigation.jsx'
+import MobileQuestionActions from './components/MobileQuestionActions.jsx'
+import ReportSectionNavigation from './components/ReportSectionNavigation.jsx'
 import { TraitLensLogo, InnerCompassLogo, BondSenseLogo, ValueMapLogo } from './components/AssessmentLogos.jsx'
 import {
   clearDraft, clearHistory, createBackupSnapshot, deleteAssessment, inspectBackupSnapshot,
@@ -73,7 +76,7 @@ function Header({ onHome, onHistory, onKnowledge, active }) {
     <header className="no-print sticky top-0 z-30 border-b border-[#eee5ed] bg-[#fbf9fa]/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Brand onClick={onHome} />
-        <nav className="flex items-center gap-1 rounded-full bg-[#f2edf2] p-1">
+        <nav className="hidden items-center gap-1 rounded-full bg-[#f2edf2] p-1 sm:flex">
           <button onClick={onHome} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active !== 'history' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#8f8293] hover:text-[#614b6b]')}>
             <Home size={15} /> <span className="hidden sm:inline">ပင်မစာမျက်နှာ</span>
           </button>
@@ -480,7 +483,7 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
   const isLast = questionIndex === questions.length - 1
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-12">
+    <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
       <div className="mb-7 flex items-center justify-between gap-3">
         <button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#8b7d90] hover:text-[#614b6b]"><ArrowLeft size={16} /> ခဏရပ်မယ်</button>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#8b7d90] shadow-sm"><LockKeyhole size={12} /> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
@@ -505,7 +508,7 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
             )
           })}
         </div>
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#f0eaf0] pt-5">
+        <div className="no-print mt-8 hidden flex-wrap items-center justify-between gap-3 border-t border-[#f0eaf0] pt-5 sm:flex">
           <SecondaryButton onClick={onPrevious} icon={ArrowLeft} disabled={questionIndex === 0}>ယခင်</SecondaryButton>
           <div className="flex flex-wrap items-center gap-2">
             {!selectedAnswer && <button onClick={onSkip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-[#d8c8dc] bg-[#fcf9fc] px-4 py-2.5 text-sm font-semibold text-[#866d90] hover:bg-[#f7f1f8]">ဒီမေးခွန်းကို ကျော်မယ် <ArrowRight size={15} /></button>}
@@ -514,6 +517,16 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3"><p className="text-[11px] leading-5 text-[#8f8292]">မသေချာသေးတဲ့ မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
+      <MobileQuestionActions
+        onPrevious={onPrevious}
+        onNext={isLast ? onReview : onNext}
+        onSkip={onSkip}
+        onReview={onReview}
+        canPrevious={questionIndex > 0}
+        canNext={selectedAnswer !== undefined}
+        showSkip={selectedAnswer === undefined}
+        isLast={isLast}
+      />
       <p className="mt-5 text-center text-[11px] leading-6 text-[#a69ba8]">{STORAGE_HINT}</p>
     </main>
   )
@@ -653,9 +666,15 @@ function ResultsPage({ record, onHome, onRetake }) {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12 lg:px-8">
+    <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#897b8e] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={BookOpen}>Print</SecondaryButton></div></div>
-      <section className="print-card overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f7edf0] p-6 card-shadow sm:p-10">
+      <ReportSectionNavigation items={[
+        { id: 'trait-report-overview', label: 'အနှစ်ချုပ်' },
+        { id: 'trait-report-areas', label: 'အချက် ၅ ချက်' },
+        ...(record.level >= 120 && facetScores ? [{ id: 'trait-report-facets', label: 'အသေးစိတ် ၃၀ ချက်' }] : []),
+        { id: 'trait-report-notes', label: 'ရလဒ်ဖတ်ရှုရန်' },
+      ]} />
+      <section id="trait-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f7edf0] p-6 card-shadow sm:p-10">
         <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#80678f]"><CheckCircle2 size={14} /> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><p className="mt-5 text-xs font-semibold tracking-[0.15em] text-[#a18fa7]">TRAITLENS · PERSONALITY PROFILE</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#493a4e] sm:text-3xl">သင့်အဖြေများအတွင်း ပိုမိုထင်ရှားနေသော အချက်များ</h1><p className="mt-2 text-xs text-[#9a8d9e]">{record.level || record.questionCount || 30} မေးခွန်း · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#76697b]">{narrative}</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
           <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#5b4b60]">ပင်ကိုစရိုက် အချက် ၅ ချက်၏ ရမှတ်</h2><span className="text-[10px] text-[#a397a6]">0–100</span></div><div className="mt-2 h-[290px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="73%"><PolarGrid stroke="#e8dfe9" /><PolarAngleAxis dataKey="trait" tick={{ fill: '#85758b', fontSize: 11, fontFamily: 'Noto Sans Myanmar' }} /><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#b1a5b4', fontSize: 9 }} axisLine={false} /><Radar name="ရမှတ်" dataKey="score" stroke="#8c719b" fill="#bda9c8" fillOpacity={0.55} strokeWidth={2} /><Tooltip formatter={(value) => [`${value}/100`, 'ရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#eee4ed', fontSize: 12 }} /></RadarChart></ResponsiveContainer></div><p className="text-center text-[10px] leading-5 text-[#a397a6]">ဂရပ်သည် သင့်ဖြေဆိုချက်များမှ တွက်ချက်ထားသော အညွှန်းရမှတ်များကို ပြထားခြင်းဖြစ်သည်။</p></div>
@@ -665,12 +684,12 @@ function ResultsPage({ record, onHome, onRetake }) {
           </div>
         </div>
       </section>
-      <section className="mt-8">
+      <section id="trait-report-areas" className="mt-8 scroll-mt-28">
         <div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">UNDERSTANDING YOUR FIVE AREAS</p><h2 className="mt-1 text-xl font-bold text-[#514357]">အချက် ၅ ချက်ကို တစ်ခုချင်း နားလည်ကြည့်ရအောင်</h2><p className="mt-2 text-xs leading-7 text-[#938796]">ရမှတ်တစ်ခုချင်းစီအတွက် အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာ၊ ကိုယ်တိုင်ပြန်မေးရန်နဲ့ စမ်းကြည့်နိုင်တဲ့ အဆင့်ငယ်တွေကို ဖော်ပြထားပါတယ်။ ရမှတ်နိမ့်ခြင်း၊ မြင့်ခြင်းဟာ ကောင်းခြင်း၊ ဆိုးခြင်းကို မဆိုလိုပါ။</p></div>
         <div className="grid gap-4 lg:grid-cols-2">{TRAITS.map((trait) => <TraitReportCard key={trait.id} trait={trait} score={scores[trait.id]?.score ?? 0} />)}</div>
       </section>
       {record.level >= 120 && facetScores && (
-        <section className="mt-8">
+        <section id="trait-report-facets" className="mt-8 scroll-mt-28">
           <div className="mb-4">
             <p className="text-xs font-semibold tracking-wide text-[#a18fa7]">30 EXPLORATORY TOPIC CLUSTERS</p>
             <h2 className="mt-1 text-xl font-bold text-[#514357]">ပင်ကိုစရိုက်ကို အသေးစိတ်ဖော်ပြတဲ့ အချက် ၃၀</h2>
@@ -697,7 +716,7 @@ function ResultsPage({ record, onHome, onRetake }) {
           </div>
         </section>
       )}
-      <section className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fbf8fb] p-5"><div className="flex items-start gap-3"><CircleHelp size={18} className="mt-0.5 shrink-0 text-[#9a85a2]" /><div><h3 className="text-sm font-bold text-[#66576b]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</h3><p className="mt-2 text-xs leading-7 text-[#918595]">ဤဆန်းစစ်မှုသည် မြန်မာဘာသာဖြင့် ကိုယ်ပိုင်ရေးဆွဲထားသော မေးခွန်းများကို အသုံးပြုထားသည်။ 0–100 ရမှတ်သည် သင်ရွေးချယ်ထားသော အဖြေများကို အညွှန်းအဖြစ် ပြောင်းလဲဖော်ပြခြင်းသာဖြစ်ပြီး လူဦးရေအဆင့် သို့မဟုတ် အခြားသူများနှင့် နှိုင်းယှဉ်ထားသော ရလဒ် မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p></div></div></section>
+      <section id="trait-report-notes" className="mt-6 scroll-mt-28 rounded-2xl border border-[#eee4ed] bg-[#fbf8fb] p-5"><div className="flex items-start gap-3"><CircleHelp size={18} className="mt-0.5 shrink-0 text-[#9a85a2]" /><div><h3 className="text-sm font-bold text-[#66576b]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</h3><p className="mt-2 text-xs leading-7 text-[#918595]">ဤဆန်းစစ်မှုသည် မြန်မာဘာသာဖြင့် ကိုယ်ပိုင်ရေးဆွဲထားသော မေးခွန်းများကို အသုံးပြုထားသည်။ 0–100 ရမှတ်သည် သင်ရွေးချယ်ထားသော အဖြေများကို အညွှန်းအဖြစ် ပြောင်းလဲဖော်ပြခြင်းသာဖြစ်ပြီး လူဦးရေအဆင့် သို့မဟုတ် အခြားသူများနှင့် နှိုင်းယှဉ်ထားသော ရလဒ် မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p></div></div></section>
       <div className="no-print mt-8 flex flex-col justify-center gap-3 sm:flex-row"><PrimaryButton onClick={onRetake} icon={RotateCcw}>ထပ်မံဖြေဆိုမယ်</PrimaryButton><SecondaryButton onClick={onHome} icon={Home}>ပင်မစာမျက်နှာသို့</SecondaryButton></div>
     </main>
   )
@@ -773,11 +792,21 @@ export default function App() {
   const [toast, setToast] = useState('')
   const [backupPreview, setBackupPreview] = useState(null)
   const [restoreMode, setRestoreMode] = useState('merge')
+  const [pendingHomeSection, setPendingHomeSection] = useState(null)
   const fileInputRef = useRef(null)
   const careerPersistRef = useRef(null)
   const innerCompassPersistRef = useRef(null)
   const questions = useMemo(() => getQuestionsForLevel(level), [level])
   const currentDraft = appData.drafts?.personality?.[String(level)] || null
+
+  useEffect(() => {
+    if (page !== 'home' || !pendingHomeSection) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(pendingHomeSection)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setPendingHomeSection(null)
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [page, pendingHomeSection])
 
   const persistDraft = (override = {}) => {
     const draft = {
@@ -1038,6 +1067,7 @@ export default function App() {
     setActiveRecord(null)
     setAppData(loadAppData())
     setPage('home')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleNavigateHistory = () => {
@@ -1046,6 +1076,7 @@ export default function App() {
     if (page === 'innerCompass') innerCompassPersistRef.current?.()
     setAppData(loadAppData())
     setPage('history')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleNavigateKnowledge = () => {
@@ -1057,8 +1088,24 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleNavigateAssessment = () => {
+    if (page === 'home') {
+      document.getElementById('assessment-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+    if (page === 'assessment' || page === 'review') persistDraft()
+    if (page === 'careerInterest') careerPersistRef.current?.()
+    if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    setActiveRecord(null)
+    setAppData(loadAppData())
+    setPendingHomeSection('assessment-dashboard')
+    setPage('home')
+  }
+
+  const showMobileNavigation = ['home', 'history', 'knowledge'].includes(page)
+
   return (
-    <div className="min-h-screen bg-[#f8f5f6] text-[#403747]">
+    <div className={cn('min-h-screen bg-[#f8f5f6] text-[#403747]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
       {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenKnowledge={handleNavigateKnowledge} />}
       {page === 'knowledge' && <KnowledgeCenter onBack={handleNavigateHome} />}
@@ -1070,6 +1117,7 @@ export default function App() {
       {page === 'result' && <ResultsPage record={activeRecord} onHome={() => { setAppData(loadAppData()); setPage('home') }} onRetake={handleRetake} />}
       {page === 'history' && <HistoryPage history={appData.history} onOpen={openHistoryRecord} onDelete={handleDeleteRecord} onClear={handleClearHistory} onStart={handleStart} />}
       <footer className="no-print border-t border-[#eee5ed] bg-[#fbf9fa] px-4 py-6 text-center"><p className="text-[11px] font-semibold text-[#95889a]">Self Discovery · ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း</p><p className="mt-1 text-[10px] text-[#b0a6b2]">ပိုမိုနားလည်လာခြင်းက ကိုယ့်ကိုယ်ကို ဂရုစိုက်ခြင်းရဲ့ အစဖြစ်ပါတယ်။</p></footer>
+      {showMobileNavigation && <MobileBottomNavigation active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} onHome={handleNavigateHome} onAssessment={handleNavigateAssessment} onKnowledge={handleNavigateKnowledge} onHistory={handleNavigateHistory} />}
       <input ref={fileInputRef} type="file" accept=".json,application/json" className="hidden" onChange={handleBackupFileSelected} />
       <BackupRestoreDialog preview={backupPreview} mode={restoreMode} onModeChange={setRestoreMode} onCancel={() => setBackupPreview(null)} onConfirm={handleConfirmRestore} />
       {toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#514357] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}

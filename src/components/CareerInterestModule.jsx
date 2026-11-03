@@ -6,6 +6,7 @@ import {
 import { CAREER_ANSWER_OPTIONS, CAREER_QUESTIONS, RIASEC_BANK_VERSION, RIASEC_CATEGORIES } from '../data/careerQuestions.js'
 import { buildCareerResult, getCareerScoreBand } from '../utils/careerScoring.js'
 import { clearDraft, loadAppData, loadDraft, saveAssessment, saveDraft } from '../utils/storage.js'
+import MobileQuestionActions from './MobileQuestionActions.jsx'
 
 const ASSESSMENT_TYPE = 'careerInterest'
 const LEVEL = 30
@@ -88,7 +89,7 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
   const progress = (answered / CAREER_QUESTIONS.length) * 100
   const isLast = index === CAREER_QUESTIONS.length - 1
   return (
-    <main className="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-12">
+    <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
       <div className="mb-7 flex items-center justify-between gap-3"><button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#8b7d90] hover:text-[#614b6b]"><ArrowLeft size={16}/> ခဏရပ်မယ်</button><span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#8b7d90] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span></div>
       <section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-9">
         <div className="flex items-end justify-between gap-3"><div><p className="text-xs font-semibold tracking-wide text-[#a094a4]">CAREER INTEREST</p><h1 className="mt-2 text-xl font-bold text-[#4b3d50] sm:text-2xl">စိတ်ဝင်စားမှုကို ရွေးချယ်ပါ</h1></div><div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(index + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#b1a6b5]"> / ၃၀</span></div><p className="text-[10px] text-[#a196a5]">ဖြေပြီး {answered} · ကျော်ထား {skippedCount}</p></div></div>
@@ -97,9 +98,19 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
         <div className="my-7 min-h-36 rounded-[1.5rem] bg-gradient-to-br from-[#faf6fb] to-[#fcf7f6] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#a293a8]">မေးခွန်း {index + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#493b4d] sm:text-[1.35rem]">{question.text}</h2></div>
         <p className="mb-3 text-xs font-semibold text-[#887990]">ဒီလုပ်ဆောင်မှုကို လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲ။</p>
         <div className="space-y-2.5" role="radiogroup" aria-label="နှစ်သက်မှု အဖြေရွေးချယ်မှု">{CAREER_ANSWER_OPTIONS.map((option) => { const isSelected = Number(selected) === option.value; return <button key={option.value} type="button" role="radio" aria-checked={isSelected} onClick={() => onAnswer(question.id, option.value)} className={`answer-option flex min-h-[56px] w-full items-center justify-between rounded-2xl border px-4 py-3 text-left ${isSelected ? 'border-[#9c82aa] bg-[#f6f0f8] shadow-[0_4px_14px_rgba(128,103,143,0.09)]' : 'border-[#eee8ef] bg-white hover:border-[#d9cadf] hover:bg-[#fcf9fc]'}`}><span className="flex items-center gap-3"><span className={`grid h-8 w-8 place-items-center rounded-xl text-xs font-bold ${isSelected ? 'bg-[#80678f] text-white' : 'bg-[#f5f1f5] text-[#95879a]'}`}>{option.value}</span><span className={`text-sm font-medium ${isSelected ? 'text-[#634c6e]' : 'text-[#746879]'}`}>{option.label}</span></span><span className={`grid h-5 w-5 place-items-center rounded-full border ${isSelected ? 'border-[#80678f] bg-[#80678f] text-white' : 'border-[#d9d0dc] text-transparent'}`}><Check size={12} strokeWidth={3}/></span></button> })}</div>
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#f0eaf0] pt-5"><Button secondary onClick={onPrevious} icon={ArrowLeft} disabled={index === 0}>ယခင်</Button><div className="flex flex-wrap items-center gap-2">{!selected && <button onClick={onSkip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-[#d8c8dc] bg-[#fcf9fc] px-4 py-2.5 text-sm font-semibold text-[#866d90] hover:bg-[#f7f1f8]">ကျော်ထားမယ် <ArrowRight size={15}/></button>}<Button onClick={isLast ? onReview : onNext} disabled={!selected} icon={isLast ? ClipboardCheck : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</Button></div></div>
+        <div className="no-print mt-8 hidden flex-wrap items-center justify-between gap-3 border-t border-[#f0eaf0] pt-5 sm:flex"><Button secondary onClick={onPrevious} icon={ArrowLeft} disabled={index === 0}>ယခင်</Button><div className="flex flex-wrap items-center gap-2">{!selected && <button onClick={onSkip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-[#d8c8dc] bg-[#fcf9fc] px-4 py-2.5 text-sm font-semibold text-[#866d90] hover:bg-[#f7f1f8]">ကျော်ထားမယ် <ArrowRight size={15}/></button>}<Button onClick={isLast ? onReview : onNext} disabled={!selected} icon={isLast ? ClipboardCheck : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</Button></div></div>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3"><p className="text-[11px] leading-5 text-[#8f8292]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ထားပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
+      <MobileQuestionActions
+        onPrevious={onPrevious}
+        onNext={isLast ? onReview : onNext}
+        onSkip={onSkip}
+        onReview={onReview}
+        canPrevious={index > 0}
+        canNext={selected !== undefined}
+        showSkip={selected === undefined}
+        isLast={isLast}
+      />
       <p className="mt-5 text-center text-[11px] leading-6 text-[#a69ba8]">{STORAGE_HINT}</p>
     </main>
   )

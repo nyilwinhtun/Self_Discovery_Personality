@@ -1,5 +1,14 @@
 # Self Discovery
 
+
+## v1.11.1 Beta — Mobile Navigation & User Experience
+
+- Mobile bottom navigation: Home, Assessment, Knowledge Center, and History.
+- Fixed Previous / Next / Skip / Question List controls while answering TraitLens, InnerCompass, and Career Interest questions.
+- Compact in-report section navigation for TraitLens and InnerCompass results.
+- Desktop navigation and desktop question controls remain available at desktop breakpoints.
+- The release does not change assessment questions, scoring, LocalStorage keys, history records, or backup/restore formats.
+
 မြန်မာဘာသာဖြင့် ကိုယ့်ပင်ကိုစရိုက်နှင့် အတွင်းစိတ်ကို လေ့လာနိုင်ရန် တည်ဆောက်ထားသော React + Vite Web App ဖြစ်သည်။
 
 > **လက်ရှိအခြေအနေ — BETA စမ်းသပ်ဗားရှင်း**
