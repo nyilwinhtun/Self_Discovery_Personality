@@ -1,10 +1,12 @@
-import { defineConfig } from 'vite'
-import tailwindcss from '@tailwindcss/vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
+// https://vitejs.dev/config/
 export default defineConfig({
-  // GitHub Pages project-site URL: https://<owner>.github.io/Self_Discovery_Personality/
-  // Vite rewrites built asset URLs to include this repository path.
-  base: '/Self_Discovery_Personality/',
-  plugins: [react(), tailwindcss()],
-})
+  plugins: [react()],
+  base: './', // Ensures assets load correctly on GitHub Pages subfolder
+  server: {
+    port: 3000,
+    open: true
+  }
+});
