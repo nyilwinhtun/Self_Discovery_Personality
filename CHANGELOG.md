@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.10.1-beta.1 — 2026-11-03
+
+### Added
+- Added contextual Knowledge Center term-help buttons to matching TraitLens and InnerCompass assessment questions.
+- Added a mobile-friendly explanation dialog with simple meaning, everyday example, related-term distinction, caution, and source links.
+- Added explicit question-to-glossary mappings and a dedicated validation script.
+
+### Preserved
+- No changes to assessment question wording, question IDs, scoring calculations, LocalStorage keys, History, or Backup/Restore logic.
+- Knowledge glossary entries remain drafts and are visibly labelled as not yet reviewed by language and psychology specialists.
+
+### Validation
+- Run `npm run validate:all` before deployment.
+- Production build must also complete successfully in GitHub Actions before sharing the updated public link.
+
 ## v1.10.0-beta.1 — Knowledge Center Beta Draft
 
 - Added a standalone Knowledge Center page accessible from the main navigation and home page.

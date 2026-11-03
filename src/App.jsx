@@ -1,1901 +1,1049 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  LayoutDashboard,
-  Armchair,
-  UtensilsCrossed,
-  Receipt,
-  Settings,
-  Globe,
-  Plus,
-  Trash2,
-  Printer,
-  Download,
-  X,
-  Minus,
-  Check,
-  Sun,
-  Moon,
-  Coffee,
-  Leaf,
-  Bluetooth,
-  TrendingUp,
-  ShoppingBag,
-  DollarSign,
-  AlertTriangle,
-  ChevronRight,
-  Sparkles,
-  Smartphone,
-  Calendar,
-  Clock,
-  Edit2,
-  RotateCcw,
-  BarChart3,
-  Filter
-} from 'lucide-react';
+  ArrowLeft, ArrowRight, BookOpen, Brain, BriefcaseBusiness, Check, CheckCircle2,
+  ChevronRight, CircleHelp, ClipboardCheck, Clock3, Download, Heart, History,
+  Home, Lightbulb, LockKeyhole, PauseCircle, RotateCcw, ShieldCheck, Sparkles,
+  Target, Trash2, Users, X, Upload, FileJson,
+} from 'lucide-react'
+import {
+  PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart,
+  ResponsiveContainer, Tooltip,
+} from 'recharts'
+import { ANSWER_OPTIONS, FACETS, getQuestionsForLevel, QUESTION_BANK_VERSION, TRAITS } from './data/questions.js'
+import { buildResult, getPersonalityProfile, getScoreBand } from './utils/scoring.js'
+import CareerInterestModule from './components/CareerInterestModule.jsx'
+import InnerCompassModule from './components/InnerCompassModule.jsx'
+import KnowledgeCenter from './components/KnowledgeCenter.jsx'
+import KnowledgeInlineHelp from './components/KnowledgeInlineHelp.jsx'
+import { TraitLensLogo, InnerCompassLogo, BondSenseLogo, ValueMapLogo } from './components/AssessmentLogos.jsx'
+import {
+  clearDraft, clearHistory, createBackupSnapshot, deleteAssessment, inspectBackupSnapshot,
+  loadAppData, loadDraft, restoreBackupData, saveAssessment, saveDraft,
+} from './utils/storage.js'
 
-// Translations Dictionary
-const TRANSLATIONS = {
-  my: {
-    tab_dash: "ခွဲခြမ်းစိတ်ဖြာ / မှတ်တမ်း",
-    tab_pos: "စားပွဲများ",
-    tab_menu: "မီနူးစီမံရန်",
-    tab_hist: "ဘောက်ချာမှတ်တမ်း",
-    tab_set: "ဆိုင်ဆက်တင်",
-    dash_title: "အရောင်း ခွဲခြမ်းစိတ်ဖြာမှု (Sales Analysis)",
-    total_sales: "စုစုပေါင်း ရောင်းရငွေ",
-    total_vouchers: "ဘောက်ချာ အရေအတွက်",
-    avg_voucher: "ဘောက်ချာ ပျမ်းမျှတန်ဖိုး",
-    top_item: "အရောင်းရဆုံး ပစ္စည်း",
-    top_cat: "အရောင်းရဆုံး ကဏ္ဍ",
-    active_tables: "လက်ရှိ မှာယူထားသော စားပွဲ",
-    date_filter: "ရက်စွဲရွေးချယ်ရန်",
-    filter_today: "ယနေ့ (Today)",
-    filter_yesterday: "မနေ့က (Yesterday)",
-    filter_7days: "ပြီးခဲ့သည့် ၇ ရက်",
-    filter_month: "ဤလ (This Month)",
-    filter_all: "ရက်စွဲအားလုံး",
-    filter_custom: "ရက်စွဲ သတ်မှတ်မည်",
-    pie_title: "ကဏ္ဍအလိုက် ရောင်းအား ဝေစု",
-    bar_title: "အရောင်းရဆုံး ထိပ်တန်း မီနူးများ",
-    time_breakdown: "အချိန်အလိုက် ရောင်းအား (Time Breakdown)",
-    daily_trend: "ရက်အလိုက် ရောင်းအား အနှစ်ချုပ် (Daily Summary)",
-    pos_title: "စားပွဲများ ရွေးချယ်ပါ",
-    free: "လွတ်သည်",
-    occupied: "လူရှိသည်",
-    menu_title: "မီနူး စီမံခန့်ခွဲမှု",
-    add_cat: "ကဏ္ဍ အသစ်ထည့်ရန်",
-    cat_ph: "ဥပမာ - အအေး / အကြော်",
-    add_btn: "ထည့်မည်",
-    add_menu: "မီနူး အသစ်ထည့်ရန်",
-    name: "အမည်",
-    price: "ဈေးနှုန်း (ကျပ်)",
-    category: "ကဏ္ဍ",
-    icon: "ပုံစံ (Icon/Emoji)",
-    save: "သိမ်းမည်",
-    curr_menu: "လက်ရှိ မီနူးများ",
-    clear_demo: "Demo Data အားလုံးဖျက်မည်",
-    hist_title: "ရောင်းအား ဘောက်ချာမှတ်တမ်း",
-    clear_all: "မှတ်တမ်းအားလုံးဖျက်မည်",
-    time: "အချိန်",
-    voucher_no: "ဘောက်ချာ No.",
-    table: "စားပွဲ",
-    amount: "ကျသင့်ငွေ",
-    action: "လုပ်ဆောင်ချက်",
-    no_record: "ရွေးချယ်ထားသော ရက်စွဲတွင် အရောင်းမှတ်တမ်း မရှိသေးပါ။",
-    set_title: "ဆိုင် ဆက်တင်များ",
-    general: "အထွေထွေ အချက်အလက်",
-    shop_name: "သင့်ဆိုင်အမည် (Store Name)",
-    edit_name: "ဆိုင်အမည် ပြင်ရန်",
-    table_count: "စားပွဲ အရေအတွက်",
-    theme_title: "နောက်ခံ အရောင် (Theme)",
-    t_light: "လင်း (Light)",
-    t_dark: "မှောင် (Dark)",
-    t_warm: "နွေးထွေး (Warm)",
-    t_green: "စိမ်းလန်း (Green)",
-    save_set: "ပြင်ဆင်မှုများကို သိမ်းမည်",
-    install_app: "App အဖြစ် Install လုပ်ရန်",
-    bt_printer: "Bluetooth Thermal ပရင်တာ ချိတ်ရန်",
-    bt_connected: "ပရင်တာ ချိတ်ဆက်ပြီးပါပြီ",
-    bt_disconnected: "ချိတ်ဆက်မထားပါ",
-    bt_error: "ချိတ်ဆက်မှု မအောင်မြင်ပါ သို့မဟုတ် Browser ပံ့ပိုးမှုမရှိပါ",
-    table_no: "စားပွဲ",
-    all: "အားလုံး",
-    cart_title: "ယခု မှာယူထားသော စာရင်း",
-    total: "စုစုပေါင်း",
-    print_btn: "ဘောက်ချာထုတ် / ရှင်းမည်",
-    empty_cart: "ယခုစားပွဲတွင် မှာယူထားခြင်း မရှိသေးပါ။",
-    confirm_clear: "မှတ်တမ်းအားလုံးကို ဖျက်ရန် သေချာပါသလား?",
-    confirm_clear_demo: "Demo မီနူးနှင့် အချက်အလက်အားလုံးကို ဖျက်ပစ်ရန် သေချာပါသလား? သင့်စိတ်ကြိုက် မီနူးအသစ်များ ထည့်သွင်းနိုင်ပါပြီ။",
-    confirm_delete: "ဤမီနူးကို ဖျက်ရန် သေချာပါသလား?",
-    cancel: "မလုပ်ပါ",
-    ok: "သေချာသည်",
-    saved: "အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ",
-    pwa_title: "POS App အဖြစ် သွင်းယူပါ",
-    pwa_desc: "အင်တာနက်မလိုဘဲ အမြန်ဖွင့်ရန်နှင့် ဘောက်ချာထုတ်ရန် ဖုန်း/ကွန်ပျူတာထဲ ထည့်သွင်းပါ",
-    install_btn: "Install လုပ်မည်",
-    dismiss: "ပိတ်မည်",
-    receipt_title: "ငွေရပြေစာ",
-    items_count: "ခု",
-    reprint: "ပြန်လည်ထုတ်မည်",
-    clean_slate_notice: "မီနူးမရှိသေးပါ။ မီနူးအသစ်ထည့်ရန် အပေါ်က Form တွင် ဖြည့်ပါ"
-  },
-  en: {
-    tab_dash: "Analytics & History",
-    tab_pos: "Tables",
-    tab_menu: "Menu Admin",
-    tab_hist: "Vouchers",
-    tab_set: "Settings",
-    dash_title: "Sales Analysis & Insights",
-    total_sales: "Total Sales",
-    total_vouchers: "Total Orders",
-    avg_voucher: "Avg. Ticket Value",
-    top_item: "Top Selling Item",
-    top_cat: "Top Category",
-    active_tables: "Active Tables",
-    date_filter: "Filter by Date",
-    filter_today: "Today",
-    filter_yesterday: "Yesterday",
-    filter_7days: "Last 7 Days",
-    filter_month: "This Month",
-    filter_all: "All Time",
-    filter_custom: "Custom Date",
-    pie_title: "Sales by Category",
-    bar_title: "Top Best Sellers",
-    time_breakdown: "Sales by Time of Day",
-    daily_trend: "Daily Sales Summary",
-    pos_title: "Select Table",
-    free: "Free",
-    occupied: "Occupied",
-    menu_title: "Menu Management",
-    add_cat: "Add Category",
-    cat_ph: "e.g. Drinks / Fast Food",
-    add_btn: "Add",
-    add_menu: "Add Menu Item",
-    name: "Name",
-    price: "Price (Ks)",
-    category: "Category",
-    icon: "Icon/Emoji",
-    save: "Save",
-    curr_menu: "Current Menu Items",
-    clear_demo: "Clear All Demo Data",
-    hist_title: "Voucher History",
-    clear_all: "Clear All History",
-    time: "Time",
-    voucher_no: "Voucher No.",
-    table: "Table",
-    amount: "Amount",
-    action: "Action",
-    no_record: "No sales records found for this period.",
-    set_title: "Store Settings",
-    general: "General Info",
-    shop_name: "Your Store Name",
-    edit_name: "Edit Shop Name",
-    table_count: "Table Count",
-    theme_title: "Theme Appearance",
-    t_light: "Light",
-    t_dark: "Dark",
-    t_warm: "Warm",
-    t_green: "Green",
-    save_set: "Save Settings",
-    install_app: "Install as PWA App",
-    bt_printer: "Connect Bluetooth Printer",
-    bt_connected: "Printer Connected",
-    bt_disconnected: "Not Connected",
-    bt_error: "Connection Failed or Web Bluetooth Not Supported",
-    table_no: "Table",
-    all: "All",
-    cart_title: "Current Order Cart",
-    total: "Total",
-    print_btn: "Checkout & Print",
-    empty_cart: "No orders for this table yet.",
-    confirm_clear: "Are you sure you want to clear all history?",
-    confirm_clear_demo: "Are you sure to delete all demo data? You can start with a clean slate for your own menu.",
-    confirm_delete: "Are you sure you want to delete this menu item?",
-    cancel: "Cancel",
-    ok: "Confirm",
-    saved: "Saved successfully!",
-    pwa_title: "Install POS App",
-    pwa_desc: "Install on your home screen for quick offline access and thermal printing",
-    install_btn: "Install Now",
-    dismiss: "Later",
-    receipt_title: "Sales Receipt",
-    items_count: "items",
-    reprint: "Reprint",
-    clean_slate_notice: "No menu items yet. Use the form above to add your own menu."
+const STORAGE_HINT = 'သင့်အဖြေများကို ဒီ Browser နဲ့ ဒီစက်ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser Data ရှင်းလိုက်ရင် အဖြေတွေ ပျောက်နိုင်ပါတယ်။'
+const LEVELS = [
+  { value: 30, title: 'အခြေခံဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်ကို အကျဉ်းချုပ် လေ့လာရန်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'အခြေခံ' },
+  { value: 60, title: 'အသေးစိတ်ဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်ကို မေးခွန်းပိုများဖြင့် အသေးစိတ် လေ့လာရန်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'အသေးစိတ်' },
+  { value: 120, title: 'နက်ရှိုင်းစွာ ဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်နဲ့ အသေးစိတ် အချက် ၃၀ ကို လေ့လာရန်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'နက်ရှိုင်း' },
+]
+
+function cn(...classes) {
+  return classes.filter(Boolean).join(' ')
+}
+
+function formatDate(value) {
+  if (!value) return 'မသိရှိပါ'
+  try {
+    return new Intl.DateTimeFormat('my-MM', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    }).format(new Date(value))
+  } catch {
+    return new Date(value).toLocaleString()
   }
-};
+}
 
-const DEFAULT_CATEGORIES = ['အစားအသောက်', 'သောက်စရာ', 'အဆာပြေ'];
-const DEFAULT_MENU = [
-  { id: '1', name: 'ကြက်ဆီထမင်း', category: 'အစားအသောက်', price: 3500, icon: '🍛' },
-  { id: '2', name: 'ရေခဲကော်ဖီ', category: 'သောက်စရာ', price: 2500, icon: '☕' },
-  { id: '3', name: 'အာလူးကြော်', category: 'အဆာပြေ', price: 1500, icon: '🍟' }
-];
+function TraitIcon({ id, size = 19 }) {
+  const common = { size, strokeWidth: 1.8 }
+  if (id === 'openness') return <Sparkles {...common} />
+  if (id === 'conscientiousness') return <ClipboardCheck {...common} />
+  if (id === 'extraversion') return <Users {...common} />
+  if (id === 'agreeableness') return <Heart {...common} />
+  return <Brain {...common} />
+}
 
-export default function App() {
-  // Safe LocalStorage Helper
-  const loadStorage = (key, fallback) => {
-    try {
-      const data = localStorage.getItem(key);
-      return data ? JSON.parse(data) : fallback;
-    } catch (e) {
-      return fallback;
-    }
-  };
+function Brand({ onClick }) {
+  return (
+    <button onClick={onClick} className="flex items-center gap-3 text-left" aria-label="ပင်မစာမျက်နှာ">
+      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#80678f] text-white shadow-sm"><Sparkles size={20} /></span>
+      <span>
+        <span className="flex items-center gap-2">
+          <span className="text-[15px] font-bold tracking-tight text-[#45384a]">Self Discovery</span>
+          <span className="rounded-full border border-[#e8d8b8] bg-[#fff7e8] px-2 py-0.5 text-[9px] font-bold tracking-wide text-[#98713a]">BETA</span>
+        </span>
+        <span className="block text-[11px] text-[#95889a]">ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း · စမ်းသပ်ဆဲ</span>
+      </span>
+    </button>
+  )
+}
 
-  const saveStorage = (key, value) => {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-      console.warn("Storage write failed", e);
-    }
-  };
+function Header({ onHome, onHistory, onKnowledge, active }) {
+  return (
+    <header className="no-print sticky top-0 z-30 border-b border-[#eee5ed] bg-[#fbf9fa]/90 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <Brand onClick={onHome} />
+        <nav className="flex items-center gap-1 rounded-full bg-[#f2edf2] p-1">
+          <button onClick={onHome} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active !== 'history' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#8f8293] hover:text-[#614b6b]')}>
+            <Home size={15} /> <span className="hidden sm:inline">ပင်မစာမျက်နှာ</span>
+          </button>
+          <button onClick={onHistory} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'history' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#8f8293] hover:text-[#614b6b]')}>
+            <History size={15} /> <span className="hidden sm:inline">မှတ်တမ်း</span>
+          </button>
+          <button onClick={onKnowledge} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'knowledge' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#8f8293] hover:text-[#614b6b]')}>
+            <BookOpen size={15} /> <span className="hidden sm:inline">အသိပညာ</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+  )
+}
 
-  // State Management
-  const [lang, setLang] = useState(() => loadStorage('pos_lang', 'my'));
-  const [activeTab, setActiveTab] = useState('pos');
-  // Store Name: default to custom user-friendly store name instead of fixed brand
-  const [storeName, setStoreName] = useState(() => loadStorage('pos_name', 'My Restaurant POS'));
-  const [theme, setTheme] = useState(() => loadStorage('pos_theme', 'light'));
-  const [tableCount, setTableCount] = useState(() => loadStorage('pos_tableCount', 16));
-  const [categories, setCategories] = useState(() => loadStorage('pos_categories', DEFAULT_CATEGORIES));
-  const [menu, setMenu] = useState(() => loadStorage('pos_menu', DEFAULT_MENU));
-  const [activeOrders, setActiveOrders] = useState(() => loadStorage('pos_activeOrders', {}));
-  const [history, setHistory] = useState(() => loadStorage('pos_history', []));
+function PrimaryButton({ children, onClick, icon: Icon = ArrowRight, disabled = false, type = 'button' }) {
+  return (
+    <button type={type} onClick={onClick} disabled={disabled} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#80678f] px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(128,103,143,0.2)] transition hover:-translate-y-0.5 hover:bg-[#725981] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0">
+      {children}<Icon size={17} />
+    </button>
+  )
+}
 
-  // Date Filter State for Daily Sales Analysis
-  const [dateFilter, setDateFilter] = useState('today'); // 'today', 'yesterday', '7days', 'month', 'all', 'custom'
-  const [customDate, setCustomDate] = useState(() => new Date().toISOString().slice(0, 10));
+function SecondaryButton({ children, onClick, icon: Icon, disabled = false, className = '' }) {
+  return (
+    <button onClick={onClick} disabled={disabled} className={cn('inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#e5dce6] bg-white px-5 py-2.5 text-sm font-semibold text-[#6e5a77] transition hover:border-[#cdbdd2] hover:bg-[#faf7fb] disabled:cursor-not-allowed disabled:opacity-40', className)}>
+      {Icon && <Icon size={16} />}{children}
+    </button>
+  )
+}
 
-  // Modal & Selection States
-  const [selectedTable, setSelectedTable] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [toastMessage, setToastMessage] = useState(null);
-  const [confirmDialog, setConfirmDialog] = useState(null);
-  const [showEditNameModal, setShowEditNameModal] = useState(false);
-  const [nameInput, setNameInput] = useState(storeName);
+function getDraftStats(draft, level) {
+  const total = Number(level)
+  const answers = draft?.answers || {}
+  const answered = Object.keys(answers).length
+  const skipped = (draft?.skippedQuestionIds || []).filter((id) => !answers[id]).length
+  return { total, answered, skipped, remaining: Math.max(0, total - answered), progress: total ? Math.round((answered / total) * 100) : 0 }
+}
 
-  // Settings inputs
-  const [tempStoreName, setTempStoreName] = useState(storeName);
-  const [tempTableCount, setTempTableCount] = useState(tableCount);
-  const [newCatName, setNewCatName] = useState('');
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemPrice, setNewItemPrice] = useState('');
-  const [newItemCategory, setNewItemCategory] = useState(categories[0] || 'အထွေထွေ');
-  const [newItemIcon, setNewItemIcon] = useState('🍲');
+function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenKnowledge }) {
+  const completedCount = history.length
+  const draftCount = Object.values(drafts || {}).reduce((sum, group) => {
+    return sum + (group && typeof group === 'object' ? Object.keys(group).length : 0)
+  }, 0)
+  const personalityDrafts = Object.entries(drafts?.personality || {})
+    .filter(([, draft]) => draft && draft.status !== 'completed')
+    .sort((a, b) => new Date(b[1]?.updatedAt || 0).getTime() - new Date(a[1]?.updatedAt || 0).getTime())
+  const latestPersonalityDraft = personalityDrafts[0]
+  const careerDraft = drafts?.careerInterest?.['30'] || null
+  const careerAnswered = Object.keys(careerDraft?.answers || {}).length
+  const careerProgress = Math.round((careerAnswered / 30) * 100)
+  const innerCompassDraft = drafts?.innerCompass?.['30'] || null
+  const innerCompassAnswered = Object.keys(innerCompassDraft?.answers || {}).length
+  const innerCompassProgress = Math.round((innerCompassAnswered / 30) * 100)
+  const recentPersonalityHistory = history.slice(0, 3)
 
-  // Thermal Receipt State for Print
-  const [printReceiptData, setPrintReceiptData] = useState(null);
-
-  // Bluetooth Printer State
-  const [btStatus, setBtStatus] = useState('disconnected');
-  const [btDeviceName, setBtDeviceName] = useState('');
-  const btCharacteristicRef = useRef(null);
-
-  // PWA Install Banner State
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showPwaBanner, setShowPwaBanner] = useState(false);
-
-  // Translation helper
-  const t = (key) => TRANSLATIONS[lang]?.[key] || key;
-  const formatMoney = (val) => Number(val || 0).toLocaleString() + ' Ks';
-
-  // Sync to Storage
-  useEffect(() => { saveStorage('pos_lang', lang); }, [lang]);
-  useEffect(() => { saveStorage('pos_name', storeName); }, [storeName]);
-  useEffect(() => { saveStorage('pos_theme', theme); }, [theme]);
-  useEffect(() => { saveStorage('pos_tableCount', tableCount); }, [tableCount]);
-  useEffect(() => { saveStorage('pos_categories', categories); }, [categories]);
-  useEffect(() => { saveStorage('pos_menu', menu); }, [menu]);
-  useEffect(() => { saveStorage('pos_activeOrders', activeOrders); }, [activeOrders]);
-  useEffect(() => { saveStorage('pos_history', history); }, [history]);
-
-  // PWA Install Prompt Listener
-  useEffect(() => {
-    const handleBeforeInstall = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      const isDismissed = loadStorage('pwa_banner_dismissed', false);
-      if (!isDismissed) {
-        setShowPwaBanner(true);
-      }
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-  }, []);
-
-  const triggerPwaInstall = async () => {
-    if (!deferredPrompt) {
-      showToast(lang === 'my' ? "Browser က Install ခွင့်ပြုချက် အသင့်မဖြစ်သေးပါ" : "Install prompt not ready in current browser");
-      return;
-    }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setShowPwaBanner(false);
-      setDeferredPrompt(null);
-      showToast(lang === 'my' ? "App ထည့်သွင်းခြင်း အောင်မြင်ပါသည်" : "App installed successfully!");
-    }
-  };
-
-  const dismissPwaBanner = () => {
-    setShowPwaBanner(false);
-    saveStorage('pwa_banner_dismissed', true);
-  };
-
-  // Toast Helper
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-  };
-
-  // Web Bluetooth Thermal Printer logic
-  const connectBluetoothPrinter = async () => {
-    try {
-      if (!navigator.bluetooth) {
-        throw new Error("Web Bluetooth not supported");
-      }
-      setBtStatus('connecting');
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
-        optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-      });
-
-      const server = await device.gatt.connect();
-      const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-      const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-
-      btCharacteristicRef.current = characteristic;
-      setBtDeviceName(device.name || "58mm POS Printer");
-      setBtStatus('connected');
-      showToast(t('bt_connected'));
-    } catch (err) {
-      console.warn("BT connection failed", err);
-      setBtStatus('error');
-      showToast(t('bt_error'));
-    }
-  };
-
-  const printViaBluetooth = async (rawText) => {
-    if (!btCharacteristicRef.current) return false;
-    try {
-      const encoder = new TextEncoder();
-      const data = encoder.encode('\x1B\x40' + rawText + '\n\n\n\x1D\x56\x00');
-      for (let i = 0; i < data.length; i += 100) {
-        await btCharacteristicRef.current.writeValue(data.slice(i, i + 100));
-      }
-      return true;
-    } catch (e) {
-      console.error("Bluetooth print failed", e);
-      return false;
-    }
-  };
-
-  // Table Calculations
-  const activeTableCount = useMemo(() => {
-    return Object.keys(activeOrders).filter(tId => {
-      const order = activeOrders[tId];
-      return order && Object.values(order).some(qty => qty > 0);
-    }).length;
-  }, [activeOrders]);
-
-  const getTableTotal = (tableId) => {
-    const order = activeOrders[tableId] || {};
-    let sum = 0;
-    for (const [itemId, qty] of Object.entries(order)) {
-      const item = menu.find(m => m.id === itemId);
-      if (item && qty > 0) sum += item.price * qty;
-    }
-    return sum;
-  };
-
-  // Cart operations
-  const addToCart = (itemId) => {
-    if (!selectedTable) return;
-    setActiveOrders(prev => {
-      const currentTableOrder = { ...(prev[selectedTable] || {}) };
-      currentTableOrder[itemId] = (currentTableOrder[itemId] || 0) + 1;
-      return { ...prev, [selectedTable]: currentTableOrder };
-    });
-  };
-
-  const updateCartQty = (itemId, delta) => {
-    if (!selectedTable) return;
-    setActiveOrders(prev => {
-      const currentTableOrder = { ...(prev[selectedTable] || {}) };
-      const newQty = (currentTableOrder[itemId] || 0) + delta;
-      if (newQty <= 0) {
-        delete currentTableOrder[itemId];
-      } else {
-        currentTableOrder[itemId] = newQty;
-      }
-      return { ...prev, [selectedTable]: currentTableOrder };
-    });
-  };
-
-  // Checkout and Thermal Print
-  const handleCheckout = async () => {
-    if (!selectedTable) return;
-    const currentOrder = activeOrders[selectedTable] || {};
-    const itemsList = [];
-    let total = 0;
-
-    for (const [itemId, qty] of Object.entries(currentOrder)) {
-      const item = menu.find(m => m.id === itemId);
-      if (item && qty > 0) {
-        const sub = item.price * qty;
-        total += sub;
-        itemsList.push({ id: item.id, name: item.name, price: item.price, qty, subtotal: sub });
-      }
-    }
-
-    if (itemsList.length === 0) return;
-
-    const voucherId = 'INV-' + Math.floor(100000 + Math.random() * 900000);
-    const now = new Date();
-    const dateFormatted = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const isoDate = now.toISOString().slice(0, 10);
-    const hour = now.getHours();
-
-    const orderRecord = {
-      id: voucherId,
-      date: dateFormatted,
-      isoDate: isoDate,
-      hour: hour,
-      timestamp: now.getTime(),
-      tableId: selectedTable,
-      items: itemsList,
-      total: total
-    };
-
-    // Save to history & clear table
-    setHistory(prev => [orderRecord, ...prev]);
-    setActiveOrders(prev => {
-      const next = { ...prev };
-      delete next[selectedTable];
-      return next;
-    });
-
-    setSelectedTable(null);
-
-    // Bluetooth print text
-    let btText = `${storeName}\nDate: ${dateFormatted}\nTable: ${selectedTable}  No: ${voucherId}\n--------------------------------\n`;
-    itemsList.forEach(i => {
-      btText += `${i.name}\n  ${i.qty} x ${i.price.toLocaleString()} = ${i.subtotal.toLocaleString()} Ks\n`;
-    });
-    btText += `--------------------------------\nTOTAL: ${total.toLocaleString()} Ks\nThank You! Please come again.\n`;
-
-    const btSent = await printViaBluetooth(btText);
-    if (!btSent) {
-      // Fallback to thermal browser print
-      setPrintReceiptData(orderRecord);
-      setTimeout(() => {
-        window.print();
-      }, 300);
-    } else {
-      showToast(lang === 'my' ? "ဘောက်ချာ ပရင့်ထုတ်ပြီးပါပြီ" : "Receipt printed via Bluetooth!");
-    }
-  };
-
-  // Menu Admin Operations
-  const handleAddCategory = () => {
-    const trimmed = newCatName.trim();
-    if (trimmed && !categories.includes(trimmed)) {
-      setCategories(prev => [...prev, trimmed]);
-      setNewCatName('');
-      showToast(t('saved'));
-    }
-  };
-
-  const handleRemoveCategory = (catToRemove) => {
-    setCategories(prev => prev.filter(c => c !== catToRemove));
-    if (newItemCategory === catToRemove) {
-      setNewItemCategory(categories.find(c => c !== catToRemove) || 'အထွေထွေ');
-    }
-  };
-
-  const handleAddMenuItem = () => {
-    if (!newItemName.trim() || !newItemPrice) return;
-    const item = {
-      id: Date.now().toString(),
-      name: newItemName.trim(),
-      price: parseFloat(newItemPrice) || 0,
-      category: newItemCategory || categories[0] || 'အထွေထွေ',
-      icon: newItemIcon.trim() || '🍲'
-    };
-    setMenu(prev => [...prev, item]);
-    setNewItemName('');
-    setNewItemPrice('');
-    showToast(t('saved'));
-  };
-
-  const handleDeleteMenuItem = (id) => {
-    setConfirmDialog({
-      title: t('confirm_delete'),
-      onConfirm: () => {
-        setMenu(prev => prev.filter(m => m.id !== id));
-        setConfirmDialog(null);
-        showToast(t('saved'));
-      }
-    });
-  };
-
-  // Clear Demo Data: Wipe demo items and categories to start completely fresh
-  const handleClearDemoData = () => {
-    setConfirmDialog({
-      title: t('confirm_clear_demo'),
-      onConfirm: () => {
-        setMenu([]);
-        setCategories(['အထွေထွေ']);
-        setActiveOrders({});
-        setConfirmDialog(null);
-        showToast(lang === 'my' ? "Demo Data များကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ" : "Demo data cleared! You can now add your own menu.");
-      }
-    });
-  };
-
-  const handleClearHistory = () => {
-    setConfirmDialog({
-      title: t('confirm_clear'),
-      onConfirm: () => {
-        setHistory([]);
-        setConfirmDialog(null);
-        showToast(t('saved'));
-      }
-    });
-  };
-
-  const handleSaveSettings = () => {
-    if (tempStoreName.trim()) {
-      setStoreName(tempStoreName.trim());
-      setNameInput(tempStoreName.trim());
-    }
-    const count = parseInt(tempTableCount, 10);
-    if (count && count > 0 && count <= 100) setTableCount(count);
-    showToast(t('saved'));
-  };
-
-  const handleQuickRename = () => {
-    if (nameInput.trim()) {
-      setStoreName(nameInput.trim());
-      setTempStoreName(nameInput.trim());
-      setShowEditNameModal(false);
-      showToast(t('saved'));
-    }
-  };
-
-  // ==========================================
-  // DAILY SALES & TEMPORAL ANALYSIS LOGIC
-  // ==========================================
-  const filteredHistory = useMemo(() => {
-    const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10);
-
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().slice(0, 10);
-
-    const sevenDaysAgo = new Date(today);
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    return history.filter(order => {
-      // Extract ISO date from record or parse date string
-      let orderDate = order.isoDate;
-      if (!orderDate && order.timestamp) {
-        orderDate = new Date(order.timestamp).toISOString().slice(0, 10);
-      }
-      if (!orderDate && order.date) {
-        // Fallback for older format DD/MM/YYYY
-        const parts = order.date.split(' ')[0].split('/');
-        if (parts.length === 3) {
-          orderDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-        }
-      }
-
-      if (!orderDate) return true;
-
-      switch (dateFilter) {
-        case 'today':
-          return orderDate === todayStr;
-        case 'yesterday':
-          return orderDate === yesterdayStr;
-        case '7days': {
-          const d = new Date(orderDate);
-          return d >= sevenDaysAgo;
-        }
-        case 'month': {
-          const d = new Date(orderDate);
-          return d >= firstDayOfMonth;
-        }
-        case 'custom':
-          return orderDate === customDate;
-        case 'all':
-        default:
-          return true;
-      }
-    });
-  }, [history, dateFilter, customDate]);
-
-  // Aggregated analytics for selected period
-  const dashboardStats = useMemo(() => {
-    let totalSales = 0;
-    const catMap = {};
-    const itemMap = {};
-    const hourMap = {
-      morning: { label: 'မနက် (6AM - 12PM)', sales: 0, orders: 0 },
-      afternoon: { label: 'နေ့လယ် (12PM - 5PM)', sales: 0, orders: 0 },
-      evening: { label: 'ညနေ (5PM - 10PM)', sales: 0, orders: 0 },
-      night: { label: 'ည (10PM - 6AM)', sales: 0, orders: 0 }
-    };
-    const dailyMap = {};
-
-    filteredHistory.forEach(order => {
-      totalSales += order.total || 0;
-
-      // Group by daily date
-      const dKey = order.isoDate || (order.date ? order.date.split(' ')[0] : 'Other');
-      if (!dailyMap[dKey]) dailyMap[dKey] = { date: dKey, sales: 0, orders: 0 };
-      dailyMap[dKey].sales += order.total || 0;
-      dailyMap[dKey].orders += 1;
-
-      // Hour grouping
-      const h = order.hour !== undefined ? order.hour : 12;
-      if (h >= 6 && h < 12) {
-        hourMap.morning.sales += order.total || 0;
-        hourMap.morning.orders += 1;
-      } else if (h >= 12 && h < 17) {
-        hourMap.afternoon.sales += order.total || 0;
-        hourMap.afternoon.orders += 1;
-      } else if (h >= 17 && h < 22) {
-        hourMap.evening.sales += order.total || 0;
-        hourMap.evening.orders += 1;
-      } else {
-        hourMap.night.sales += order.total || 0;
-        hourMap.night.orders += 1;
-      }
-
-      (order.items || []).forEach(item => {
-        if (!itemMap[item.name]) {
-          itemMap[item.name] = { qty: 0, revenue: 0, category: '' };
-        }
-        itemMap[item.name].qty += item.qty;
-        itemMap[item.name].revenue += item.subtotal;
-
-        const refItem = menu.find(m => m.name === item.name);
-        const cat = refItem ? refItem.category : 'Others';
-        itemMap[item.name].category = cat;
-        catMap[cat] = (catMap[cat] || 0) + item.subtotal;
-      });
-    });
-
-    let topCat = '-';
-    let maxCatSales = 0;
-    for (const [c, val] of Object.entries(catMap)) {
-      if (val > maxCatSales) {
-        maxCatSales = val;
-        topCat = c;
-      }
-    }
-
-    // Sort items by revenue / quantity
-    const sortedItems = Object.entries(itemMap)
-      .map(([name, data]) => ({ name, ...data }))
-      .sort((a, b) => b.qty - a.qty);
-
-    const topItem = sortedItems.length > 0 ? sortedItems[0].name : '-';
-    const totalOrders = filteredHistory.length;
-    const avgVoucher = totalOrders > 0 ? Math.round(totalSales / totalOrders) : 0;
-
-    // Daily trends list sorted by date descending
-    const dailyTrends = Object.values(dailyMap).sort((a, b) => b.date.localeCompare(a.date));
-
-    return {
-      totalSales,
-      totalOrders,
-      avgVoucher,
-      topCat,
-      topItem,
-      catMap,
-      topItems: sortedItems.slice(0, 5),
-      hourMap,
-      dailyTrends
-    };
-  }, [filteredHistory, menu]);
-
-  // Color Theme definitions
-  const themeStyles = useMemo(() => {
-    switch (theme) {
-      case 'dark':
-        return {
-          bg: 'bg-slate-950 text-slate-100',
-          card: 'bg-slate-900 border-slate-800 text-slate-100',
-          cardSubtle: 'bg-slate-800/80 border-slate-700/80',
-          nav: 'bg-slate-900/90 border-slate-800',
-          accent: 'text-indigo-400',
-          buttonPrimary: 'bg-indigo-600 hover:bg-indigo-700 text-white',
-          input: 'bg-slate-800 border-slate-700 text-slate-100 focus:ring-indigo-500'
-        };
-      case 'warm':
-        return {
-          bg: 'bg-amber-50 text-amber-950',
-          card: 'bg-amber-100/70 border-amber-300/80 text-amber-950 shadow-sm',
-          cardSubtle: 'bg-amber-200/40 border-amber-300/60',
-          nav: 'bg-amber-100/95 border-amber-200',
-          accent: 'text-amber-700',
-          buttonPrimary: 'bg-amber-600 hover:bg-amber-700 text-white',
-          input: 'bg-amber-50/80 border-amber-300 text-amber-950 focus:ring-amber-500'
-        };
-      case 'green':
-        return {
-          bg: 'bg-emerald-50 text-emerald-950',
-          card: 'bg-emerald-100/70 border-emerald-300/80 text-emerald-950 shadow-sm',
-          cardSubtle: 'bg-emerald-200/40 border-emerald-300/60',
-          nav: 'bg-emerald-100/95 border-emerald-200',
-          accent: 'text-emerald-700',
-          buttonPrimary: 'bg-emerald-600 hover:bg-emerald-700 text-white',
-          input: 'bg-emerald-50/80 border-emerald-300 text-emerald-950 focus:ring-emerald-500'
-        };
-      case 'light':
-      default:
-        return {
-          bg: 'bg-slate-50 text-slate-900',
-          card: 'bg-white border-slate-200 text-slate-900 shadow-sm',
-          cardSubtle: 'bg-slate-100/80 border-slate-200/70',
-          nav: 'bg-white/95 border-slate-200',
-          accent: 'text-blue-600',
-          buttonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',
-          input: 'bg-white border-slate-300 text-slate-900 focus:ring-blue-500'
-        };
-    }
-  }, [theme]);
-
-  // Active items for modal cart
-  const currentTableOrder = selectedTable ? (activeOrders[selectedTable] || {}) : {};
-  const currentTableTotal = selectedTable ? getTableTotal(selectedTable) : 0;
-  const filteredMenuItems = useMemo(() => {
-    if (selectedCategory === 'All') return menu;
-    return menu.filter(m => m.category === selectedCategory);
-  }, [menu, selectedCategory]);
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${themeStyles.bg}`}>
-      
-      {/* 1. TOP HEADER (BRAND & QUICK RENAME) */}
-      <header className={`sticky top-0 z-30 px-4 py-3 border-b backdrop-blur-md flex items-center justify-between ${themeStyles.nav}`}>
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
-            <UtensilsCrossed className="w-5 h-5" />
+    <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
+      <section aria-labelledby="beta-notice-title" className="mb-6 rounded-2xl border border-[#eadfc9] bg-[#fffaf1] p-4 shadow-sm sm:p-5">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f8edd8] text-[#9a743e]"><CircleHelp size={20} /></span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 id="beta-notice-title" className="text-sm font-bold text-[#715832] sm:text-base">လက်ရှိ Beta စမ်းသပ်ဗားရှင်း ဖြစ်ပါတယ်</h2>
+              <span className="rounded-full bg-[#f8edd8] px-2.5 py-1 text-[9px] font-bold tracking-wide text-[#98713a]">BETA · စမ်းသပ်ဆဲ</span>
+            </div>
+            <p className="mt-2 text-xs leading-7 text-[#806f58]">ဤ App ကို အသုံးပြုသူများထံမှ အကြံပြုချက်ရယူပြီး ပိုမိုကောင်းမွန်လာစေရန် စမ်းသပ်ပြင်ဆင်နေဆဲ ဖြစ်ပါသည်။ ထို့ကြောင့် မေးခွန်း၊ မြန်မာစာအသုံးအနှုန်း၊ ရလဒ်ရှင်းလင်းချက်နှင့် လုပ်ဆောင်ချက်အချို့ ပြောင်းလဲနိုင်သလို မမျှော်လင့်ထားသော အမှားများလည်း ဖြစ်ပေါ်နိုင်ပါသည်။</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-[#f0e6d4] bg-white/75 p-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><BookOpen size={15} /> ရလဒ်များကို သတိထားဖတ်ပါ</div>
+            <p className="mt-1.5 text-[11px] leading-6 text-[#85745d]">ရလဒ်များသည် မိမိကိုယ်ကို ပြန်လည်သုံးသပ်ရန် အထောက်အကူပေးသည့် အညွှန်းများသာ ဖြစ်ပါသည်။ သင့်ကို အမျိုးအစားတစ်ခုတည်းဖြင့် အပြီးသတ်သတ်မှတ်ခြင်း သို့မဟုတ် အခြားသူများနှင့် အဆင့်ချင်းနှိုင်းယှဉ်ခြင်း မဟုတ်ပါ။ Career Interest ရလဒ်သည် အလုပ်ရရှိမှု သို့မဟုတ် အောင်မြင်မှုကို အာမမခံပါ။</p>
+          </div>
+          <div className="rounded-xl border border-[#f0e6d4] bg-white/75 p-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><ShieldCheck size={15} /> ပညာရှင်၏ ဆုံးဖြတ်ချက်အစား မသုံးပါနှင့်</div>
+            <p className="mt-1.5 text-[11px] leading-6 text-[#85745d]">ဤ App သည် စိတ်ကျန်းမာရေးဆိုင်ရာ ရောဂါရှာဖွေခြင်း၊ ကုသမှု၊ ဆေးဝါးသုံးစွဲမှု သို့မဟုတ် အရေးကြီးသော ဆုံးဖြတ်ချက်များအတွက် မဟုတ်ပါ။ လိုအပ်ပါက သက်ဆိုင်ရာ ပညာရှင်နှင့် တိုင်ပင်ပါ။</p>
+          </div>
+          <div className="rounded-xl border border-[#f0e6d4] bg-white/75 p-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><LockKeyhole size={15} /> အဖြေများကို ဒီ Browser ထဲတွင် သိမ်းထားပါသည်</div>
+            <p className="mt-1.5 text-[11px] leading-6 text-[#85745d]">အဖြေများ၊ Draft နှင့် မှတ်တမ်းများကို လက်ရှိ Browser/စက်၏ LocalStorage ထဲတွင်သာ သိမ်းဆည်းထားပြီး Cloud Sync မရှိသေးပါ။ Browser Data ရှင်းခြင်း၊ Private/Incognito အသုံးပြုခြင်း သို့မဟုတ် Browser/စက်ပြောင်းခြင်းကြောင့် Data ပျောက်နိုင်ပါသည်။</p>
+          </div>
+          <div className="rounded-xl border border-[#f0e6d4] bg-white/75 p-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><FileJson size={15} /> Backup ကို လုံခြုံစွာ သိမ်းပါ</div>
+            <p className="mt-1.5 text-[11px] leading-6 text-[#85745d]">Browser Data မရှင်းမီ JSON Backup ထုတ်ယူထားပါ။ Backup ဖိုင်ထဲတွင် ကိုယ်ရေးကိုယ်တာ အဖြေများနှင့် ရလဒ်များ ပါဝင်နိုင်သောကြောင့် အခြားသူများထံ မမျှဝေပါနှင့်။</p>
+          </div>
+        </div>
+        <p className="mt-3 rounded-xl bg-[#f8f0e3] px-3 py-2 text-[11px] leading-6 text-[#806f58]">စမ်းသပ်ရာတွင် Error သို့မဟုတ် နားမလည်သောအချက်တွေ့ပါက အသုံးပြုနေသည့် ဖုန်း/ကွန်ပျူတာ၊ Browser အမျိုးအစားနှင့် ဖြစ်ပွားပုံကို မှတ်သားပြီး အကြံပြုချက်ပေးနိုင်ပါသည်။ Screenshot ပို့မည်ဆိုပါက ကိုယ်ရေးကိုယ်တာအချက်အလက်များကို ဖုံးကွယ်ပေးပါ။ မဖြေလိုသော မေးခွန်းရှိပါက ဆက်မဖြေဘဲ စမ်းသပ်မှုကို ရပ်နားနိုင်ပါသည်။</p>
+      </section>
+
+      <section className="relative overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f4e9ed] px-6 py-10 card-shadow sm:px-10 sm:py-14 lg:px-14">
+        <div className="soft-grid pointer-events-none absolute inset-0 opacity-30" />
+        <div className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-full bg-[#e0d2e8]/50 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-[#f1d9e1]/60 blur-3xl" />
+        <div className="relative grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="max-w-2xl">
+            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#80678f] shadow-sm"><Sparkles size={14} /> ကိုယ့်ကိုယ်ကို နားလည်ဖို့ ခရီးစဉ်ငယ်တစ်ခု</span>
+            <h1 className="text-3xl font-bold leading-[1.45] tracking-tight text-[#44364a] sm:text-4xl lg:text-[2.8rem]">ကိုယ့်ပင်ကိုစရိုက်နဲ့<br className="hidden sm:block" /> အတွင်းစိတ်ကို ပိုမိုနားလည်ပါ</h1>
+            <p className="mt-5 max-w-xl text-sm leading-8 text-[#776b7b] sm:text-base">မိမိရဲ့ အတွေးအခေါ်၊ စိတ်ခံစားမှု၊ အပြုအမူနဲ့ ဆက်ဆံရေးပုံစံတွေကို အဆင့်ဆင့် လေ့လာပြီး ကိုယ့်ကိုယ်ကို ပိုမိုနားလည်လာစေဖို့ ရည်ရွယ်ပါတယ်။</p>
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#887c8c]">
+              <span className="inline-flex items-center gap-1.5"><ClipboardCheck size={14} /> မိမိရွေးချယ်နိုင်တဲ့ ဆန်းစစ်မှုများ</span>
+              <span className="inline-flex items-center gap-1.5"><PauseCircle size={14} /> ခဏရပ်ပြီး ပြန်ဆက်နိုင်</span>
+              <span className="inline-flex items-center gap-1.5"><LockKeyhole size={14} /> ဒီစက်ထဲမှာသာ သိမ်းဆည်း</span>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <PrimaryButton onClick={() => scrollTo('assessment-dashboard')}>စတင်လေ့လာမယ်</PrimaryButton>
+              {latestPersonalityDraft && (
+                <SecondaryButton onClick={() => onResume(Number(latestPersonalityDraft[0]))} icon={ArrowRight}>အရင်ဖြေထားတာ ဆက်မယ်</SecondaryButton>
+              )}
+            </div>
+          </div>
+          <div className="relative mx-auto w-full max-w-sm">
+            <div className="absolute inset-4 rounded-[2rem] bg-[#d8c6df]/50 blur-2xl" />
+            <div className="relative rounded-[2rem] border border-white/90 bg-white/80 p-5 shadow-[0_22px_70px_rgba(91,68,96,0.13)] backdrop-blur">
+              <div className="flex items-center justify-between"><span className="text-xs font-semibold text-[#8b7b8e]">သင့်ရဲ့ ကိုယ်ပိုင်မြေပုံ</span><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-[10px] font-semibold text-[#80678f]">လေ့လာမှု ၄ ပိုင်း</span></div>
+              <div className="relative mt-5 grid aspect-square place-items-center rounded-[1.5rem] bg-gradient-to-br from-[#f8f3fa] to-[#fdf7f5]">
+                <div className="absolute h-[75%] w-[75%] rounded-full border border-[#e8dfea]" /><div className="absolute h-[55%] w-[55%] rounded-full border border-[#e8dfea]" /><div className="absolute h-[34%] w-[34%] rounded-full border border-[#e8dfea]" />
+                <div className="absolute h-px w-[78%] bg-[#e8dfea]" /><div className="absolute h-[78%] w-px bg-[#e8dfea]" />
+                <div className="relative grid h-24 w-24 place-items-center rounded-full border border-white bg-white text-[#80678f] shadow-lg"><div className="text-center"><Sparkles className="mx-auto mb-1" size={23} /><span className="text-[10px] font-bold">YOU</span></div></div>
+                <span className="absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-[#8a7196] shadow-sm">ပင်ကိုစရိုက်</span>
+                <span className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-[#a67d8f] shadow-sm">စိတ်နေသဘောထား</span>
+                <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-[#8a7196] shadow-sm">ဆက်ဆံရေး</span>
+                <span className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-[#a67d8f] shadow-sm">ဘဝတန်ဖိုး</span>
+              </div>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                <div className="rounded-xl bg-[#f7f1f8] p-2.5 text-center"><span className="block text-lg font-bold text-[#80678f]">30</span><span className="text-[10px] text-[#97899b]">အခြေခံ</span></div>
+                <div className="rounded-xl bg-[#fbf1f3] p-2.5 text-center"><span className="block text-lg font-bold text-[#a77c8d]">60</span><span className="text-[10px] text-[#97899b]">အသေးစိတ်</span></div>
+                <div className="rounded-xl bg-[#f4f3ed] p-2.5 text-center"><span className="block text-lg font-bold text-[#928b68]">120</span><span className="text-[10px] text-[#97899b]">နက်ရှိုင်း</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6 grid grid-cols-3 gap-2 sm:gap-4" aria-label="လက်ရှိအသုံးပြုမှု အကျဉ်းချုပ်">
+        <article className="rounded-2xl border border-[#eee5ed] bg-white p-3 shadow-sm sm:p-4">
+          <span className="text-[10px] font-medium text-[#97899b] sm:text-xs">ပြီးဆုံးထားသော မှတ်တမ်း</span>
+          <p className="mt-1 text-xl font-bold tabular-nums text-[#80678f] sm:text-2xl">{completedCount}</p>
+        </article>
+        <article className="rounded-2xl border border-[#eee5ed] bg-white p-3 shadow-sm sm:p-4">
+          <span className="text-[10px] font-medium text-[#97899b] sm:text-xs">မပြီးသေးသော Draft</span>
+          <p className="mt-1 text-xl font-bold tabular-nums text-[#a77c8d] sm:text-2xl">{draftCount}</p>
+        </article>
+        <article className="rounded-2xl border border-[#eee5ed] bg-white p-3 shadow-sm sm:p-4">
+          <span className="text-[10px] font-medium text-[#97899b] sm:text-xs">ယခုအသုံးပြုနိုင်သော စမ်းသပ်မှု</span>
+          <p className="mt-1 text-xl font-bold tabular-nums text-[#8b876b] sm:text-2xl">၃ မျိုး</p>
+        </article>
+      </section>
+
+      <section className="mt-7 rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
+        <div className="flex items-start gap-4">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#f3edf5] text-[#80678f]"><BookOpen size={22}/></span>
+          <div>
+            <div className="flex flex-wrap items-center gap-2"><h2 className="text-base font-bold text-[#514357]">Knowledge Center</h2><span className="rounded-full bg-[#fff5e6] px-2 py-0.5 text-[9px] font-bold text-[#98713a]">မူကြမ်း 0.1.0</span></div>
+            <p className="mt-1 text-xs font-semibold text-[#80678f]">စိတ်ပညာနဲ့ လူ့အပြုအမူဆိုင်ရာ အသိပညာများ</p>
+            <p className="mt-2 max-w-2xl text-[11px] leading-6 text-[#8b808e]">ခက်ခဲတဲ့ စိတ်ပညာဆိုင်ရာ စကားလုံးတွေကို မြန်မာလို အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာနဲ့ ကွာခြားချက်တွေကို ဖတ်ရှုနိုင်ပါတယ်။ လက်ရှိအကြောင်းအရာတွေဟာ ကျွမ်းကျင်သူစစ်ဆေးမှု မပြီးသေးတဲ့ မူကြမ်းများ ဖြစ်ပါတယ်။</p>
+            <p className="mt-2 text-[10px] text-[#9b8da0]">စကားလုံး ၃၀ · အုပ်စု ၆ ခု · ရောဂါရှာဖွေရေး မဟုတ်ပါ</p>
+          </div>
+        </div>
+        <button onClick={onOpenKnowledge} className="mt-4 inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d9cce0] bg-[#f7f2f8] px-4 py-2.5 text-xs font-semibold text-[#6f587a] transition hover:bg-[#eee6f1] sm:mt-0 sm:w-auto">စကားလုံးများ လေ့လာမယ် <ArrowRight size={15}/></button>
+      </section>
+
+      <section id="assessment-dashboard" className="mt-10 scroll-mt-24">
+        <div className="mb-5">
+          <p className="text-xs font-semibold tracking-wide text-[#a18fa7]">PERSONALITY ASSESSMENT CENTER</p>
+          <h2 className="mt-1 text-xl font-bold text-[#514357]">ပင်ကိုစရိုက်နဲ့ အတွင်းစိတ်ကို လေ့လာပါ</h2>
+          <p className="mt-2 max-w-3xl text-xs leading-6 text-[#938796]">ဆန်းစစ်မှုတစ်ခုချင်းစီမှာ ကိုယ်ပိုင်ရည်ရွယ်ချက်၊ မေးခွန်းနဲ့ ရလဒ်ရှိပါတယ်။ အဖြေတစ်ခုတည်းနဲ့ သင့်ကို အပြီးသတ်သတ်မှတ်မှာ မဟုတ်ဘဲ ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်နိုင်ဖို့ ကူညီပေးမှာပါ။</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <article className="flex flex-col rounded-2xl border border-[#d8c7df] bg-white p-5 shadow-sm ring-1 ring-[#eee5f0] sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <span className="grid h-[76px] w-[76px] place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><TraitLensLogo size={58}/></span>
+              <span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-[10px] font-semibold text-[#72876e]">စတင်နိုင်ပါပြီ</span>
+            </div>
+            <h3 className="mt-4 text-xl font-bold tracking-tight text-[#514357]">TraitLens</h3>
+            <p className="mt-1 text-sm font-semibold text-[#80678f]">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</p>
+            <p className="mt-3 flex-1 text-xs leading-7 text-[#8b808e]">နေ့စဉ်ဘဝမှာ သင်တွေးခေါ်ပုံ၊ ပြုမူပုံ၊ လူမှုဆက်ဆံရေးနဲ့ စိတ်ခံစားမှုတုံ့ပြန်ပုံတွေကို အဓိက အချက် ၅ ချက်ကို အခြေခံပြီး လေ့လာနိုင်ပါတယ်။</p>
+            <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-semibold text-[#80678f]"><span className="rounded-full bg-[#f5eff7] px-2.5 py-1">အချက် ၅ ချက်</span><span className="rounded-full bg-[#f5eff7] px-2.5 py-1">၃၀ မေးခွန်း</span><span className="rounded-full bg-[#f5eff7] px-2.5 py-1">၆၀ မေးခွန်း</span><span className="rounded-full bg-[#f5eff7] px-2.5 py-1">၁၂၀ မေးခွန်း</span></div>
+            <button onClick={() => scrollTo('personality-levels')} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">TraitLens ကို စတင်လေ့လာမယ် <ArrowRight size={15}/></button>
+          </article>
+
+          <article className="flex flex-col rounded-2xl border border-[#d4e0ef] bg-white p-5 shadow-sm sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <span className="grid h-[76px] w-[76px] place-items-center rounded-2xl bg-[#eaf1fa] text-[#527daA]"><InnerCompassLogo size={58}/></span>
+              <span className="rounded-full bg-[#eef3f9] px-2.5 py-1 text-[10px] font-semibold text-[#3f648c]">စမ်းသပ်အသုံးပြုရန်</span>
+            </div>
+            <h3 className="mt-4 text-xl font-bold tracking-tight text-[#3f5873]">InnerCompass</h3>
+            <p className="mt-1 text-sm font-semibold text-[#3f648c]">စိတ်နေသဘောထားကို လေ့လာခြင်း</p>
+            <p className="mt-3 flex-1 text-xs leading-7 text-[#596d83]">ကိုယ့်ရဲ့ ယုံကြည်စိတ်ချရမှု၊ စိတ်ခံစားချက်ကို သိမြင်ကိုင်တွယ်ပုံ၊ လူမှုဆက်ဆံရေး၊ အမြင်မတူမှုကို ကိုင်တွယ်ပုံ၊ ကိုယ်ပိုင်စီမံမှုနဲ့ စူးစမ်းတွေးခေါ်ပုံတွေကို ပြန်လည်သုံးသပ်နိုင်ပါတယ်။</p>
+            <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-semibold text-[#3f648c]"><span className="rounded-full bg-[#eef3f9] px-2.5 py-1">မေးခွန်း ၃၀</span><span className="rounded-full bg-[#eef3f9] px-2.5 py-1">အဓိက အချက် ၆ ချက်</span><span className="rounded-full bg-[#fdf5e9] px-2.5 py-1 text-[#936e3c]">Pilot</span></div>
+            {innerCompassDraft ? (
+              <div className="mt-4 rounded-xl bg-[#f5f9fd] p-3">
+                <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#405f82]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#71869c]">{innerCompassProgress}%</span></div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e1eaf3]"><div className="h-full rounded-full bg-[#527daa]" style={{ width: `${innerCompassProgress}%` }}/></div>
+                <p className="mt-2 text-[10px] text-[#71869c]">ဖြေပြီး {innerCompassAnswered} ခု · ကျော်ထား {(innerCompassDraft.skippedQuestionIds || []).filter((id) => innerCompassDraft.answers?.[id] === undefined).length} ခု</p>
+                <button onClick={onOpenInnerCompass} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#527daa] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#456d97]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
+              </div>
+            ) : (
+              <button onClick={onOpenInnerCompass} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cbd9e9] bg-[#f6f9fd] px-4 py-2.5 text-xs font-semibold text-[#3f648c] transition hover:bg-[#edf3fa]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15}/></button>
+            )}
+            <p className="mt-2 text-[10px] leading-5 text-[#9aa9b8]">စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုသာ ဖြစ်ပြီး အတည်ပြုထားသော စိတ်ပညာစမ်းသပ်မှု မဟုတ်ပါ။</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <div className="mb-4">
+          <p className="text-xs font-semibold tracking-wide text-[#a18fa7]">MORE SELF-REFLECTION AREAS</p>
+          <h2 className="mt-1 text-lg font-bold text-[#514357]">နောက်ထပ် လေ့လာနိုင်မယ့် အပိုင်းများ</h2>
+          <p className="mt-1 text-xs leading-6 text-[#938796]">ဒီအပိုင်းတွေဟာ ပင်ကိုစရိုက်အဓိကဆန်းစစ်မှုတွေနဲ့ သီးခြားဖြစ်ပြီး နောက်ပိုင်းမှာ တဖြည်းဖြည်း ဖွင့်လှစ်သွားပါမယ်။</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <article className="flex items-center gap-4 rounded-2xl border border-[#f0e1de] bg-white p-4">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#b87969]"><BondSenseLogo size={44}/></span>
+            <div className="min-w-0 flex-1"><h3 className="text-sm font-bold text-[#71473d]">BondSense</h3><p className="mt-1 text-xs leading-6 text-[#96766f]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p><span className="mt-1 inline-block text-[10px] font-semibold text-[#b87969]">နောက်ပိုင်း ဖွင့်လှစ်မည်</span></div>
+          </article>
+          <article className="flex items-center gap-4 rounded-2xl border border-[#e3e9d9] bg-white p-4">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef1e7] text-[#78875c]"><ValueMapLogo size={44}/></span>
+            <div className="min-w-0 flex-1"><h3 className="text-sm font-bold text-[#465333]">ValueMap</h3><p className="mt-1 text-xs leading-6 text-[#7e886c]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p><span className="mt-1 inline-block text-[10px] font-semibold text-[#78875c]">နောက်ပိုင်း ဖွင့်လှစ်မည်</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <div className="mb-4">
+          <p className="text-xs font-semibold tracking-wide text-[#a18fa7]">OPTIONAL TOOLS</p>
+          <h2 className="mt-1 text-lg font-bold text-[#514357]">အခြား ကိုယ်ပိုင်လေ့လာရေးကိရိယာများ</h2>
+          <p className="mt-1 text-xs leading-6 text-[#938796]">အလုပ်အကိုင်စိတ်ဝင်စားမှုနဲ့ ကျွမ်းကျင်မှုတွေကို ပင်ကိုစရိုက်ဆန်းစစ်မှုနဲ့ သီးခြားလေ့လာနိုင်ပါတယ်။</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <article className="flex flex-col rounded-2xl border border-[#e9dce7] bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-2"><span className="grid h-11 w-11 place-items-center rounded-xl bg-[#f8edf1] text-[#a77c8d]"><BriefcaseBusiness size={20}/></span><span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-[10px] font-semibold text-[#72876e]">စတင်နိုင်ပါပြီ</span></div>
+            <h3 className="mt-4 text-base font-bold text-[#514357]">Career Interest</h3>
+            <p className="mt-2 flex-1 text-xs leading-6 text-[#8b808e]">ဘယ်လိုလုပ်ဆောင်မှုတွေကို ပိုနှစ်သက်သလဲ၊ ဘယ်လိုအလုပ်ပတ်ဝန်းကျင်တွေကို စိတ်ဝင်စားသလဲဆိုတာ သီးခြားလေ့လာပါ။</p>
+            <p className="mt-4 text-[11px] font-semibold text-[#a77c8d]">မေးခွန်း ၃၀ · စိတ်ဝင်စားမှု အမျိုးအစား ၆ မျိုး</p>
+            {careerDraft ? (
+              <div className="mt-3 rounded-xl bg-[#faf6fb] p-3">
+                <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#725f7a]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#93869a]">{careerProgress}%</span></div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${careerProgress}%` }} /></div>
+                <p className="mt-2 text-[10px] text-[#96899b]">ဖြေပြီး {careerAnswered} ခု · နောက်ဆုံး {formatDate(careerDraft.updatedAt)}</p>
+                <button onClick={onStartCareer} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
+              </div>
+            ) : (
+              <button onClick={onStartCareer} className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">စတင်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
+            )}
+          </article>
+          <article className="flex flex-col rounded-2xl border border-[#eee5ed] bg-white/90 p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-2"><span className="grid h-11 w-11 place-items-center rounded-xl bg-[#f1f4e9] text-[#78875c]"><Target size={20}/></span><span className="rounded-full bg-[#f1f4e9] px-2.5 py-1 text-[10px] font-semibold text-[#78875c]">ပြင်ဆင်နေဆဲ</span></div>
+            <h3 className="mt-4 text-base font-bold text-[#514357]">Skills Assessment</h3>
+            <p className="mt-2 flex-1 text-xs leading-6 text-[#8b808e]">ကိုယ်တိုင်အကဲဖြတ်တဲ့ မေးခွန်းတွေနဲ့ လက်တွေ့လေ့ကျင့်ခန်းတွေကို ပေါင်းစပ်ပြီး ကိုယ့်ကျွမ်းကျင်မှုကို သီးခြားလေ့လာနိုင်ဖို့ ပြင်ဆင်နေပါတယ်။</p>
+            <p className="mt-4 text-[11px] font-semibold text-[#78875c]">မေးခွန်း + လက်တွေ့စမ်းသပ်မှု</p>
+            <span className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e3e9d9] bg-[#f8faf5] px-4 py-2.5 text-xs font-semibold text-[#8b9676]">နောက်အဆင့်တွင် ဖွင့်လှစ်မည်</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="personality-levels" className="mt-10 scroll-mt-24">
+        <div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">TRAITLENS · PERSONALITY REFLECTION</p><h2 className="mt-1 text-xl font-bold text-[#514357]">TraitLens — ပင်ကိုစရိုက်ကို ဘယ်လောက်အထိ လေ့လာချင်ပါသလဲ။</h2><p className="mt-2 text-xs leading-6 text-[#938796]">ကိုယ့်အချိန်နဲ့ ကိုက်ညီတဲ့ မေးခွန်းအရေအတွက်ကို ရွေးချယ်ပါ။ စတင်ပြီးနောက် ခဏရပ်ထားနိုင်ပြီး နောက်မှ ပြန်ဆက်ဖြေဆိုနိုင်ပါတယ်။</p></div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {LEVELS.map((level, index) => {
+            const draft = drafts?.personality?.[String(level.value)] || null
+            const stats = draft ? getDraftStats(draft, level.value) : null
+            return (
+              <article key={level.value} className={cn('flex flex-col rounded-2xl border bg-white p-5 shadow-sm', index === 1 ? 'border-[#d8c7df] ring-1 ring-[#e8dcea]' : 'border-[#eee5ed]')}>
+                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-[#f3edf5] px-3 py-1 text-[10px] font-semibold text-[#80678f]">{level.label}</span><span className="text-[11px] text-[#a196a5]">{level.time}</span></div>
+                <h3 className="mt-4 text-base font-bold text-[#514357]">{level.title}</h3>
+                <p className="mt-2 min-h-12 text-xs leading-6 text-[#8b808e]">{level.subtitle}</p>
+                <div className="mt-4 flex items-end gap-2"><strong className="text-3xl text-[#80678f]">{level.value}</strong><span className="pb-1 text-xs text-[#97899b]">မေးခွန်း</span></div>
+                {draft ? (
+                  <div className="mt-4 rounded-xl bg-[#faf6fb] p-3">
+                    <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#725f7a]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#93869a]">{stats.progress}%</span></div>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${stats.progress}%` }} /></div>
+                    <p className="mt-2 text-[10px] text-[#96899b]">ဖြေပြီး {stats.answered} ခု · ကျော်ထား {stats.skipped} ခု · နောက်ဆုံး {formatDate(draft.updatedAt)}</p>
+                    <PrimaryButton onClick={() => onResume(level.value)} icon={ArrowRight}>ဆက်လက်ဖြေဆိုမယ်</PrimaryButton>
+                    <button onClick={() => onStart(level.value, true)} className="mt-2 w-full py-2 text-[11px] font-semibold text-[#a47788] hover:text-[#8d5f72]">အစကနေ အသစ်ပြန်စမယ်</button>
+                  </div>
+                ) : (
+                  <div className="mt-auto pt-5"><PrimaryButton onClick={() => onStart(level.value, false)}>စတင်ဖြေဆိုမယ်</PrimaryButton></div>
+                )}
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      <section className="mt-10 rounded-2xl border border-[#eee5ed] bg-white/80 p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div><div className="flex items-center gap-2 text-sm font-bold text-[#514357]"><History size={17} className="text-[#80678f]" /> မကြာသေးမီက ပြီးဆုံးထားသော ဆန်းစစ်မှုများ</div><p className="mt-1 text-xs text-[#8b808e]">ကိုယ်တိုင်ဖြေဆိုပြီး သိမ်းဆည်းထားသော ရလဒ်များကို ပြန်ကြည့်နိုင်ပါတယ်။</p></div>
+          <SecondaryButton onClick={onHistory} icon={ChevronRight}>မှတ်တမ်းအားလုံးကြည့်မယ်</SecondaryButton>
+        </div>
+        {recentPersonalityHistory.length > 0 ? (
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {recentPersonalityHistory.map((record) => {
+              const isCareer = record.assessmentType === 'careerInterest'
+              const isInnerCompass = record.assessmentType === 'innerCompass'
+              const profile = !isCareer && !isInnerCompass && record.scores ? getPersonalityProfile(record.scores) : null
+              return (
+                <button key={record.id} onClick={() => onOpenRecord(record)} className="rounded-xl border border-[#eee5ed] bg-[#fcfafc] p-4 text-left transition hover:border-[#d8c7df] hover:bg-[#faf6fb]">
+                  <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-[10px] font-semibold text-[#80678f]">{isCareer ? 'Career Interest' : isInnerCompass ? 'InnerCompass' : `${record.level || record.questionCount || 30} မေးခွန်း`}</span><ArrowRight size={14} className="text-[#9b8ba0]" /></div>
+                  <p className="mt-3 text-sm font-bold text-[#5b4b60]">{isCareer ? `စိတ်ဝင်စားမှုအတိုကောက် ${record.careerCode || ''}` : isInnerCompass ? 'InnerCompass · ကိုယ်တိုင်သုံးသပ်မှု' : (profile?.title || 'TraitLens')}</p>
+                  <p className="mt-1 text-[10px] text-[#a196a5]">{formatDate(record.createdAt)}</p>
+                  <p className="mt-3 text-[11px] font-semibold text-[#80678f]">ရလဒ်ကြည့်မယ်</p>
+                </button>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="mt-4 rounded-xl bg-[#faf7fa] px-4 py-5 text-center">
+            <p className="text-sm font-semibold text-[#6f5e76]">စမ်းသပ်မှုမှတ်တမ်း မရှိသေးပါ။</p>
+            <p className="mt-1 text-xs leading-6 text-[#988b9b]">ဆန်းစစ်မှုတစ်ခုခု ပြီးဆုံးသွားတဲ့အခါ ရလဒ်ကို ဒီနေရာမှာ အလွယ်တကူ ပြန်ကြည့်နိုင်ပါမယ်။</p>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-[#e9e0eb] bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="max-w-2xl">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f3edf5] text-[#80678f]"><ShieldCheck size={19} /></span>
+            <h2 className="mt-3 text-base font-bold text-[#514357]">သင့်ရဲ့ အချက်အလက်တွေကို အရန်သိမ်းထားပါ</h2>
+            <p className="mt-2 text-xs leading-7 text-[#8b808e]">ဖြေဆိုထားတဲ့ အဖြေတွေ၊ မပြီးသေးတဲ့ Draft တွေနဲ့ ရလဒ်မှတ်တမ်းတွေကို JSON ဖိုင်အဖြစ် သိမ်းနိုင်ပါတယ်။ Browser Data ရှင်းမိတာ၊ ဖုန်းပြောင်းတာမျိုးရှိရင် Backup ဖိုင်ကနေ ပြန်လည်ထည့်သွင်းနိုင်ပါတယ်။</p>
+          </div>
+          <span className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full bg-[#f1f6ef] px-3 py-1.5 text-[10px] font-semibold text-[#71846b]"><LockKeyhole size={12} /> ဒီစက်ထဲမှာသာ သိမ်းဆည်း</span>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <button onClick={onExportBackup} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#725981]"><Download size={16} /> JSON Backup ထုတ်ယူမယ်</button>
+          <button onClick={onImportBackup} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e5dce6] bg-[#fcfafc] px-4 py-3 text-sm font-semibold text-[#6e5a77] transition hover:bg-[#f7f1f8]"><Upload size={16} /> Backup ဖိုင် ပြန်ထည့်မယ်</button>
+        </div>
+        <div className="mt-3 flex gap-2 rounded-xl bg-[#fbf6f2] p-3 text-[11px] leading-6 text-[#927d69]"><FileJson size={15} className="mt-0.5 shrink-0" /><p>Backup ဖိုင်ထဲမှာ သင်ဖြေဆိုထားတဲ့ ကိုယ်ရေးကိုယ်တာအဖြေများနဲ့ ရလဒ်တွေ ပါဝင်နိုင်ပါတယ်။ ကိုယ်ယုံကြည်ရတဲ့နေရာမှာသာ သိမ်းဆည်းပြီး အခြားသူထံ မမျှဝေပါနဲ့။</p></div>
+      </section>
+      <p className="mx-auto mt-7 max-w-3xl text-center text-[11px] leading-6 text-[#a197a3]">ဤစမ်းသပ်မှုသည် ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်ရန်အတွက်သာ ဖြစ်ပြီး စိတ်ကျန်းမာရေးဆိုင်ရာ ရောဂါရှာဖွေခြင်း သို့မဟုတ် အလုပ်အကိုင်အာမခံချက် ပေးခြင်း မဟုတ်ပါ။</p>
+    </main>
+  )
+}
+
+function InstructionsPage({ level, onBack, onBegin }) {
+  const selected = LEVELS.find((item) => item.value === Number(level)) || LEVELS[0]
+  const [acknowledged, setAcknowledged] = useState(false)
+  return (
+    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#716679] hover:text-[#614b6b]"><ArrowLeft size={16} /> နောက်သို့</button>
+      <section className="overflow-hidden rounded-[2rem] border border-[#e5d8e9] bg-white card-shadow">
+        <div className="bg-gradient-to-br from-[#f2eaf5] via-[#fbf8fb] to-[#f8eff2] p-6 sm:p-9">
+          <div className="flex items-center gap-4">
+            <span className="grid h-[76px] w-[76px] shrink-0 place-items-center rounded-2xl bg-white/90 text-[#80678f] shadow-sm"><TraitLensLogo size={58}/></span>
+            <div>
+              <p className="text-xs font-semibold tracking-[0.12em] text-[#745b83]">TRAITLENS</p>
+              <h1 className="mt-1 text-xl font-bold text-[#493c4d] sm:text-2xl">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</h1>
+              <p className="mt-1 text-xs text-[#6f6276]">အချက် ၅ ချက် · {selected.value} မေးခွန်း · {selected.label}</p>
+            </div>
+          </div>
+          <h2 className="mt-7 text-2xl font-bold leading-relaxed text-[#493c4d] sm:text-3xl">မစတင်မီ သိထားသင့်သော အချက်များ</h2>
+          <p className="mt-3 text-sm leading-8 text-[#716679]">ဒီဆန်းစစ်မှုဟာ သင့်ရဲ့ ပုံမှန်အတွေးအခေါ်၊ စိတ်ခံစားမှုနဲ့ အပြုအမူပုံစံတွေကို ပြန်လည်လေ့လာဖို့ ရည်ရွယ်ပါတယ်။ သင့်ကို အမျိုးအစားတစ်ခုတည်းနဲ့ အပြီးသတ်သတ်မှတ်ဖို့ မဟုတ်ပါဘူး။</p>
+        </div>
+        <div className="space-y-5 p-6 sm:p-9">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <article className="rounded-2xl bg-[#faf7fb] p-4"><p className="text-xs font-bold text-[#6f5879]">ဘာကို လေ့လာပေးသလဲ။</p><p className="mt-2 text-xs leading-7 text-[#6f6276]">အတွေးအခေါ်သစ်ကို လက်ခံပုံ၊ စနစ်တကျလုပ်ဆောင်ပုံ၊ လူမှုဆက်ဆံရေး၊ ပူးပေါင်းဆောင်ရွက်ပုံနဲ့ စိတ်ခံစားမှုတုံ့ပြန်ပုံတို့ကို အဓိက အချက် ၅ ချက်အဖြစ် လေ့လာပါတယ်။</p></article>
+            <article className="rounded-2xl bg-[#faf7fb] p-4"><p className="text-xs font-bold text-[#6f5879]">ဘာကို မဆုံးဖြတ်ပေးသလဲ။</p><p className="mt-2 text-xs leading-7 text-[#6f6276]">ဉာဏ်ရည်၊ ကိုယ်ကျင့်တရား၊ စိတ်ကျန်းမာရေးရောဂါ၊ အလုပ်အကိုင်အောင်မြင်မှု သို့မဟုတ် သင့်အနာဂတ်ကို အာမခံပြီး မဆုံးဖြတ်ပေးပါ။</p></article>
           </div>
           <div>
-            <div className="flex items-center gap-1.5 group cursor-pointer" onClick={() => setShowEditNameModal(true)}>
-              <h1 className="text-base sm:text-lg md:text-xl font-bold tracking-tight truncate max-w-[180px] sm:max-w-xs md:max-w-md">
-                {storeName}
-              </h1>
-              <Edit2 className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 text-blue-500 transition" />
+            <h3 className="text-sm font-bold text-[#5c4c62]">ဘယ်လိုဖြေဆိုသင့်သလဲ။</h3>
+            <div className="mt-3 space-y-2.5">
+              {[
+                ['ကိုယ့်ရဲ့ ပုံမှန်အပြုအမူကို အခြေခံပါ', 'ဖြစ်ချင်တဲ့ပုံစံကို မရွေးဘဲ နေ့စဉ်ဘဝမှာ အများအားဖြင့် ဘယ်လိုပြုမူတတ်သလဲကို စဉ်းစားပါ။'],
+                ['အဖြေမှန်၊ အဖြေမှား မရှိပါ', 'အခြားသူတွေ ဘယ်လိုဖြေမလဲဆိုတာ မစဉ်းစားဘဲ ကိုယ့်အတွေ့အကြုံနဲ့ အနီးစပ်ဆုံး အဖြေကို ရွေးပါ။'],
+                ['လက်ရှိစိတ်အခြေအနေတစ်ခုတည်းနဲ့ မဆုံးဖြတ်ပါနဲ့', 'မကြာသေးမီက အတွေ့အကြုံအပြင် ပုံမှန်ဖြစ်နေတတ်တဲ့ အပြုအမူကိုပါ စဉ်းစားပါ။'],
+                ['မေးခွန်းကို ကျော်ပြီး ပြန်ဖြေနိုင်ပါတယ်', 'ကျော်ထားတဲ့ မေးခွန်းတွေကို နောက်ဆုံးမှာ ပြန်စစ်နိုင်ပြီး မဖြေသေးတာတွေကို အချိန်မရွေး ပြန်ဖြေနိုင်ပါတယ်။'],
+                ['အချိန်မရွေး ခဏရပ်နိုင်ပါတယ်', 'အဖြေတွေကို ဒီ Browser ထဲမှာ အလိုအလျောက်သိမ်းထားပြီး ပြန်ဝင်တဲ့အခါ အရင်နေရာကနေ ဆက်ဖြေနိုင်ပါတယ်။'],
+              ].map(([title, body]) => <div key={title} className="flex gap-3 rounded-2xl border border-[#f0eaf1] bg-white p-3.5"><span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#f3edf5] text-[#80678f]"><Check size={16}/></span><div><p className="text-xs font-bold text-[#5c4c62]">{title}</p><p className="mt-1 text-xs leading-6 text-[#716679]">{body}</p></div></div>)}
             </div>
-            <p className="text-xs opacity-70 flex items-center gap-1.5 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-              {activeTableCount} {t('occupied')} / {tableCount} {t('table')}
-            </p>
+          </div>
+          <div className="rounded-2xl border border-[#eee4ed] bg-[#fcfafb] p-4">
+            <p className="text-xs font-bold text-[#6f5879]">ဖြေဆိုမှုနဲ့ ရလဒ်အကြောင်း</p>
+            <ul className="mt-2 list-disc space-y-1.5 pl-5 text-xs leading-6 text-[#6f6276]">
+              <li>မေးခွန်းတစ်ခုစီမှာ အဖြေ ၁ မှ ၅ အထိ ရွေးချယ်နိုင်ပါတယ်။</li>
+              <li>ရလဒ်ရမှတ်ဟာ သင့်အဖြေများကို အညွှန်းအဖြစ် ပြောင်းလဲဖော်ပြခြင်းသာဖြစ်ပြီး လူဦးရေနဲ့ နှိုင်းယှဉ်ထားတဲ့ အဆင့်သတ်မှတ်ချက် မဟုတ်ပါ။</li>
+              <li>ဒီမေးခွန်းအစုကို မြန်မာဘာသာအတွက် ကိုယ်ပိုင်ရေးဆွဲထားပြီး စမ်းသပ်အတည်ပြုမှု ဆက်လက်လုပ်ဆောင်ရန် လိုအပ်ပါတယ်။</li>
+            </ul>
+          </div>
+          <div className="flex gap-3 rounded-2xl border border-[#e7e0e9] bg-[#f8f5f8] p-4"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-[#90789c]"/><div><p className="text-xs font-bold text-[#66576b]">ကိုယ်ရေးအချက်အလက်နဲ့ သိမ်းဆည်းမှု</p><p className="mt-1 text-xs leading-6 text-[#716679]">{STORAGE_HINT} အရေးကြီးတဲ့အဖြေတွေ မပျောက်စေဖို့ JSON Backup ကို ပုံမှန်ထုတ်ထားပါ။ ဒီဆန်းစစ်မှုကို အချိန်မရွေး ရပ်နိုင်ပါတယ်။</p></div></div>
+          <div className="rounded-2xl border border-[#eadfe9] bg-[#fbf7fb] p-4">
+            <label className="flex cursor-pointer items-start gap-3">
+              <input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-[#80678f]" />
+              <span className="text-xs leading-6 text-[#66576b]">အထက်ပါအချက်များကို ဖတ်ရှုပြီး နားလည်ပါသည်။ ဒီဆန်းစစ်မှုကို ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်ရန်အတွက်သာ အသုံးပြုမည်ဖြစ်ကြောင်း သိရှိပါသည်။</span>
+            </label>
+          </div>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><SecondaryButton onClick={onBack}>ပင်မစာမျက်နှာ</SecondaryButton><PrimaryButton onClick={onBegin} disabled={!acknowledged}>နားလည်ပါပြီ၊ မေးခွန်းစမယ်</PrimaryButton></div>
+        </div>
+      </section>
+    </main>
+  )
+}
+
+function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit }) {
+  const question = questions[questionIndex]
+  const trait = TRAITS.find((item) => item.id === question.trait)
+  const selectedAnswer = answers[question.id]
+  const answeredCount = questions.filter((item) => answers[item.id] !== undefined).length
+  const skippedCount = skippedQuestionIds.filter((id) => answers[id] === undefined).length
+  const progress = questions.length ? (answeredCount / questions.length) * 100 : 0
+  const isLast = questionIndex === questions.length - 1
+
+  return (
+    <main className="mx-auto max-w-3xl px-4 py-7 sm:px-6 sm:py-12">
+      <div className="mb-7 flex items-center justify-between gap-3">
+        <button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#8b7d90] hover:text-[#614b6b]"><ArrowLeft size={16} /> ခဏရပ်မယ်</button>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#8b7d90] shadow-sm"><LockKeyhole size={12} /> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
+      </div>
+      <section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-9">
+        <div className="flex items-end justify-between gap-3">
+          <div><p className="text-xs font-semibold tracking-wide text-[#a094a4]">PERSONALITY ASSESSMENT · {questions.length} QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#4b3d50] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
+          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#b1a6b5]"> / {questions.length}</span></div><p className="text-[10px] text-[#a196a5]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
+        </div>
+        <div className="mt-5 flex items-center justify-between text-[10px] text-[#9b8e9f]"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#f1ebf2]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }} /></div>
+        <div className="mt-7 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f4eef6] text-[#80678f]"><TraitIcon id={trait.id} size={17} /></span><div><p className="text-xs font-bold text-[#725f7a]">{trait.name}</p><p className="text-[10px] text-[#a296a6]">ပင်ကိုစရိုက် အချက် {TRAITS.findIndex((item) => item.id === trait.id) + 1} / ၅</p></div></div>
+        <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#faf6fb] to-[#fcf7f6] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#a293a8]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#493b4d] sm:text-[1.35rem]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="trait" /></div>
+        <div className="space-y-2.5" role="radiogroup" aria-label="အဖြေရွေးချယ်မှု">
+          {ANSWER_OPTIONS.map((option) => {
+            const isSelected = Number(selectedAnswer) === option.value
+            return (
+              <button key={option.value} type="button" role="radio" aria-checked={isSelected} onClick={() => onAnswer(question.id, option.value)} className={cn('answer-option flex min-h-[56px] w-full items-center justify-between rounded-2xl border px-4 py-3 text-left', isSelected ? 'border-[#9c82aa] bg-[#f6f0f8] shadow-[0_4px_14px_rgba(128,103,143,0.09)]' : 'border-[#eee8ef] bg-white hover:border-[#d9cadf] hover:bg-[#fcf9fc]')}>
+                <span className="flex items-center gap-3"><span className={cn('grid h-8 w-8 place-items-center rounded-xl text-xs font-bold', isSelected ? 'bg-[#80678f] text-white' : 'bg-[#f5f1f5] text-[#95879a]')}>{option.value}</span><span className={cn('text-sm font-medium', isSelected ? 'text-[#634c6e]' : 'text-[#746879]')}>{option.label}</span></span>
+                <span className={cn('grid h-5 w-5 place-items-center rounded-full border', isSelected ? 'border-[#80678f] bg-[#80678f] text-white' : 'border-[#d9d0dc] text-transparent')}><Check size={12} strokeWidth={3} /></span>
+              </button>
+            )
+          })}
+        </div>
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#f0eaf0] pt-5">
+          <SecondaryButton onClick={onPrevious} icon={ArrowLeft} disabled={questionIndex === 0}>ယခင်</SecondaryButton>
+          <div className="flex flex-wrap items-center gap-2">
+            {!selectedAnswer && <button onClick={onSkip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-[#d8c8dc] bg-[#fcf9fc] px-4 py-2.5 text-sm font-semibold text-[#866d90] hover:bg-[#f7f1f8]">ဒီမေးခွန်းကို ကျော်မယ် <ArrowRight size={15} /></button>}
+            <PrimaryButton onClick={isLast ? onReview : onNext} disabled={!selectedAnswer} icon={isLast ? ClipboardCheck : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</PrimaryButton>
           </div>
         </div>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3"><p className="text-[11px] leading-5 text-[#8f8292]">မသေချာသေးတဲ့ မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
+      </section>
+      <p className="mt-5 text-center text-[11px] leading-6 text-[#a69ba8]">{STORAGE_HINT}</p>
+    </main>
+  )
+}
 
-        <div className="flex items-center space-x-2">
-          {/* Quick Install Banner Trigger if prompt available */}
-          {deferredPrompt && (
-            <button
-              onClick={triggerPwaInstall}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 transition"
-              title={t('install_app')}
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Install App</span>
-            </button>
-          )}
+function ReviewPage({ questions, answers, skippedQuestionIds, onGoTo, onFinish, onBack }) {
+  const [filter, setFilter] = useState('incomplete')
+  const answered = questions.filter((question) => answers[question.id] !== undefined)
+  const skipped = questions.filter((question) => answers[question.id] === undefined && skippedQuestionIds.includes(question.id))
+  const unanswered = questions.filter((question) => answers[question.id] === undefined && !skippedQuestionIds.includes(question.id))
+  const complete = unanswered.length === 0 && skipped.length === 0
+  const visibleQuestions = filter === 'answered' ? answered : filter === 'skipped' ? skipped : filter === 'unanswered' ? unanswered : [...skipped, ...unanswered]
 
-          {/* Language Toggle */}
-          <button
-            onClick={() => setLang(l => (l === 'my' ? 'en' : 'my'))}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition hover:bg-black/5 dark:hover:bg-white/10"
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span>{lang === 'my' ? 'EN' : 'မြန်မာ'}</span>
-          </button>
+  const statusFor = (question) => {
+    if (answers[question.id] !== undefined) return 'answered'
+    if (skippedQuestionIds.includes(question.id)) return 'skipped'
+    return 'unanswered'
+  }
+
+  return (
+    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+      <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#887990] hover:text-[#614b6b]"><ArrowLeft size={16} /> မေးခွန်းသို့ ပြန်သွားမယ်</button>
+      <section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-8">
+        <p className="text-xs font-semibold tracking-wide text-[#a18fa7]">ASSESSMENT REVIEW</p>
+        <h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">ဖြေဆိုထားတာတွေကို ပြန်စစ်ပါ</h1>
+        <p className="mt-2 text-xs leading-6 text-[#938796]">ကျော်ထားတဲ့ မေးခွန်းနဲ့ မဖြေရသေးတဲ့ မေးခွန်းတွေကို ရွေးပြီး တိုက်ရိုက်ပြန်ဖြေနိုင်ပါတယ်။</p>
+        <div className="mt-6 grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-[#f1f7f2] p-3"><p className="text-2xl font-bold text-[#5d8d6e] tabular-nums">{answered.length}</p><p className="mt-1 text-[10px] text-[#73917b]">ဖြေပြီး</p></div>
+          <div className="rounded-xl bg-[#fff7ed] p-3"><p className="text-2xl font-bold text-[#b98754] tabular-nums">{skipped.length}</p><p className="mt-1 text-[10px] text-[#a88768]">ကျော်ထား</p></div>
+          <div className="rounded-xl bg-[#f7f3f8] p-3"><p className="text-2xl font-bold text-[#887393] tabular-nums">{unanswered.length}</p><p className="mt-1 text-[10px] text-[#95869e]">မဖြေရသေး</p></div>
         </div>
-      </header>
-
-      {/* 2. MAIN CONTENT VIEWPORT */}
-      <main className="flex-1 overflow-y-auto pb-24 md:pb-28 p-4 max-w-7xl w-full mx-auto">
-        
-        {/* ===================== VIEW 1: POS TABLES ===================== */}
-        {activeTab === 'pos' && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <Armchair className="w-5 h-5 text-blue-500" />
-                  <span>{t('pos_title')}</span>
-                </h2>
-                <p className="text-xs opacity-70">စားပွဲခုံကို နှိပ်၍ အော်ဒါယူပါ သို့မဟုတ် ဘောက်ချာထုတ်ပါ</p>
-              </div>
-
-              {/* Status Indicators */}
-              <div className="flex items-center gap-3 text-xs font-semibold">
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  {t('free')} ({tableCount - activeTableCount})
-                </span>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">
-                  <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                  {t('occupied')} ({activeTableCount})
-                </span>
-              </div>
-            </div>
-
-            {/* Tables Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 sm:gap-4 pt-2">
-              {Array.from({ length: tableCount }, (_, i) => {
-                const tableId = (i + 1).toString();
-                const total = getTableTotal(tableId);
-                const isOccupied = total > 0;
-
+        <div className="mt-6 flex flex-wrap gap-2">
+          {[
+            ['incomplete', `ပြန်ဖြေရန် (${skipped.length + unanswered.length})`],
+            ['skipped', `ကျော်ထား (${skipped.length})`],
+            ['unanswered', `မဖြေရသေး (${unanswered.length})`],
+            ['answered', `ဖြေပြီး (${answered.length})`],
+          ].map(([value, label]) => <button key={value} onClick={() => setFilter(value)} className={cn('rounded-full px-3 py-2 text-[11px] font-semibold transition', filter === value ? 'bg-[#80678f] text-white' : 'bg-[#f5f0f6] text-[#826e8a] hover:bg-[#eee6f0]')}>{label}</button>)}
+        </div>
+        <div className="mt-4 rounded-2xl border border-[#f0eaf0] p-3 sm:p-4">
+          {visibleQuestions.length === 0 ? (
+            <div className="py-8 text-center"><CheckCircle2 className="mx-auto text-[#6e9a79]" size={30} /><p className="mt-2 text-sm font-semibold text-[#5e7d66]">ဒီအမျိုးအစားမှာ မေးခွန်းမရှိပါဘူး။</p></div>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {visibleQuestions.map((question) => {
+                const status = statusFor(question)
                 return (
-                  <button
-                    key={tableId}
-                    onClick={() => {
-                      setSelectedTable(tableId);
-                      setSelectedCategory('All');
-                    }}
-                    className={`relative aspect-square rounded-2xl p-3 flex flex-col justify-between items-center transition-all duration-150 border active:scale-95 shadow-sm group ${
-                      isOccupied
-                        ? 'bg-gradient-to-br from-orange-500 to-amber-600 text-white border-orange-600 shadow-orange-500/20'
-                        : `${themeStyles.card} hover:border-blue-500 hover:shadow-md`
-                    }`}
-                  >
-                    <div className="w-full flex justify-between items-center text-xs">
-                      <span className={`font-mono px-2 py-0.5 rounded-full font-bold ${isOccupied ? 'bg-black/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
-                        #{tableId}
-                      </span>
-                      {isOccupied && (
-                        <span className="w-2 h-2 rounded-full bg-yellow-300 animate-ping"></span>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col items-center my-auto">
-                      <Armchair className={`w-8 h-8 sm:w-10 sm:h-10 transition-transform group-hover:scale-110 ${isOccupied ? 'text-white' : 'text-blue-500 opacity-80'}`} />
-                      <span className="text-sm font-bold mt-1">
-                        {t('table')} {tableId}
-                      </span>
-                    </div>
-
-                    <div className="w-full text-center">
-                      {isOccupied ? (
-                        <span className="inline-block text-xs font-bold bg-black/30 px-2 py-1 rounded-lg w-full truncate">
-                          {total.toLocaleString()} Ks
-                        </span>
-                      ) : (
-                        <span className="text-[11px] opacity-60 font-medium">
-                          {t('free')}
-                        </span>
-                      )}
-                    </div>
+                  <button key={question.id} onClick={() => onGoTo(questions.findIndex((item) => item.id === question.id))} className="flex min-w-0 items-start gap-3 rounded-xl border border-[#f0eaf0] bg-white p-3 text-left transition hover:border-[#d8c8dc] hover:bg-[#fcf9fc]">
+                    <span className={cn('grid h-8 w-8 shrink-0 place-items-center rounded-lg text-xs font-bold', status === 'answered' ? 'bg-[#edf6ef] text-[#5c8b69]' : status === 'skipped' ? 'bg-[#fff4e8] text-[#a87842]' : 'bg-[#f5f0f6] text-[#8d7b95]')}>{questions.findIndex((item) => item.id === question.id) + 1}</span>
+                    <span className="min-w-0 flex-1"><span className="block text-[11px] font-semibold leading-5 text-[#66566c]">{question.text}</span><span className="mt-1 block text-[10px] text-[#a196a5]">{status === 'answered' ? 'ဖြေပြီး · ပြန်ပြင်နိုင်သည်' : status === 'skipped' ? 'ကျော်ထား · ပြန်ဖြေနိုင်သည်' : 'မဖြေရသေး'}</span></span>
+                    <ChevronRight size={15} className="mt-1 shrink-0 text-[#aa9dac]" />
                   </button>
-                );
+                )
               })}
             </div>
-          </div>
-        )}
-
-        {/* ===================== VIEW 2: DAILY SALES & ADVANCED ANALYTICS ===================== */}
-        {activeTab === 'dashboard' && (
-          <div className="space-y-6">
-            
-            {/* Header & Date Filter Bar */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-black/10 dark:border-white/10">
-              <div>
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-blue-500" />
-                  <span>{t('dash_title')}</span>
-                </h2>
-                <p className="text-xs opacity-70">တစ်ရက်စာ ရောင်းအားနှင့် မည်သည့်ပစ္စည်းများ အရောင်းရဆုံးဖြစ်သည်ကို ခွဲခြမ်းစိတ်ဖြာပါ</p>
-              </div>
-
-              {/* Date Filter Buttons */}
-              <div className="flex flex-wrap items-center gap-1.5 bg-black/5 dark:bg-white/5 p-1.5 rounded-2xl">
-                <button
-                  onClick={() => setDateFilter('today')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                    dateFilter === 'today' ? 'bg-blue-600 text-white shadow-sm' : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  {t('filter_today')}
-                </button>
-                <button
-                  onClick={() => setDateFilter('yesterday')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                    dateFilter === 'yesterday' ? 'bg-blue-600 text-white shadow-sm' : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  {t('filter_yesterday')}
-                </button>
-                <button
-                  onClick={() => setDateFilter('7days')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                    dateFilter === '7days' ? 'bg-blue-600 text-white shadow-sm' : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  {t('filter_7days')}
-                </button>
-                <button
-                  onClick={() => setDateFilter('month')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                    dateFilter === 'month' ? 'bg-blue-600 text-white shadow-sm' : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  {t('filter_month')}
-                </button>
-                <button
-                  onClick={() => setDateFilter('all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                    dateFilter === 'all' ? 'bg-blue-600 text-white shadow-sm' : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  {t('filter_all')}
-                </button>
-                <div className="flex items-center gap-1 pl-1">
-                  <input
-                    type="date"
-                    value={customDate}
-                    onChange={(e) => {
-                      setCustomDate(e.target.value);
-                      setDateFilter('custom');
-                    }}
-                    className={`px-2 py-1 text-xs rounded-xl border outline-none font-medium cursor-pointer ${themeStyles.input}`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* KPI Summary Cards for Selected Period */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className={`p-4 rounded-2xl border flex items-center justify-between ${themeStyles.card}`}>
-                <div>
-                  <p className="text-xs opacity-70 font-semibold">{t('total_sales')}</p>
-                  <p className="text-2xl font-black mt-1 text-emerald-600">
-                    {formatMoney(dashboardStats.totalSales)}
-                  </p>
-                </div>
-                <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center">
-                  <DollarSign className="w-6 h-6" />
-                </div>
-              </div>
-
-              <div className={`p-4 rounded-2xl border flex items-center justify-between ${themeStyles.card}`}>
-                <div>
-                  <p className="text-xs opacity-70 font-semibold">{t('total_vouchers')}</p>
-                  <p className="text-2xl font-black mt-1 text-blue-600">
-                    {dashboardStats.totalOrders}
-                  </p>
-                </div>
-                <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 flex items-center justify-center">
-                  <Receipt className="w-6 h-6" />
-                </div>
-              </div>
-
-              <div className={`p-4 rounded-2xl border flex items-center justify-between ${themeStyles.card}`}>
-                <div>
-                  <p className="text-xs opacity-70 font-semibold">{t('avg_voucher')}</p>
-                  <p className="text-xl font-black mt-1 text-indigo-600">
-                    {formatMoney(dashboardStats.avgVoucher)}
-                  </p>
-                </div>
-                <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6" />
-                </div>
-              </div>
-
-              <div className={`p-4 rounded-2xl border flex items-center justify-between ${themeStyles.card}`}>
-                <div>
-                  <p className="text-xs opacity-70 font-semibold">{t('top_item')}</p>
-                  <p className="text-xl font-black mt-1 text-purple-600 truncate max-w-[140px]">
-                    {dashboardStats.topItem}
-                  </p>
-                </div>
-                <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6" />
-                </div>
-              </div>
-            </div>
-
-            {/* Daily Best Sellers & Category Shares */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              
-              {/* Daily Top Best Selling Items (ဘာတွေရောင်းရကောင်းလဲ) */}
-              <div className={`p-5 rounded-2xl border ${themeStyles.card}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base font-bold flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
-                    <span>{t('bar_title')} (ထိပ်တန်းအရောင်းရဆုံး)</span>
-                  </h3>
-                  <span className="text-xs font-semibold opacity-60">
-                    {dateFilter === 'today' ? 'ယနေ့ရောင်းအား' : dateFilter === 'yesterday' ? 'မနေ့ကရောင်းအား' : 'ရွေးချယ်ထားသောကာလ'}
-                  </span>
-                </div>
-
-                {dashboardStats.topItems.length === 0 ? (
-                  <div className="py-12 text-center opacity-60 text-sm">
-                    {t('no_record')}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {dashboardStats.topItems.map((item, idx) => {
-                      const maxQty = dashboardStats.topItems[0].qty || 1;
-                      const barPct = Math.round((item.qty / maxQty) * 100);
-
-                      return (
-                        <div key={item.name} className="p-3 rounded-xl bg-black/5 dark:bg-white/5 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="w-6 h-6 rounded-lg bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
-                                #{idx + 1}
-                              </span>
-                              <span className="font-bold text-sm">{item.name}</span>
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 opacity-70">
-                                {item.category}
-                              </span>
-                            </div>
-                            <div className="text-right">
-                              <span className="font-mono font-bold text-sm text-blue-600">
-                                {item.qty} {t('items_count')}
-                              </span>
-                              <span className="block text-[11px] opacity-60 font-mono">
-                                {formatMoney(item.revenue)}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="w-full bg-black/10 dark:bg-white/10 h-2 rounded-full overflow-hidden">
-                            <div
-                              className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-500"
-                              style={{ width: `${barPct}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Category Breakdown for selected period */}
-              <div className={`p-5 rounded-2xl border ${themeStyles.card}`}>
-                <h3 className="text-base font-bold mb-4 flex items-center gap-2">
-                  <ShoppingBag className="w-4 h-4 text-purple-500" />
-                  <span>{t('pie_title')}</span>
-                </h3>
-
-                {Object.keys(dashboardStats.catMap).length === 0 ? (
-                  <div className="py-12 text-center opacity-60 text-sm">
-                    {t('no_record')}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {Object.entries(dashboardStats.catMap).map(([catName, val], idx) => {
-                      const pct = dashboardStats.totalSales > 0 ? Math.round((val / dashboardStats.totalSales) * 100) : 0;
-                      const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-rose-500'];
-                      const barColor = colors[idx % colors.length];
-
-                      return (
-                        <div key={catName} className="space-y-1.5">
-                          <div className="flex justify-between text-xs font-bold">
-                            <span className="flex items-center gap-1.5">
-                              <span className={`w-2.5 h-2.5 rounded-full ${barColor}`}></span>
-                              {catName}
-                            </span>
-                            <span className="opacity-80 font-mono">{formatMoney(val)} ({pct}%)</span>
-                          </div>
-                          <div className="w-full bg-black/10 dark:bg-white/10 h-3 rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${pct}%` }}></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Time of Day Breakdown (မနက်၊ နေ့လယ်၊ ညနေ ရောင်းအား) */}
-            <div className={`p-5 rounded-2xl border ${themeStyles.card}`}>
-              <h3 className="text-base font-bold mb-3 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-500" />
-                <span>{t('time_breakdown')}</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {Object.entries(dashboardStats.hourMap).map(([slotKey, slotData]) => (
-                  <div key={slotKey} className="p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
-                    <p className="text-xs font-bold opacity-75">{slotData.label}</p>
-                    <p className="text-lg font-mono font-black mt-1 text-blue-600">{formatMoney(slotData.sales)}</p>
-                    <p className="text-[11px] opacity-60 mt-0.5">{slotData.orders} orders</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Daily History Breakdown Table */}
-            {dashboardStats.dailyTrends.length > 0 && (
-              <div className={`p-5 rounded-2xl border overflow-hidden ${themeStyles.card}`}>
-                <h3 className="text-base font-bold mb-3 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-emerald-500" />
-                  <span>{t('daily_trend')}</span>
-                </h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse min-w-[400px]">
-                    <thead className="border-b border-black/10 dark:border-white/10 opacity-70">
-                      <tr>
-                        <th className="pb-2">ရက်စွဲ (Date)</th>
-                        <th className="pb-2">ဘောက်ချာ (Orders)</th>
-                        <th className="pb-2 text-right">ရောင်းရငွေ (Sales)</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/5 dark:divide-white/5">
-                      {dashboardStats.dailyTrends.map(day => (
-                        <tr key={day.date} className="hover:bg-black/5 dark:hover:bg-white/5">
-                          <td className="py-2.5 font-bold font-mono">{day.date}</td>
-                          <td className="py-2.5">{day.orders} စောင်</td>
-                          <td className="py-2.5 text-right font-mono font-bold text-emerald-600">{formatMoney(day.sales)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-          </div>
-        )}
-
-        {/* ===================== VIEW 3: MENU MANAGEMENT ===================== */}
-        {activeTab === 'menu' && (
-          <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <UtensilsCrossed className="w-5 h-5 text-blue-500" />
-                  <span>{t('menu_title')}</span>
-                </h2>
-                <p className="text-xs opacity-70">သင့်ဆိုင်သုံး မီနူးအသစ်များ ထည့်သွင်း/ဖျက်ပစ်ပါ</p>
-              </div>
-
-              {/* Clear Demo Data Button */}
-              {menu.length > 0 && (
-                <button
-                  onClick={handleClearDemoData}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-100 hover:bg-red-200 dark:bg-red-950/60 dark:text-red-400 rounded-xl transition"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>{t('clear_demo')}</span>
-                </button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Category Section */}
-              <div className={`p-5 rounded-2xl border h-fit space-y-4 ${themeStyles.card}`}>
-                <h3 className="font-bold text-base flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-blue-500" />
-                  <span>{t('add_cat')}</span>
-                </h3>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newCatName}
-                    onChange={(e) => setNewCatName(e.target.value)}
-                    placeholder={t('cat_ph')}
-                    className={`flex-1 px-3 py-2 text-sm rounded-xl border outline-none font-medium ${themeStyles.input}`}
-                  />
-                  <button
-                    onClick={handleAddCategory}
-                    className={`px-4 py-2 text-sm font-bold rounded-xl shadow-sm transition ${themeStyles.buttonPrimary}`}
-                  >
-                    {t('add_btn')}
-                  </button>
-                </div>
-
-                <div className="pt-2">
-                  <p className="text-xs font-bold opacity-70 mb-2">လက်ရှိ ကဏ္ဍများ:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((cat) => (
-                      <span
-                        key={cat}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                      >
-                        {cat}
-                        <button
-                          onClick={() => handleRemoveCategory(cat)}
-                          className="text-blue-500 hover:text-red-500 transition"
-                          title="Delete category"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Add Menu Item Form */}
-              <div className={`lg:col-span-2 p-5 rounded-2xl border space-y-4 ${themeStyles.card}`}>
-                <h3 className="font-bold text-base flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-emerald-500" />
-                  <span>{t('add_menu')}</span>
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold mb-1 opacity-80">{t('name')}</label>
-                    <input
-                      type="text"
-                      value={newItemName}
-                      onChange={(e) => setNewItemName(e.target.value)}
-                      placeholder="ဥပမာ - မုန့်ဟင်းခါး"
-                      className={`w-full px-3 py-2 text-sm rounded-xl border outline-none font-medium ${themeStyles.input}`}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold mb-1 opacity-80">{t('price')}</label>
-                    <input
-                      type="number"
-                      value={newItemPrice}
-                      onChange={(e) => setNewItemPrice(e.target.value)}
-                      placeholder="2500"
-                      className={`w-full px-3 py-2 text-sm rounded-xl border outline-none font-medium ${themeStyles.input}`}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold mb-1 opacity-80">{t('category')}</label>
-                    <select
-                      value={newItemCategory}
-                      onChange={(e) => setNewItemCategory(e.target.value)}
-                      className={`w-full px-3 py-2 text-sm rounded-xl border outline-none font-medium ${themeStyles.input}`}
-                    >
-                      {categories.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold mb-1 opacity-80">{t('icon')}</label>
-                    <input
-                      type="text"
-                      value={newItemIcon}
-                      onChange={(e) => setNewItemIcon(e.target.value)}
-                      placeholder="🍜 / ☕ / 🍰 / 🍗"
-                      className={`w-full px-3 py-2 text-sm rounded-xl border outline-none font-medium ${themeStyles.input}`}
-                    />
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleAddMenuItem}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>{t('save')}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Menu Items Table */}
-            <div className={`p-5 rounded-2xl border overflow-hidden ${themeStyles.card}`}>
-              <h3 className="font-bold text-base mb-4">{t('curr_menu')} ({menu.length})</h3>
-              
-              {menu.length === 0 ? (
-                <div className="py-12 text-center opacity-60 text-sm">
-                  {t('clean_slate_notice')}
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm border-collapse min-w-[500px]">
-                    <thead>
-                      <tr className="border-b border-black/10 dark:border-white/10 opacity-70">
-                        <th className="pb-3 pl-2">Icon</th>
-                        <th className="pb-3">{t('name')}</th>
-                        <th className="pb-3">{t('category')}</th>
-                        <th className="pb-3">{t('price')}</th>
-                        <th className="pb-3 text-right pr-2">{t('action')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/5 dark:divide-white/5">
-                      {menu.map((item) => (
-                        <tr key={item.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition">
-                          <td className="py-3 pl-2 text-2xl">{item.icon}</td>
-                          <td className="py-3 font-bold">{item.name}</td>
-                          <td className="py-3">
-                            <span className="px-2.5 py-1 text-xs rounded-lg font-semibold bg-black/5 dark:bg-white/10">
-                              {item.category}
-                            </span>
-                          </td>
-                          <td className="py-3 font-mono font-bold text-blue-600">{formatMoney(item.price)}</td>
-                          <td className="py-3 text-right pr-2">
-                            <button
-                              onClick={() => handleDeleteMenuItem(item.id)}
-                              className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition"
-                              title="Delete item"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ===================== VIEW 4: SALES HISTORY ===================== */}
-        {activeTab === 'history' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-blue-500" />
-                <span>{t('hist_title')}</span>
-              </h2>
-
-              {history.length > 0 && (
-                <button
-                  onClick={handleClearHistory}
-                  className="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-100 hover:bg-red-200 dark:bg-red-950/60 dark:text-red-400 px-3 py-1.5 rounded-xl transition"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>{t('clear_all')}</span>
-                </button>
-              )}
-            </div>
-
-            <div className={`rounded-2xl border overflow-hidden ${themeStyles.card}`}>
-              {history.length === 0 ? (
-                <div className="py-16 text-center space-y-2 opacity-60">
-                  <Receipt className="w-10 h-10 mx-auto opacity-40" />
-                  <p className="font-semibold text-sm">{t('no_record')}</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm border-collapse min-w-[550px]">
-                    <thead className="bg-black/5 dark:bg-white/5 border-b border-black/10 dark:border-white/10 opacity-75">
-                      <tr>
-                        <th className="p-3 pl-4">{t('time')}</th>
-                        <th className="p-3">{t('voucher_no')}</th>
-                        <th className="p-3">{t('table')}</th>
-                        <th className="p-3">{t('amount')}</th>
-                        <th className="p-3 text-right pr-4">{t('action')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/5 dark:divide-white/5">
-                      {history.map((record) => (
-                        <tr key={record.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition">
-                          <td className="p-3 pl-4 text-xs font-medium opacity-80">{record.date}</td>
-                          <td className="p-3 font-mono font-bold text-xs">{record.id}</td>
-                          <td className="p-3 font-semibold">{t('table')} {record.tableId}</td>
-                          <td className="p-3 font-mono font-bold text-emerald-600">{formatMoney(record.total)}</td>
-                          <td className="p-3 text-right pr-4">
-                            <button
-                              onClick={() => {
-                                setPrintReceiptData(record);
-                                setTimeout(() => window.print(), 200);
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 hover:bg-blue-100 rounded-lg text-xs font-bold transition"
-                            >
-                              <Printer className="w-3.5 h-3.5" />
-                              <span>{t('reprint')}</span>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ===================== VIEW 5: SETTINGS ===================== */}
-        {activeTab === 'settings' && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <Settings className="w-5 h-5 text-blue-500" />
-              <span>{t('set_title')}</span>
-            </h2>
-
-            {/* General Settings */}
-            <div className={`p-5 rounded-2xl border space-y-4 ${themeStyles.card}`}>
-              <h3 className="font-bold text-base pb-2 border-b border-black/10 dark:border-white/10">
-                {t('general')}
-              </h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold mb-1 opacity-80">{t('shop_name')}</label>
-                  <input
-                    type="text"
-                    value={tempStoreName}
-                    onChange={(e) => setTempStoreName(e.target.value)}
-                    placeholder="သင့်ဆိုင်အမည်"
-                    className={`w-full px-3 py-2 text-sm rounded-xl border outline-none font-bold ${themeStyles.input}`}
-                  />
-                  <p className="text-[11px] opacity-60 mt-1">ဤနေရာတွင် ထည့်သွင်းထားသော အမည်သည် ပြေစာဘောက်ချာနှင့် Header တွင် ပေါ်ပါမည်။</p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold mb-1 opacity-80">{t('table_count')}</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={tempTableCount}
-                    onChange={(e) => setTempTableCount(e.target.value)}
-                    className={`w-28 px-3 py-2 text-sm rounded-xl border outline-none font-bold text-center ${themeStyles.input}`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Bluetooth Thermal Printer Section */}
-            <div className={`p-5 rounded-2xl border space-y-4 ${themeStyles.card}`}>
-              <div className="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
-                <h3 className="font-bold text-base flex items-center gap-2">
-                  <Bluetooth className="w-4 h-4 text-indigo-500" />
-                  <span>{t('bt_printer')}</span>
-                </h3>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${btStatus === 'connected' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 dark:bg-slate-800 text-slate-600'}`}>
-                  {btStatus === 'connected' ? (btDeviceName || t('bt_connected')) : t('bt_disconnected')}
-                </span>
-              </div>
-
-              <button
-                onClick={connectBluetoothPrinter}
-                className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-md transition"
-              >
-                <Bluetooth className="w-4 h-4" />
-                <span>{t('bt_printer')}</span>
-              </button>
-              <p className="text-xs opacity-70">
-                * Chrome သို့မဟုတ် Edge browser ဖြင့် 58mm Bluetooth ESC/POS ပရင်တာကို တိုက်ရိုက်ချိတ်ဆက်နိုင်ပါသည်။
-              </p>
-            </div>
-
-            {/* Theme Selector */}
-            <div className={`p-5 rounded-2xl border space-y-4 ${themeStyles.card}`}>
-              <h3 className="font-bold text-base pb-2 border-b border-black/10 dark:border-white/10">
-                {t('theme_title')}
-              </h3>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <button
-                  onClick={() => setTheme('light')}
-                  className={`p-3 rounded-xl border-2 flex flex-col items-center gap-1.5 transition font-bold text-xs ${
-                    theme === 'light' ? 'border-blue-600 bg-blue-50 text-blue-900' : 'border-slate-200 bg-white text-slate-800'
-                  }`}
-                >
-                  <Sun className="w-5 h-5 text-amber-500" />
-                  <span>{t('t_light')}</span>
-                </button>
-
-                <button
-                  onClick={() => setTheme('dark')}
-                  className={`p-3 rounded-xl border-2 flex flex-col items-center gap-1.5 transition font-bold text-xs ${
-                    theme === 'dark' ? 'border-indigo-500 bg-slate-900 text-white' : 'border-slate-700 bg-slate-800 text-slate-200'
-                  }`}
-                >
-                  <Moon className="w-5 h-5 text-indigo-400" />
-                  <span>{t('t_dark')}</span>
-                </button>
-
-                <button
-                  onClick={() => setTheme('warm')}
-                  className={`p-3 rounded-xl border-2 flex flex-col items-center gap-1.5 transition font-bold text-xs ${
-                    theme === 'warm' ? 'border-amber-600 bg-amber-100 text-amber-950' : 'border-amber-200 bg-amber-50 text-amber-900'
-                  }`}
-                >
-                  <Coffee className="w-5 h-5 text-amber-700" />
-                  <span>{t('t_warm')}</span>
-                </button>
-
-                <button
-                  onClick={() => setTheme('green')}
-                  className={`p-3 rounded-xl border-2 flex flex-col items-center gap-1.5 transition font-bold text-xs ${
-                    theme === 'green' ? 'border-emerald-600 bg-emerald-100 text-emerald-950' : 'border-emerald-200 bg-emerald-50 text-emerald-900'
-                  }`}
-                >
-                  <Leaf className="w-5 h-5 text-emerald-600" />
-                  <span>{t('t_green')}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Save Button */}
-            <button
-              onClick={handleSaveSettings}
-              className={`w-full py-3.5 text-base font-bold rounded-xl shadow-lg transition active:scale-95 ${themeStyles.buttonPrimary}`}
-            >
-              {t('save_set')}
-            </button>
-
-            {/* Manual Install PWA trigger */}
-            <button
-              onClick={triggerPwaInstall}
-              className="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl shadow flex items-center justify-center gap-2 transition"
-            >
-              <Smartphone className="w-4 h-4 text-emerald-400" />
-              <span>{t('install_app')} (PWA)</span>
-            </button>
-          </div>
-        )}
-      </main>
-
-      {/* 3. TABLE ORDER MODAL / DRAWER */}
-      {selectedTable && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-6 transition-opacity">
-          <div className={`w-full md:max-w-5xl h-[92vh] md:h-[85vh] rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col overflow-hidden border ${themeStyles.card}`}>
-            
-            {/* Modal Top Bar */}
-            <div className="px-5 py-3.5 border-b flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
-                  {selectedTable}
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg leading-tight">
-                    {t('table')} {selectedTable} {t('cart_title')}
-                  </h3>
-                  <p className="text-xs opacity-60">အော်ဒါစာရင်း ထည့်သွင်း/ပြင်ဆင်ပါ</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setSelectedTable(null)}
-                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Content: Menu on Left, Cart on Right */}
-            <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-              
-              {/* Menu Section */}
-              <div className="flex-1 flex flex-col overflow-hidden border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10">
-                {/* Category Pills */}
-                <div className="flex items-center gap-2 p-3 overflow-x-auto no-scrollbar shrink-0 border-b border-black/5 dark:border-white/5">
-                  <button
-                    onClick={() => setSelectedCategory('All')}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
-                      selectedCategory === 'All' ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    {t('all')}
-                  </button>
-                  {categories.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setSelectedCategory(c)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
-                        selectedCategory === c ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'
-                      }`}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Items Grid */}
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 content-start">
-                  {filteredMenuItems.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => addToCart(item.id)}
-                      className="p-3 rounded-2xl border text-center flex flex-col items-center justify-between hover:border-blue-500 hover:shadow-md transition active:scale-95 bg-black/5 dark:bg-white/5 group"
-                    >
-                      <span className="text-3xl mb-1 transition-transform group-hover:scale-110">{item.icon}</span>
-                      <span className="text-xs font-bold line-clamp-2 leading-snug">{item.name}</span>
-                      <span className="text-xs font-mono font-bold text-blue-600 mt-2 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md">
-                        {formatMoney(item.price)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Cart Section */}
-              <div className="w-full md:w-80 lg:w-96 flex flex-col shrink-0 h-[40vh] md:h-full bg-black/5 dark:bg-white/5">
-                <div className="p-3 font-bold text-xs uppercase tracking-wider opacity-70 border-b border-black/10 dark:border-white/10 text-center">
-                  {t('cart_title')}
-                </div>
-
-                {/* Cart Items List */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                  {Object.keys(currentTableOrder).length === 0 ? (
-                    <div className="py-12 text-center opacity-50 text-xs">
-                      {t('empty_cart')}
-                    </div>
-                  ) : (
-                    Object.entries(currentTableOrder).map(([itemId, qty]) => {
-                      const item = menu.find(m => m.id === itemId);
-                      if (!item) return null;
-                      const subtotal = item.price * qty;
-
-                      return (
-                        <div
-                          key={itemId}
-                          className={`p-2.5 rounded-xl border flex items-center justify-between shadow-xs ${themeStyles.card}`}
-                        >
-                          <div className="flex-1 pr-2 overflow-hidden">
-                            <p className="font-bold text-xs truncate">{item.name}</p>
-                            <p className="text-[11px] font-mono text-blue-600 font-semibold">
-                              {item.price.toLocaleString()} x {qty} = {subtotal.toLocaleString()} Ks
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <button
-                              onClick={() => updateCartQty(itemId, -1)}
-                              className="w-7 h-7 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 flex items-center justify-center font-bold"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="w-6 text-center text-xs font-bold font-mono">{qty}</span>
-                            <button
-                              onClick={() => updateCartQty(itemId, 1)}
-                              className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 flex items-center justify-center font-bold"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Cart Checkout Footer */}
-                <div className="p-4 border-t border-black/10 dark:border-white/10 space-y-3 bg-inherit">
-                  <div className="flex justify-between items-center text-base font-bold">
-                    <span>{t('total')}</span>
-                    <span className="text-xl font-mono text-emerald-600">{formatMoney(currentTableTotal)}</span>
-                  </div>
-
-                  <button
-                    disabled={currentTableTotal === 0}
-                    onClick={handleCheckout}
-                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:pointer-events-none text-white font-bold rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    <Printer className="w-5 h-5" />
-                    <span>{t('print_btn')}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 4. QUICK EDIT SHOP NAME MODAL */}
-      {showEditNameModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-4">
-            <h3 className="font-bold text-base flex items-center gap-2">
-              <Edit2 className="w-4 h-4 text-blue-500" />
-              <span>{t('edit_name')}</span>
-            </h3>
-            <div>
-              <label className="block text-xs font-bold mb-1 opacity-75">{t('shop_name')}</label>
-              <input
-                type="text"
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                placeholder="သင့်ဆိုင်အမည် ရိုက်ထည့်ပါ"
-                className={`w-full px-3 py-2 text-sm rounded-xl border outline-none font-bold ${themeStyles.input}`}
-                autoFocus
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowEditNameModal(false)}
-                className="flex-1 py-2.5 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-sm transition"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                onClick={handleQuickRename}
-                className="flex-1 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white text-sm transition"
-              >
-                {t('save')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 5. CUSTOM PWA INSTALL BANNER */}
-      {showPwaBanner && (
-        <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-96 z-40 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom duration-300">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
-              <Smartphone className="w-5 h-5" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-bold text-sm leading-snug">{storeName} App</h4>
-              <p className="text-xs text-slate-300 mt-1 leading-relaxed">{t('pwa_desc')}</p>
-              
-              <div className="flex items-center gap-2 mt-3">
-                <button
-                  onClick={triggerPwaInstall}
-                  className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>{t('install_btn')}</span>
-                </button>
-                <button
-                  onClick={dismissPwaBanner}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:text-white transition"
-                >
-                  {t('dismiss')}
-                </button>
-              </div>
-            </div>
-
-            <button
-              onClick={dismissPwaBanner}
-              className="text-slate-400 hover:text-white p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* 6. MODERN BOTTOM NAVIGATION */}
-      <nav className={`fixed bottom-0 left-0 right-0 z-40 border-t backdrop-blur-lg px-2 py-1.5 flex justify-around items-center ${themeStyles.nav}`}>
-        <button
-          onClick={() => setActiveTab('pos')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition relative ${
-            activeTab === 'pos' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'opacity-60 hover:opacity-100'
-          }`}
-        >
-          <Armchair className="w-5 h-5" />
-          <span className="text-[11px] mt-0.5">{t('tab_pos')}</span>
-          {activeTableCount > 0 && (
-            <span className="absolute top-1 right-2 w-4 h-4 bg-orange-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-              {activeTableCount}
-            </span>
           )}
-        </button>
-
-        <button
-          onClick={() => setActiveTab('dashboard')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition ${
-            activeTab === 'dashboard' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'opacity-60 hover:opacity-100'
-          }`}
-        >
-          <BarChart3 className="w-5 h-5" />
-          <span className="text-[11px] mt-0.5">{t('tab_dash')}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('menu')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition ${
-            activeTab === 'menu' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'opacity-60 hover:opacity-100'
-          }`}
-        >
-          <UtensilsCrossed className="w-5 h-5" />
-          <span className="text-[11px] mt-0.5">{t('tab_menu')}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('history')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition ${
-            activeTab === 'history' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'opacity-60 hover:opacity-100'
-          }`}
-        >
-          <Receipt className="w-5 h-5" />
-          <span className="text-[11px] mt-0.5">{t('tab_hist')}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition ${
-            activeTab === 'settings' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'opacity-60 hover:opacity-100'
-          }`}
-        >
-          <Settings className="w-5 h-5" />
-          <span className="text-[11px] mt-0.5">{t('tab_set')}</span>
-        </button>
-      </nav>
-
-      {/* 7. CUSTOM CONFIRM MODAL */}
-      {confirmDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 mx-auto flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <p className="font-bold text-sm leading-relaxed">{confirmDialog.title}</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmDialog(null)}
-                className="flex-1 py-2.5 rounded-xl font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-sm transition"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                onClick={confirmDialog.onConfirm}
-                className="flex-1 py-2.5 rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white text-sm transition"
-              >
-                {t('ok')}
-              </button>
-            </div>
-          </div>
         </div>
-      )}
-
-      {/* 8. TOAST NOTIFICATION */}
-      {toastMessage && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-bold shadow-xl border border-slate-700 animate-in fade-in slide-in-from-top duration-200">
-          {toastMessage}
+        <div className="mt-6 flex flex-col-reverse gap-3 border-t border-[#f0eaf0] pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[11px] leading-5 text-[#95899a]">{complete ? 'မေးခွန်းအားလုံး ဖြေပြီးပါပြီ။ ရလဒ်တွက်ချက်နိုင်ပါပြီ။' : 'ရလဒ်ကြည့်ရန် မေးခွန်းအားလုံးကို ဖြေဆိုပြီးမှ ဆက်လုပ်နိုင်ပါတယ်။'}</p>
+          <PrimaryButton onClick={onFinish} disabled={!complete} icon={CheckCircle2}>ရလဒ်တွက်ချက်မယ်</PrimaryButton>
         </div>
-      )}
+      </section>
+    </main>
+  )
+}
 
-      {/* 9. THERMAL 58MM PRINT RECEIPT (CSS PRINT ONLY) */}
-      <div id="print-area" className="hidden print:block print:w-[58mm] print:text-black print:p-1 print:font-mono print:text-xs">
-        {printReceiptData && (
-          <div>
-            <div className="text-center font-bold text-sm mb-1">{storeName}</div>
-            <div className="text-center text-[10px] mb-2">{t('receipt_title')}</div>
-            <div className="border-t border-b border-dashed border-black py-1 my-1 text-[11px]">
-              <div className="flex justify-between">
-                <span>{t('table')}: <b>{printReceiptData.tableId}</b></span>
-                <span>{printReceiptData.date}</span>
-              </div>
-              <div>No: {printReceiptData.id}</div>
-            </div>
-            <table className="w-full text-left my-2 text-[11px]">
-              <thead>
-                <tr className="border-b border-dashed border-black">
-                  <th className="py-0.5">Item</th>
-                  <th className="text-center py-0.5">Qty</th>
-                  <th className="text-right py-0.5">Amt</th>
-                </tr>
-              </thead>
-              <tbody>
-                {printReceiptData.items.map((it, idx) => (
-                  <tr key={idx}>
-                    <td className="py-0.5 pr-1">{it.name}</td>
-                    <td className="text-center py-0.5">{it.qty}</td>
-                    <td className="text-right py-0.5">{it.subtotal.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="border-t border-dashed border-black pt-1 flex justify-between font-bold text-xs">
-              <span>{t('total')}</span>
-              <span>{printReceiptData.total.toLocaleString()} Ks</span>
-            </div>
-            <div className="text-center text-[10px] mt-4">
-              <p>ကျေးဇူးတင်ပါသည်</p>
-              <p>Thank You! Please Come Again</p>
-            </div>
-          </div>
-        )}
-      </div>
-
+function ScoreBar({ trait, score }) {
+  const band = getScoreBand(score)
+  return (
+    <div className="rounded-2xl border border-[#f0eaf0] bg-white p-4">
+      <div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-2.5"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f5eff6] text-[#80678f]"><TraitIcon id={trait.id} size={17} /></span><div className="min-w-0"><h3 className="text-sm font-bold leading-6 text-[#58495e]">{trait.name}</h3><p className="mt-0.5 text-[10px] text-[#a297a6]">{trait.en}</p></div></div><div className="shrink-0 text-right"><div className="text-lg font-bold tabular-nums text-[#80678f]">{score}<span className="text-[10px] font-medium text-[#aa9eae]"> / 100</span></div><div className="text-[10px] text-[#96899a]">{band}</div></div></div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#f2edf3]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${score}%` }} /></div>
     </div>
-  );
+  )
+}
+
+function ResultsPage({ record, onHome, onRetake }) {
+  const result = useMemo(() => {
+    if (!record) return null
+    return { scores: record.scores, profile: getPersonalityProfile(record.scores), facetScores: record.facetScores || null }
+  }, [record])
+  if (!record || !result) return null
+
+  const { scores, profile, facetScores } = result
+  const chartNames = { openness: 'စူးစမ်းမှု', conscientiousness: 'တာဝန်ယူမှု', extraversion: 'တက်ကြွမှု', agreeableness: 'စာနာမှု', emotionalStability: 'စိတ်တည်ငြိမ်မှု' }
+  const chartData = TRAITS.map((trait) => ({ trait: chartNames[trait.id], score: scores[trait.id]?.score ?? 0 }))
+  const lowestTraits = [...TRAITS].sort((a, b) => (scores[a.id]?.score ?? 0) - (scores[b.id]?.score ?? 0)).slice(0, 2)
+  const narrative = profile.topScoresAreClose
+    ? `သင့်ရလဒ်မှာ ${profile.primary.name} နဲ့ ${profile.secondary.name} တို့ရဲ့ အညွှန်းရမှတ်တွေ အနီးစပ်ဆုံး ဖြစ်နေပါတယ်။ ဒါကြောင့် ဒီအချက်နှစ်ခုလုံးကို သင့်ရဲ့ ထင်ရှားတဲ့ စရိုက်လက္ခဏာများအဖြစ် စဉ်းစားနိုင်ပါတယ်။ ${profile.primary.high} ${profile.secondary.high}`
+    : `သင့်ရလဒ်မှာ ${profile.primary.name} နဲ့ ${profile.secondary.name} ဘက်က အညွှန်းရမှတ်တွေ ပိုမိုမြင့်နေပါတယ်။ ${profile.primary.high} ${profile.secondary.high}`
+
+  const downloadReport = () => {
+    const lines = [
+      'ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း — ပင်ကိုစရိုက်အစီရင်ခံစာ',
+      `ဖြေဆိုသည့်နေ့: ${formatDate(record.createdAt)}`,
+      `ဆန်းစစ်မှုအဆင့်: ${record.level || record.questionCount || 30} မေးခွန်း`,
+      `ကိုယ်ပိုင်ပင်ကိုစရိုက်အကျဉ်း: ${profile.title}`,
+      '', 'ပင်ကိုစရိုက် အချက် ၅ ချက်၏ ရလဒ်:',
+      ...TRAITS.map((trait) => `${trait.name}: ${scores[trait.id]?.score ?? 0}/100 (${getScoreBand(scores[trait.id]?.score ?? 0)})`),
+      ...(record.level >= 120 && facetScores ? ['', 'အသေးစိတ် အချက် ၃၀ ၏ အညွှန်းရမှတ်:', ...FACETS.map((facet) => `${facet.name}: ${facetScores[facet.id]?.score ?? 0}/100`)] : []),
+      '', 'အကျဉ်းချုပ်:', narrative,
+      '', 'မှတ်ချက်: ဤရလဒ်သည် ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်ရန်အတွက်သာ ဖြစ်ပြီး ဆေးဘက်ဆိုင်ရာ Diagnosis မဟုတ်ပါ။',
+    ]
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `self-discovery-report-${new Date(record.createdAt).toISOString().slice(0, 10)}.txt`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  return (
+    <main className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12 lg:px-8">
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#897b8e] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={BookOpen}>Print</SecondaryButton></div></div>
+      <section className="print-card overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f7edf0] p-6 card-shadow sm:p-10">
+        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#80678f]"><CheckCircle2 size={14} /> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><p className="mt-5 text-xs font-semibold tracking-[0.15em] text-[#a18fa7]">TRAITLENS · PERSONALITY PROFILE</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#493a4e] sm:text-3xl">{profile.title}</h1><p className="mt-2 text-xs text-[#9a8d9e]">{record.level || record.questionCount || 30} မေးခွန်း · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#76697b]">{narrative}</p></div>
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
+          <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#5b4b60]">ပင်ကိုစရိုက် အချက် ၅ ချက်၏ ရမှတ်</h2><span className="text-[10px] text-[#a397a6]">0–100</span></div><div className="mt-2 h-[290px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="73%"><PolarGrid stroke="#e8dfe9" /><PolarAngleAxis dataKey="trait" tick={{ fill: '#85758b', fontSize: 11, fontFamily: 'Noto Sans Myanmar' }} /><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#b1a5b4', fontSize: 9 }} axisLine={false} /><Radar name="ရမှတ်" dataKey="score" stroke="#8c719b" fill="#bda9c8" fillOpacity={0.55} strokeWidth={2} /><Tooltip formatter={(value) => [`${value}/100`, 'ရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#eee4ed', fontSize: 12 }} /></RadarChart></ResponsiveContainer></div><p className="text-center text-[10px] leading-5 text-[#a397a6]">ဂရပ်သည် သင့်ဖြေဆိုချက်များမှ တွက်ချက်ထားသော အညွှန်းရမှတ်များကို ပြထားခြင်းဖြစ်သည်။</p></div>
+          <div className="flex flex-col gap-3">
+            <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#9b8ba0]">{profile.topScoresAreClose ? 'အမှတ်နီးစပ်နေသော အချက် (၁)' : 'အမှတ်အမြင့်ဆုံး အချက်'}</p><div className="mt-3 flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f2eaf5] text-[#80678f]"><TraitIcon id={profile.primary.id} size={21} /></span><div><h3 className="text-sm font-bold leading-6 text-[#5b4b60]">{profile.primary.name}</h3><p className="mt-0.5 text-xs text-[#988b9c]">{scores[profile.primary.id]?.score ?? 0} / 100</p></div></div><p className="mt-3 text-xs leading-7 text-[#827585]">{profile.primary.high}</p></div>
+            <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#9b8ba0]">{profile.topScoresAreClose ? 'အမှတ်နီးစပ်နေသော အချက် (၂)' : 'ဒုတိယ အမှတ်အမြင့်ဆုံး အချက်'}</p><div className="mt-3 flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f9edf0] text-[#a77c8d]"><TraitIcon id={profile.secondary.id} size={21} /></span><div><h3 className="text-sm font-bold leading-6 text-[#5b4b60]">{profile.secondary.name}</h3><p className="mt-0.5 text-xs text-[#988b9c]">{scores[profile.secondary.id]?.score ?? 0} / 100</p></div></div><p className="mt-3 text-xs leading-7 text-[#827585]">{profile.secondary.high}</p></div>
+          </div>
+        </div>
+      </section>
+      <section className="mt-8"><div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">YOUR FIVE PERSONALITY AREAS</p><h2 className="mt-1 text-xl font-bold text-[#514357]">သင့်ရဲ့ ပင်ကိုစရိုက်ရမှတ်များ</h2><p className="mt-2 text-xs leading-6 text-[#938796]">ရမှတ်မြင့်ခြင်း၊ နိမ့်ခြင်းဟာ ကောင်းခြင်း၊ ဆိုးခြင်းကို မဆိုလိုပါ။ ကိုယ့်အကြောင်းကို ပြန်လည်နားလည်ဖို့ အညွှန်းတစ်ခုအဖြစ်သာ ဖတ်ရှုပါ။</p></div><div className="grid gap-3 md:grid-cols-2">{TRAITS.map((trait) => <ScoreBar key={trait.id} trait={trait} score={scores[trait.id]?.score ?? 0} />)}</div></section>
+      {record.level >= 120 && facetScores && (
+        <section className="mt-8">
+          <div className="mb-4">
+            <p className="text-xs font-semibold tracking-wide text-[#a18fa7]">30 EXPLORATORY TOPIC CLUSTERS</p>
+            <h2 className="mt-1 text-xl font-bold text-[#514357]">ပင်ကိုစရိုက်ကို အသေးစိတ်ဖော်ပြတဲ့ အချက် ၃၀</h2>
+            <p className="mt-2 text-xs leading-6 text-[#938796]">အချက်တစ်ခုစီမှာ မေးခွန်း ၄ ခုကို အခြေခံထားတဲ့ အညွှန်းရမှတ်ကို ပြထားပါတယ်။ ဒီအသေးစိတ်အချက်တွေဟာ ကိုယ့်ကိုယ်ကို ပြန်လည်လေ့လာရန် ရေးဆွဲထားတဲ့ စမ်းသပ်အုပ်စုများဖြစ်ပြီး သီးခြားအတည်ပြုထားတဲ့ စိတ်ပညာစံနှုန်းများ မဟုတ်သေးပါ။</p>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {TRAITS.map((trait) => (
+              <article key={trait.id} className="rounded-2xl border border-[#eee5ed] bg-white p-5 shadow-sm">
+                <div className="mb-4 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f4eef6] text-[#80678f]"><TraitIcon id={trait.id} size={17} /></span><h3 className="text-sm font-bold leading-6 text-[#5b4b60]">{trait.name}</h3></div>
+                <div className="space-y-4">
+                  {FACETS.filter((facet) => facet.traitId === trait.id).map((facet) => {
+                    const item = facetScores[facet.id]
+                    const score = item?.score ?? 0
+                    return (
+                      <div key={facet.id}>
+                        <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-xs font-semibold leading-5 text-[#68596f]">{facet.name}</p><p className="mt-0.5 text-[10px] leading-5 text-[#a196a5]">{facet.description}</p></div><span className="shrink-0 text-xs font-bold tabular-nums text-[#80678f]">{score}/100</span></div>
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#f1ebf2]"><div className="h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${score}%` }} /></div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+      <section className="mt-8 rounded-[1.75rem] border border-[#eee4ed] bg-white p-5 sm:p-7"><div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f4edf6] text-[#80678f]"><Lightbulb size={18} /></span><div><p className="text-xs font-semibold text-[#a18fa7]">SMALL STEPS FOR GROWTH</p><h2 className="text-lg font-bold text-[#514357]">စမ်းကြည့်နိုင်တဲ့ တိုးတက်မှုအဆင့်များ</h2></div></div><p className="mt-4 text-xs leading-7 text-[#8b7f8f]">အမှတ်နိမ့်တဲ့ အချက်တွေဟာ အားနည်းချက်လို့ မဆိုလိုပါဘူး။ ကိုယ်စိတ်ဝင်စားရင် စမ်းကြည့်နိုင်တဲ့ အလေ့အကျင့်အကြံပြုချက်တွေအဖြစ်သာ ဖတ်ရှုပါ။</p><div className="mt-4 grid gap-3 md:grid-cols-2">{lowestTraits.map((trait) => <div key={trait.id} className="rounded-2xl bg-[#faf7fa] p-4"><div className="flex items-center justify-between gap-3"><h3 className="text-sm font-bold leading-6 text-[#65556a]">{trait.name}</h3><span className="text-xs tabular-nums text-[#9b8aa0]">{scores[trait.id]?.score ?? 0}/100</span></div><p className="mt-2 text-xs leading-7 text-[#8b7f8f]">{trait.advice}</p></div>)}</div></section>
+      <section className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fbf8fb] p-5"><div className="flex items-start gap-3"><CircleHelp size={18} className="mt-0.5 shrink-0 text-[#9a85a2]" /><div><h3 className="text-sm font-bold text-[#66576b]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</h3><p className="mt-2 text-xs leading-7 text-[#918595]">ဤဆန်းစစ်မှုသည် ပင်ကိုစရိုက် အချက် ၅ ချက်ကို လေ့လာရန် မြန်မာဘာသာဖြင့် ကိုယ်ပိုင်ရေးဆွဲထားသော မေးခွန်းများကို အသုံးပြုထားသည်။ 0–100 ရမှတ်သည် သင်ရွေးချယ်ထားသော အဖြေများကို အညွှန်းအဖြစ် ပြောင်းလဲဖော်ပြခြင်းသာဖြစ်ပြီး ရာခိုင်နှုန်းအဆင့်၊ လူဦးရေအတွင်း အဆင့်သတ်မှတ်ချက် သို့မဟုတ် အခြားသူများနှင့် နှိုင်းယှဉ်ထားသော ရလဒ် မဟုတ်ပါ။ ရမှတ်အဆင့်များသည် ဤ Version အတွက် သတ်မှတ်ထားသော အညွှန်းများသာဖြစ်ပြီး လူဦးရေစံနှုန်းများဖြင့် အတည်ပြုထားခြင်း မရှိသေးပါ။ Personality Profile အမည်သည် ဖတ်ရှုရလွယ်ရန် ဖော်ပြထားသော အကျဉ်းချုပ်ဖြစ်ပြီး သင့်ကို Type တစ်ခုတည်းဖြင့် အပြီးသတ်သတ်မှတ်ခြင်း မဟုတ်ပါ။ စိတ်ကျန်းမာရေးဆိုင်ရာ Diagnosis အဖြစ် မသုံးပါနှင့်။</p></div></div></section>
+      <div className="no-print mt-8 flex flex-col justify-center gap-3 sm:flex-row"><PrimaryButton onClick={onRetake} icon={RotateCcw}>ထပ်မံဖြေဆိုမယ်</PrimaryButton><SecondaryButton onClick={onHome} icon={Home}>ပင်မစာမျက်နှာသို့</SecondaryButton></div>
+    </main>
+  )
+}
+
+function HistoryPage({ history, onOpen, onDelete, onClear, onStart }) {
+  return (
+    <main className="mx-auto max-w-4xl px-4 py-9 sm:px-6 sm:py-12">
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">YOUR SAVED RESULTS</p><h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">စမ်းသပ်မှုမှတ်တမ်း</h1><p className="mt-2 text-xs leading-6 text-[#978b9a]">ဒီ Browser ထဲမှာ သိမ်းထားတဲ့ ပြီးဆုံးသွားသော ရလဒ်များ</p></div><span className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#8d7b94] shadow-sm">{history.length} ခု</span></div>
+      {history.length === 0 ? (
+        <div className="rounded-[2rem] border border-dashed border-[#ded2e1] bg-white/70 px-6 py-14 text-center"><span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#f4edf6] text-[#80678f]"><History size={24} /></span><h2 className="mt-4 text-lg font-bold text-[#57485c]">မှတ်တမ်း မရှိသေးပါ</h2><p className="mx-auto mt-2 max-w-sm text-xs leading-6 text-[#978b9a]">ဆန်းစစ်မှုတစ်ခုပြီးဆုံးတဲ့အခါ သင့်ရလဒ်ကို ဒီနေရာမှာ ပြန်ကြည့်နိုင်ပါတယ်။</p><div className="mt-6"><PrimaryButton onClick={() => onStart(30, false)}>စတင်ဖြေဆိုမယ်</PrimaryButton></div></div>
+      ) : (
+        <div className="space-y-3">{history.map((record) => { const isCareer = record.assessmentType === 'careerInterest'; const isInnerCompass = record.assessmentType === 'innerCompass'; const profile = !isCareer && !isInnerCompass && record.scores ? getPersonalityProfile(record.scores) : null; return (
+          <article key={record.id} className="flex flex-col gap-4 rounded-2xl border border-[#eee5ed] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <button onClick={() => onOpen(record)} className="flex min-w-0 flex-1 items-center gap-3 text-left"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><Sparkles size={19} /></span><span className="min-w-0"><span className="block truncate text-sm font-bold text-[#594a5e]">{isCareer ? `Career Interest · ${record.careerCode || 'စိတ်ဝင်စားမှု'}` : isInnerCompass ? 'InnerCompass · စိတ်နေသဘောထားသုံးသပ်မှု' : (profile?.title || 'TraitLens · ပင်ကိုစရိုက်ဆန်းစစ်မှု')}</span><span className="mt-1 block text-[11px] text-[#a095a3]">{formatDate(record.createdAt)}</span><span className="mt-1 block text-[10px] text-[#a095a3]">{record.questionCount || record.level || 30} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span></span></button>
+            <div className="flex items-center justify-between gap-2 sm:justify-end"><SecondaryButton onClick={() => onOpen(record)} icon={ChevronRight}>ရလဒ်ကြည့်မယ်</SecondaryButton><button onClick={() => onDelete(record.id)} aria-label="မှတ်တမ်းဖျက်ရန်" className="grid h-10 w-10 place-items-center rounded-xl text-[#ad909d] transition hover:bg-[#fbf0f2] hover:text-[#a65f79]"><Trash2 size={17} /></button></div>
+          </article>
+        )})}</div>
+      )}
+      {history.length > 0 && <div className="mt-5 flex flex-col justify-between gap-3 rounded-2xl bg-[#f3edf4] p-4 sm:flex-row sm:items-center"><p className="text-xs leading-6 text-[#8a7c8e]">{STORAGE_HINT}</p><button onClick={onClear} className="inline-flex items-center gap-2 text-xs font-semibold text-[#a16f83] hover:text-[#8e4f68]"><Trash2 size={14} /> မှတ်တမ်းအားလုံးဖျက်မယ်</button></div>}
+    </main>
+  )
+}
+
+function BackupRestoreDialog({ preview, mode, onModeChange, onCancel, onConfirm }) {
+  if (!preview) return null
+  return (
+    <div className="no-print fixed inset-0 z-[60] flex items-center justify-center bg-[#302735]/40 p-4 backdrop-blur-sm" role="presentation">
+      <section role="dialog" aria-modal="true" aria-labelledby="backup-dialog-title" className="w-full max-w-lg rounded-[1.75rem] border border-[#eee5ed] bg-[#fffdfd] p-5 shadow-2xl sm:p-7">
+        <div className="flex items-start gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><FileJson size={20} /></span>
+          <div className="min-w-0 flex-1">
+            <h2 id="backup-dialog-title" className="text-lg font-bold text-[#514357]">Backup ဖိုင်ကို ပြန်လည်ထည့်သွင်းမယ်</h2>
+            <p className="mt-1 break-all text-xs leading-6 text-[#918594]">{preview.fileName}</p>
+          </div>
+          <button onClick={onCancel} aria-label="ပိတ်ရန်" className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-[#948797] hover:bg-[#f5eff5]"><X size={18} /></button>
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="rounded-xl bg-[#f7f2f8] p-3"><p className="text-[10px] text-[#95879b]">မပြီးသေးသော Draft</p><p className="mt-1 text-2xl font-bold text-[#80678f]">{preview.summary.draftCount}</p></div>
+          <div className="rounded-xl bg-[#fbf1f3] p-3"><p className="text-[10px] text-[#a18b93]">ပြီးဆုံးမှတ်တမ်း</p><p className="mt-1 text-2xl font-bold text-[#a77c8d]">{preview.summary.historyCount}</p></div>
+        </div>
+        <p className="mt-3 text-[11px] leading-6 text-[#948898]">Backup ထုတ်ယူခဲ့သည့်အချိန် - {preview.exportedAt ? formatDate(preview.exportedAt) : 'မဖော်ပြထားပါ'}</p>
+        <div className="mt-5 space-y-3">
+          <p className="text-xs font-bold text-[#5f5064]">ဘယ်လိုပြန်ထည့်ချင်ပါသလဲ။</p>
+          <label className={cn('flex cursor-pointer gap-3 rounded-xl border p-3.5 transition', mode === 'merge' ? 'border-[#bba7c5] bg-[#faf6fb]' : 'border-[#eee5ed] bg-white')}>
+            <input type="radio" name="restore-mode" value="merge" checked={mode === 'merge'} onChange={() => onModeChange('merge')} className="mt-1 accent-[#80678f]" />
+            <span><span className="block text-xs font-bold text-[#5f5064]">လက်ရှိ Data နဲ့ ပေါင်းထည့်မယ် (အကြံပြု)</span><span className="mt-1 block text-[11px] leading-6 text-[#918594]">လက်ရှိမှတ်တမ်းတွေကို မဖျက်ပါ။ Draft တစ်ခုတည်း ထပ်နေပါက နောက်ဆုံးပြင်ဆင်ထားတဲ့အရာကို ဦးစားပေးပြီး History ကို ID အလိုက် ပေါင်းစည်းမယ်။</span></span>
+          </label>
+          <label className={cn('flex cursor-pointer gap-3 rounded-xl border p-3.5 transition', mode === 'replace' ? 'border-[#d8a8ae] bg-[#fff8f8]' : 'border-[#eee5ed] bg-white')}>
+            <input type="radio" name="restore-mode" value="replace" checked={mode === 'replace'} onChange={() => onModeChange('replace')} className="mt-1 accent-[#a66d7d]" />
+            <span><span className="block text-xs font-bold text-[#79515d]">လက်ရှိ Data အားလုံးကို အစားထိုးမယ်</span><span className="mt-1 block text-[11px] leading-6 text-[#9c8088]">လက်ရှိ Browser ထဲက Draft နဲ့ History တွေကို အစားထိုးပါမယ်။ Backup ဖိုင်ထဲမပါတဲ့ လက်ရှိအချက်အလက်တွေ ပျောက်သွားနိုင်ပါတယ်။</span></span>
+          </label>
+        </div>
+        {mode === 'replace' && <p className="mt-3 rounded-xl bg-[#fff1f2] p-3 text-[11px] leading-6 text-[#a15d6b]">သတိပြုရန် - အစားထိုးပြီးသွားလျှင် ယခင် Local Data ကို ဒီလုပ်ဆောင်ချက်ကနေ ပြန်ယူလို့မရပါ။ အရင်ဆုံး Backup အသစ်တစ်ခု ထုတ်ထားပါ။</p>}
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <SecondaryButton onClick={onCancel}>မလုပ်တော့ပါ</SecondaryButton>
+          <PrimaryButton onClick={onConfirm} icon={Upload}>ပြန်လည်ထည့်သွင်းမယ်</PrimaryButton>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+export default function App() {
+  const [appData, setAppData] = useState(() => loadAppData())
+  const [page, setPage] = useState('home')
+  const [level, setLevel] = useState(30)
+  const [answers, setAnswers] = useState({})
+  const [skippedQuestionIds, setSkippedQuestionIds] = useState([])
+  const [questionIndex, setQuestionIndex] = useState(0)
+  const [startedAt, setStartedAt] = useState(null)
+  const [activeRecord, setActiveRecord] = useState(null)
+  const [toast, setToast] = useState('')
+  const [backupPreview, setBackupPreview] = useState(null)
+  const [restoreMode, setRestoreMode] = useState('merge')
+  const fileInputRef = useRef(null)
+  const careerPersistRef = useRef(null)
+  const innerCompassPersistRef = useRef(null)
+  const questions = useMemo(() => getQuestionsForLevel(level), [level])
+  const currentDraft = appData.drafts?.personality?.[String(level)] || null
+
+  const persistDraft = (override = {}) => {
+    const draft = {
+      assessmentType: 'personality',
+      questionBankVersion: QUESTION_BANK_VERSION,
+      level,
+      answers,
+      skippedQuestionIds,
+      currentIndex: questionIndex,
+      startedAt: startedAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'in-progress',
+      ...override,
+    }
+    const success = saveDraft(draft)
+    setAppData(loadAppData())
+    return success
+  }
+
+  useEffect(() => {
+    if (page !== 'assessment' && page !== 'review') return
+    persistDraft()
+    // State changes are intentionally persisted synchronously to localStorage.
+  }, [answers, skippedQuestionIds, questionIndex, level, startedAt, page])
+
+  useEffect(() => {
+    if (!toast) return undefined
+    const timer = window.setTimeout(() => setToast(''), 2800)
+    return () => window.clearTimeout(timer)
+  }, [toast])
+
+  useEffect(() => {
+    const flushBeforeClose = () => {
+      if (page === 'assessment' || page === 'review') persistDraft()
+    }
+    window.addEventListener('beforeunload', flushBeforeClose)
+    return () => window.removeEventListener('beforeunload', flushBeforeClose)
+  }, [page, level, answers, skippedQuestionIds, questionIndex, startedAt])
+
+  const handleExportBackup = () => {
+    try {
+      const snapshot = createBackupSnapshot()
+      const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      const dateStamp = new Date().toISOString().slice(0, 10)
+      anchor.href = url
+      anchor.download = `self-discovery-backup-${dateStamp}.json`
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500)
+      setToast(`Backup ဖိုင် ထုတ်ယူရန် ပြင်ဆင်ပြီးပါပြီ။ Draft ${snapshot.summary.draftCount} ခု၊ History ${snapshot.summary.historyCount} ခု ပါဝင်ပါတယ်။`)
+    } catch (error) {
+      console.error('Backup export failed:', error)
+      setToast('Backup ထုတ်ယူရာမှာ ပြဿနာရှိနေပါတယ်။ ထပ်မံကြိုးစားပါ။')
+    }
+  }
+
+  const handleChooseBackup = () => fileInputRef.current?.click()
+
+  const handleBackupFileSelected = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      setToast('Backup ဖိုင်အရွယ်အစား 10 MB ထက် မကျော်သင့်ပါ။')
+      return
+    }
+    try {
+      const parsed = JSON.parse(await file.text())
+      const inspected = inspectBackupSnapshot(parsed)
+      if (!inspected.valid) {
+        setToast(inspected.error || 'Backup ဖိုင်ကို ဖတ်မရပါ။')
+        return
+      }
+      setBackupPreview({ ...inspected, fileName: file.name })
+      setRestoreMode('merge')
+    } catch (error) {
+      console.error('Backup import preview failed:', error)
+      setToast('JSON ဖိုင်ကို ဖတ်မရပါ။ မှန်ကန်တဲ့ Self Discovery Backup ကို ရွေးပေးပါ။')
+    }
+  }
+
+  const handleConfirmRestore = () => {
+    if (!backupPreview?.data) return
+    const result = restoreBackupData(backupPreview.data, restoreMode)
+    if (!result.success) {
+      setToast(result.error || 'Backup ပြန်ထည့်သွင်းရာမှာ မအောင်မြင်ပါ။')
+      return
+    }
+    setAppData(result.data)
+    setBackupPreview(null)
+    setPage('home')
+    setToast(restoreMode === 'replace' ? 'Backup ထဲက Data ကို ပြန်လည်အစားထိုးသိမ်းဆည်းပြီးပါပြီ။' : 'Backup Data ကို လက်ရှိ Data နဲ့ ပေါင်းထည့်ပြီးပါပြီ။')
+  }
+
+  const handleStart = (nextLevel, forceNew = false) => {
+    const existing = loadDraft(nextLevel)
+    if (existing && !forceNew) {
+      handleResume(nextLevel)
+      return
+    }
+    if (existing && forceNew) {
+      const confirmed = window.confirm(`${nextLevel} မေးခွန်းအတွက် မပြီးသေးတဲ့ အဖြေဟောင်းရှိပါတယ်။ အသစ်ပြန်စရင် အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။`)
+      if (!confirmed) return
+      clearDraft(nextLevel)
+    }
+    const now = new Date().toISOString()
+    setLevel(Number(nextLevel))
+    setAnswers({})
+    setSkippedQuestionIds([])
+    setQuestionIndex(0)
+    setStartedAt(now)
+    setActiveRecord(null)
+    setPage('instructions')
+    saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level: Number(nextLevel), answers: {}, skippedQuestionIds: [], currentIndex: 0, startedAt: now, updatedAt: now, status: 'in-progress' })
+    setAppData(loadAppData())
+  }
+
+  const handleResume = (resumeLevel) => {
+    const draft = loadDraft(resumeLevel)
+    if (!draft) {
+      setToast('ဆက်လက်ဖြေဆိုရန် သိမ်းထားတဲ့ အဖြေမတွေ့ပါ။')
+      return
+    }
+    const resumeQuestions = getQuestionsForLevel(resumeLevel)
+    setLevel(Number(resumeLevel))
+    setAnswers(draft.answers || {})
+    setSkippedQuestionIds(Array.isArray(draft.skippedQuestionIds) ? draft.skippedQuestionIds : [])
+    setQuestionIndex(Math.max(0, Math.min(Number(draft.currentIndex) || 0, resumeQuestions.length - 1)))
+    setStartedAt(draft.startedAt || draft.updatedAt || new Date().toISOString())
+    setAppData(loadAppData())
+    setPage('assessment')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleBegin = () => {
+    setPage('assessment')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleAnswer = (questionId, value) => {
+    const nextAnswers = { ...answers, [questionId]: value }
+    const nextSkipped = skippedQuestionIds.filter((id) => id !== questionId)
+    setAnswers(nextAnswers)
+    setSkippedQuestionIds(nextSkipped)
+    saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level, answers: nextAnswers, skippedQuestionIds: nextSkipped, currentIndex: questionIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    setAppData(loadAppData())
+  }
+
+  const handlePrevious = () => {
+    setQuestionIndex((current) => Math.max(0, current - 1))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleNext = () => {
+    const currentQuestion = questions[questionIndex]
+    if (answers[currentQuestion.id] === undefined) {
+      setToast('အဖြေရွေးချယ်ပါ၊ ဒါမှမဟုတ် ဒီမေးခွန်းကို ကျော်ထားနိုင်ပါတယ်။')
+      return
+    }
+    if (questionIndex < questions.length - 1) {
+      setQuestionIndex((current) => current + 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      setPage('review')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const handleSkip = () => {
+    const currentQuestion = questions[questionIndex]
+    if (answers[currentQuestion.id] !== undefined) {
+      setToast('ဒီမေးခွန်းကို ဖြေပြီးသားပါ။ နောက်မေးခွန်းသို့ ဆက်သွားနိုင်ပါတယ်။')
+      return
+    }
+    const nextSkipped = [...new Set([...skippedQuestionIds, currentQuestion.id])]
+    setSkippedQuestionIds(nextSkipped)
+    const nextIndex = Math.min(questionIndex + 1, questions.length - 1)
+    setQuestionIndex(nextIndex)
+    saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level, answers, skippedQuestionIds: nextSkipped, currentIndex: nextIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    setAppData(loadAppData())
+    if (questionIndex === questions.length - 1) setPage('review')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleGoToQuestion = (index) => {
+    setQuestionIndex(Math.max(0, Math.min(index, questions.length - 1)))
+    setPage('assessment')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleFinish = () => {
+    const unanswered = questions.filter((question) => answers[question.id] === undefined)
+    if (unanswered.length > 0) {
+      setToast(`မဖြေရသေးတဲ့ မေးခွန်း ${unanswered.length} ခု ကျန်နေပါသေးတယ်။`)
+      setPage('review')
+      return
+    }
+    const { scores, facetScores } = buildResult(answers, questions)
+    const record = {
+      id: globalThis.crypto?.randomUUID?.() || `assessment-${Date.now()}`,
+      assessmentType: 'personality',
+      questionBankVersion: QUESTION_BANK_VERSION,
+      level,
+      questionCount: questions.length,
+      createdAt: new Date().toISOString(),
+      startedAt,
+      answers,
+      scores,
+      facetScores,
+    }
+    const history = saveAssessment(record)
+    setAppData({ ...loadAppData(), history })
+    setActiveRecord(record)
+    setPage('result')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleRetake = () => handleStart(activeRecord?.level || 30, true)
+
+  const handleDeleteRecord = (id) => {
+    if (!window.confirm('ဒီမှတ်တမ်းကို ဖျက်မှာ သေချာပါသလား။')) return
+    const history = deleteAssessment(id)
+    setAppData((current) => ({ ...current, history }))
+  }
+
+  const handleClearHistory = () => {
+    if (!window.confirm('သိမ်းထားတဲ့ မှတ်တမ်းအားလုံးကို ဖျက်မှာ သေချာပါသလား။')) return
+    const history = clearHistory()
+    setAppData((current) => ({ ...current, history }))
+  }
+
+  const handleExitAssessment = () => {
+    persistDraft()
+    setAppData(loadAppData())
+    setPage('home')
+  }
+
+  const openHistoryRecord = (record) => {
+    setActiveRecord(record)
+    setPage(record.assessmentType === 'careerInterest' ? 'careerInterest' : record.assessmentType === 'innerCompass' ? 'innerCompass' : 'result')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleStartCareer = () => {
+    setActiveRecord(null)
+    setAppData(loadAppData())
+    setPage('careerInterest')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleNavigateHome = () => {
+    if (page === 'assessment' || page === 'review') persistDraft()
+    if (page === 'careerInterest') careerPersistRef.current?.()
+    if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    setActiveRecord(null)
+    setAppData(loadAppData())
+    setPage('home')
+  }
+
+  const handleNavigateHistory = () => {
+    if (page === 'assessment' || page === 'review') persistDraft()
+    if (page === 'careerInterest') careerPersistRef.current?.()
+    if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    setAppData(loadAppData())
+    setPage('history')
+  }
+
+  const handleNavigateKnowledge = () => {
+    if (page === 'assessment' || page === 'review') persistDraft()
+    if (page === 'careerInterest') careerPersistRef.current?.()
+    if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    setAppData(loadAppData())
+    setPage('knowledge')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f8f5f6] text-[#403747]">
+      <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenKnowledge={handleNavigateKnowledge} />}
+      {page === 'knowledge' && <KnowledgeCenter onBack={handleNavigateHome} />}
+      {page === 'careerInterest' && <CareerInterestModule key={activeRecord?.id || 'career-new'} record={activeRecord?.assessmentType === 'careerInterest' ? activeRecord : null} onHome={handleNavigateHome} onDataChange={setAppData} persistRef={careerPersistRef} />}
+      {page === 'instructions' && <InstructionsPage level={level} onBack={() => setPage('home')} onBegin={handleBegin} />}
+      {page === 'innerCompass' && <InnerCompassModule key={activeRecord?.id || 'inner-compass-active'} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} />}
+      {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} />}
+      {page === 'review' && <ReviewPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={handleGoToQuestion} onFinish={handleFinish} onBack={() => setPage('assessment')} />}
+      {page === 'result' && <ResultsPage record={activeRecord} onHome={() => { setAppData(loadAppData()); setPage('home') }} onRetake={handleRetake} />}
+      {page === 'history' && <HistoryPage history={appData.history} onOpen={openHistoryRecord} onDelete={handleDeleteRecord} onClear={handleClearHistory} onStart={handleStart} />}
+      <footer className="no-print border-t border-[#eee5ed] bg-[#fbf9fa] px-4 py-6 text-center"><p className="text-[11px] font-semibold text-[#95889a]">Self Discovery · ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း</p><p className="mt-1 text-[10px] text-[#b0a6b2]">ပိုမိုနားလည်လာခြင်းက ကိုယ့်ကိုယ်ကို ဂရုစိုက်ခြင်းရဲ့ အစဖြစ်ပါတယ်။</p></footer>
+      <input ref={fileInputRef} type="file" accept=".json,application/json" className="hidden" onChange={handleBackupFileSelected} />
+      <BackupRestoreDialog preview={backupPreview} mode={restoreMode} onModeChange={setRestoreMode} onCancel={() => setBackupPreview(null)} onConfirm={handleConfirmRestore} />
+      {toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#514357] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}
+    </div>
+  )
 }

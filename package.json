@@ -1,25 +1,35 @@
 {
-  "name": "shwe-myanmar-pos",
+  "name": "self-discovery-personality",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.10.1-beta.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:assessment": "node scripts/validate-assessment.mjs",
+    "validate:backup": "node scripts/validate-backup.mjs",
+    "validate:career": "node scripts/validate-career.mjs",
+    "validate:all": "npm run validate:assessment && npm run validate:backup && npm run validate:career && npm run validate:design && npm run validate:innercompass-draft && npm run validate:innercompass-v02 && npm run validate:innercompass-flow && npm run validate:innercompass-v03 && npm run validate:docs && npm run validate:knowledge-center && npm run validate:knowledge-links",
+    "validate:design": "node scripts/validate-design.mjs",
+    "validate:innercompass-draft": "node scripts/validate-innercompass-draft.mjs",
+    "validate:innercompass-v02": "node scripts/validate-innercompass-v02.mjs",
+    "validate:innercompass-flow": "node scripts/validate-innercompass-flow.mjs",
+    "validate:innercompass-v03": "node scripts/validate-innercompass-v03.mjs",
+    "validate:docs": "node scripts/validate-docs.mjs",
+    "validate:knowledge-center": "node scripts/validate-knowledge-center.mjs",
+    "validate:knowledge-links": "node scripts/validate-knowledge-links.mjs"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "lucide-react": "^0.344.0"
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "recharts": "latest"
   },
   "devDependencies": {
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
-    "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.18",
-    "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.1",
-    "vite": "^5.1.6"
+    "@tailwindcss/vite": "latest",
+    "tailwindcss": "latest",
+    "vite": "latest",
+    "@vitejs/plugin-react": "latest"
   }
 }

@@ -10,6 +10,7 @@
 | [04-career](./04-career/) | Career Interest Assessment လမ်းညွှန် |
 | [05-data-safety](./05-data-safety/) | JSON Backup / Restore လမ်းညွှန် |
 | [07-quality-review](./07-quality-review/) | Design QA Report နှင့် Preview ပုံများ |
+| [08-knowledge-center](./08-knowledge-center/) | Knowledge Center ဝေါဟာရ၊ Review စံနှုန်းနှင့် Assessment အတွင်း အဓိပ္ပာယ်ဖတ်ရှုနိုင်မှု |
 | [99-archive](./99-archive/) | အဟောင်း Release Changelog များ |
 
 ## အရေးကြီးသော စာတမ်းများ
@@ -45,3 +46,4 @@
 - `08-knowledge-center/KNOWLEDGE_CENTER_SPEC_V1.md` — Knowledge Center လုပ်ဆောင်ချက်နှင့် Review စံနှုန်း။
 - `08-knowledge-center/KNOWLEDGE_GLOSSARY_DRAFT_V0_1.md` — စကားလုံး ၃၀ မူကြမ်း။
 - `08-knowledge-center/CONTENT_QA_REPORT_V0_1.md` — အလိုအလျောက် QA အခြေအနေနှင့် ကျွမ်းကျင်သူစစ်ဆေးရန်ကျန်ရှိချက်များ။
+- `08-knowledge-center/ASSESSMENT_INLINE_HELP_V1_10_1.md` — TraitLens / InnerCompass မေးခွန်းများနှင့် Knowledge Center ချိတ်ဆက်ထားပုံ။
