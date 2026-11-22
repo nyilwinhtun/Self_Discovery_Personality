@@ -14,6 +14,18 @@ const CATEGORY_ICONS = {
   'psychology-growth': BookOpen,
 }
 
+function normalizeForSearch(value) {
+  return String(value || '')
+    .normalize('NFC')
+    .toLocaleLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')
+}
+
+function stripSearchWhitespace(value) {
+  return value.replace(/[\s\u200B-\u200D\uFEFF]+/g, '')
+}
+
 function getRelatedTerms(term, allTerms) {
   if (!term) return []
   const haystacks = [term.distinction, term.definition_simple].join(' ').toLocaleLowerCase()
@@ -43,13 +55,19 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
   const selectedTerm = glossary.terms.find((term) => term.id === selectedId) || null
   const relatedTerms = useMemo(() => getRelatedTerms(selectedTerm, glossary.terms), [selectedTerm])
   const filteredTerms = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase()
+    const normalizedQuery = normalizeForSearch(query)
+    const compactQuery = stripSearchWhitespace(normalizedQuery)
     return glossary.terms.filter((term) => {
       const matchesCategory = activeCategory === 'all' || term.category_id === activeCategory
-      const searchable = [term.term_en, term.term_my, term.definition_simple, term.daily_example, term.distinction]
-        .join(' ')
-        .toLocaleLowerCase()
-      return matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery))
+      const searchable = normalizeForSearch(
+        [term.term_en, term.term_my, term.definition_simple, term.daily_example, term.distinction].join(' '),
+      )
+      const compactSearchable = stripSearchWhitespace(searchable)
+      const matchesQuery =
+        !normalizedQuery ||
+        searchable.includes(normalizedQuery) ||
+        compactSearchable.includes(compactQuery)
+      return matchesCategory && matchesQuery
     })
   }, [query, activeCategory])
 
