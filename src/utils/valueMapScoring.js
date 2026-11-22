@@ -3,23 +3,34 @@ import {
   VALUEMAP_QUESTIONS_20,
   VALUEMAP_QUESTIONS_40,
   VALUEMAP_QUESTIONS_40_EXTRA,
+  VALUEMAP_QUESTIONS_80,
+  VALUEMAP_QUESTIONS_80_EXTRA,
   getValueMapQuestionsForLevel,
 } from '../data/valueMapPilot.js'
 
 function resolveQuestionSet(answers, level = null) {
-  if (Number(level) === 40) return VALUEMAP_QUESTIONS_40
-  if (Number(level) === 20) return VALUEMAP_QUESTIONS_20
-  const hasExtendedItem = answers && typeof answers === 'object' && !Array.isArray(answers)
-    ? VALUEMAP_QUESTIONS_40_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))
-    : false
-  return hasExtendedItem ? VALUEMAP_QUESTIONS_40 : VALUEMAP_QUESTIONS_20
+  const normalizedLevel = Number(level)
+  if (normalizedLevel === 80) return VALUEMAP_QUESTIONS_80
+  if (normalizedLevel === 40) return VALUEMAP_QUESTIONS_40
+  if (normalizedLevel === 20) return VALUEMAP_QUESTIONS_20
+  const hasAnswers = answers && typeof answers === 'object' && !Array.isArray(answers)
+  if (hasAnswers && VALUEMAP_QUESTIONS_80_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
+    return VALUEMAP_QUESTIONS_80
+  }
+  if (hasAnswers && VALUEMAP_QUESTIONS_40_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
+    return VALUEMAP_QUESTIONS_40
+  }
+  return VALUEMAP_QUESTIONS_20
 }
 
 export function validateValueMapAnswers(answers, level = null) {
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return false
-  const allowedQuestions = Number(level) === 20
+  const normalizedLevel = Number(level)
+  const allowedQuestions = normalizedLevel === 20
     ? VALUEMAP_QUESTIONS_20
-    : VALUEMAP_QUESTIONS_40
+    : normalizedLevel === 40
+      ? VALUEMAP_QUESTIONS_40
+      : VALUEMAP_QUESTIONS_80
   return Object.entries(answers).every(([id, value]) => {
     const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5
