@@ -33,6 +33,7 @@ function getRecordComparisonKey(record) {
   const type = getRecordAssessmentType(record)
   if (type === 'personality') return `personality:${record?.level || record?.questionCount || 30}`
   if (type === 'innerCompass') return `innerCompass:${record?.questionCount || record?.level || 30}`
+  if (type === 'emotionLens') return `emotionLens:${record?.questionCount || record?.level || 20}`
   return type
 }
 
@@ -306,7 +307,7 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-bold text-[#594a5e]">{isCareer ? `Career Interest · ${record.careerCode || 'စိတ်ဝင်စားမှု'}` : isInnerCompass ? 'InnerCompass · စိတ်နေသဘောထားသုံးသပ်မှု' : isBondSense ? 'BondSense · ဆက်ဆံရေးသုံးသပ်မှု' : isValueMap ? 'ValueMap · ဘဝတန်ဖိုးသုံးသပ်မှု' : isEmotionLens ? 'EmotionLens · စိတ်ခံစားချက်သုံးသပ်မှု' : (profile?.title || 'TraitLens · ပင်ကိုစရိုက်ဆန်းစစ်မှု')}</span>
                         <span className="mt-1 block text-[11px] text-[#6b5e70]">{formatDate(record.createdAt)}</span>
-                        <span className="mt-1 block text-[11px] text-[#6b5e70]">{record.questionCount || record.level || 30} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : isBondSense ? 'ဆက်ဆံရေး Pilot' : isValueMap ? 'ဘဝတန်ဖိုး Pilot' : isEmotionLens ? 'စိတ်ခံစားချက် Pilot' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span>
+                        <span className="mt-1 block text-[11px] text-[#6b5e70]">{record.questionCount || record.level || (isBondSense || isValueMap || isEmotionLens ? 20 : 30)} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : isBondSense ? 'ဆက်ဆံရေး Pilot' : isValueMap ? 'ဘဝတန်ဖိုး Pilot' : isEmotionLens ? 'စိတ်ခံစားချက် Pilot' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span>
                       </span>
                     </button>
                     <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">

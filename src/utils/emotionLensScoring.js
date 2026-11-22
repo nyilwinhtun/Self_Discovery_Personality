@@ -1,27 +1,44 @@
 import {
   EMOTIONLENS_DIMENSIONS,
   EMOTIONLENS_QUESTIONS_20,
+  EMOTIONLENS_QUESTIONS_40,
+  EMOTIONLENS_QUESTIONS_40_EXTRA,
+  getEmotionLensQuestionsForLevel,
 } from '../data/emotionLensPilot.js'
 
-export function validateEmotionLensAnswers(answers) {
+function resolveQuestionSet(answers, level = null) {
+  if (Number(level) === 40) return EMOTIONLENS_QUESTIONS_40
+  if (Number(level) === 20) return EMOTIONLENS_QUESTIONS_20
+  const hasExtendedItem = answers && typeof answers === 'object' && !Array.isArray(answers)
+    ? EMOTIONLENS_QUESTIONS_40_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))
+    : false
+  return hasExtendedItem ? EMOTIONLENS_QUESTIONS_40 : EMOTIONLENS_QUESTIONS_20
+}
+
+export function validateEmotionLensAnswers(answers, level = null) {
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return false
+  const allowedQuestions = Number(level) === 20
+    ? EMOTIONLENS_QUESTIONS_20
+    : EMOTIONLENS_QUESTIONS_40
   return Object.entries(answers).every(([id, value]) => {
-    const knownQuestion = EMOTIONLENS_QUESTIONS_20.some((question) => question.id === id)
+    const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5
   })
 }
 
-export function scoreEmotionLens(answers) {
+export function scoreEmotionLens(answers, level = null) {
   const safeAnswers = answers && typeof answers === 'object' && !Array.isArray(answers)
     ? answers
     : {}
-  const missingQuestionIds = EMOTIONLENS_QUESTIONS_20
+  const activeQuestions = level ? getEmotionLensQuestionsForLevel(level) : resolveQuestionSet(safeAnswers)
+  const missingQuestionIds = activeQuestions
     .filter((question) => !Number.isInteger(safeAnswers[question.id]) || safeAnswers[question.id] < 1 || safeAnswers[question.id] > 5)
     .map((question) => question.id)
 
-  if (missingQuestionIds.length > 0 || !validateEmotionLensAnswers(safeAnswers)) {
+  if (missingQuestionIds.length > 0 || !validateEmotionLensAnswers(safeAnswers, activeQuestions.length)) {
     return {
       complete: false,
+      questionCount: activeQuestions.length,
       missingQuestionIds,
       dimensions: [],
       note: 'မေးခွန်းအားလုံး မဖြေဆိုရသေးသောကြောင့် အပြီးသတ်ရလဒ် မတွက်ချက်ရသေးပါ။',
@@ -29,7 +46,7 @@ export function scoreEmotionLens(answers) {
   }
 
   const dimensions = EMOTIONLENS_DIMENSIONS.map((dimension) => {
-    const questions = EMOTIONLENS_QUESTIONS_20
+    const questions = activeQuestions
       .filter((question) => question.dimensionId === dimension.id)
     const keyedScores = questions.map((question) => {
       const response = safeAnswers[question.id]
@@ -51,6 +68,7 @@ export function scoreEmotionLens(answers) {
 
   return {
     complete: true,
+    questionCount: activeQuestions.length,
     missingQuestionIds: [],
     dimensions,
     note: 'စမ်းသပ်မူကြမ်း (Pilot Reflection) အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု အညွှန်းသာဖြစ်ပြီး ဆေးဘက်ဆိုင်ရာ သို့မဟုတ် စိတ်ပညာဆိုင်ရာ အတည်ပြုရမှတ် မဟုတ်ပါ။',

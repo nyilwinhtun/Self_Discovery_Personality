@@ -162,9 +162,8 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
   const valueMapDraft = drafts?.valueMap?.['20'] || null
   const valueMapAnswered = Object.keys(valueMapDraft?.answers || {}).length
   const valueMapProgress = Math.round((valueMapAnswered / 20) * 100)
-  const emotionLensDraft = drafts?.emotionLens?.['20'] || null
-  const emotionLensAnswered = Object.keys(emotionLensDraft?.answers || {}).length
-  const emotionLensProgress = Math.round((emotionLensAnswered / 20) * 100)
+  const emotionLensDraft20 = drafts?.emotionLens?.['20'] || null
+  const emotionLensDraft40 = drafts?.emotionLens?.['40'] || null
   const recentPersonalityHistory = history.slice(0, 3)
 
   const scrollTo = (id) => {
@@ -478,20 +477,49 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
               <p className="mt-1 text-xs font-semibold text-[#2f6d73]">စိတ်ခံစားချက် သိမှတ်မှုနှင့် စိတ်အေးချမ်းမှု</p>
               <p className="mt-2 flex-1 text-xs leading-6 text-[#3a5a5e]">ခံစားချက်သိမှတ်မှု၊ စိတ်ဖိစီးမှုတည်ငြိမ်မှု၊ ကိုယ့်ကိုယ်ကို ကြင်နာမှုနှင့် အတွေးလွန်လွတ်မြောက်မှုတို့ကို သုံးသပ်ပါ။</p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#1e4a4f]">
-                <span className="rounded-full bg-[#eaf4f4] px-2.5 py-1">မေးခွန်း ၂၀</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#eaf4f4] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
+                <span className="rounded-full bg-[#eaf4f4] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#eaf4f4] px-2.5 py-1"><Clock3 size={11} /> ~၄–၈ မိနစ်</span>
                 <span className="rounded-full bg-[#eaf4f4] px-2.5 py-1">အချက် ၄ ချက်</span>
               </div>
-              {emotionLensDraft ? (
-                <div className="mt-4 rounded-xl bg-[#f4f9f9] p-3">
-                  <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#1e4a4f]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#3a5a5e]">{emotionLensProgress}%</span></div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#d8e8ea]"><div className="h-full rounded-full bg-[#2f6d73]" style={{ width: `${emotionLensProgress}%` }} /></div>
-                  <p className="mt-2 text-[11px] text-[#3a5a5e]">ဖြေပြီး {emotionLensAnswered} ခု · ကျော်ထား {(emotionLensDraft.skippedQuestionIds || []).filter((id) => emotionLensDraft.answers?.[id] === undefined).length} ခု</p>
-                  <button onClick={onOpenEmotionLens} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#2f6d73] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#24565b]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
-                </div>
-              ) : (
-                <button onClick={onOpenEmotionLens} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#bfd8da] bg-[#f4f9f9] px-4 py-2.5 text-xs font-semibold text-[#1e4a4f] transition hover:bg-[#e5f1f2]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
-              )}
+              <div className="mt-4 grid gap-2.5">
+                {[
+                  {
+                    levelValue: 20,
+                    title: 'အခြေခံ ၂၀ မေးခွန်း',
+                    duration: '~၄ မိနစ်',
+                    draft: emotionLensDraft20,
+                  },
+                  {
+                    levelValue: 40,
+                    title: 'အသေးစိတ် ၄၀ မေးခွန်း',
+                    duration: '~၈ မိနစ်',
+                    draft: emotionLensDraft40,
+                  },
+                ].map((item) => {
+                  const answered = Object.keys(item.draft?.answers || {}).length
+                  const skipped = (item.draft?.skippedQuestionIds || []).filter((id) => item.draft?.answers?.[id] === undefined).length
+                  const progress = Math.round((answered / item.levelValue) * 100)
+                  if (item.draft) {
+                    return (
+                      <div key={item.levelValue} className="rounded-xl border border-[#cce0e2] bg-[#f4f9f9] p-3">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-semibold text-[#1e4a4f]">{item.title} · ဆက်လက်ဖြေဆိုရန်</span>
+                          <span className="text-[#3a5a5e]">{progress}%</span>
+                        </div>
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#d8e8ea]"><div className="h-full rounded-full bg-[#2f6d73]" style={{ width: `${progress}%` }} /></div>
+                        <p className="mt-1.5 text-[11px] text-[#3a5a5e]">ဖြေပြီး {answered}/{item.levelValue} · ကျော်ထား {skipped} ခု</p>
+                        <button onClick={() => onOpenEmotionLens(item.levelValue)} className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#2f6d73] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#24565b]">ဆက်လက်ဖြေဆိုမယ် ({item.levelValue}) <ArrowRight size={14} /></button>
+                      </div>
+                    )
+                  }
+                  return (
+                    <button key={item.levelValue} onClick={() => onOpenEmotionLens(item.levelValue)} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-[#bfd8da] bg-[#f4f9f9] px-3.5 py-2.5 text-left text-xs font-semibold text-[#1e4a4f] transition hover:bg-[#e5f1f2]">
+                      <span>{item.title}</span>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-[#2f6d73]">{item.duration} <ArrowRight size={14} /></span>
+                    </button>
+                  )
+                })}
+              </div>
             </article>
           </div>
         </div>
@@ -1127,6 +1155,7 @@ export default function App() {
   const valueMapPersistRef = useRef(null)
   const emotionLensPersistRef = useRef(null)
   const [innerCompassLevel, setInnerCompassLevel] = useState(30)
+  const [emotionLensLevel, setEmotionLensLevel] = useState(20)
   const questions = useMemo(() => getQuestionsForLevel(level), [level])
   const currentDraft = appData.drafts?.personality?.[String(level)] || null
 
@@ -1597,7 +1626,7 @@ export default function App() {
   return (
     <div className={cn('min-h-screen bg-[#faf8f5] text-[#242029]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenEmotionLens={() => { setActiveRecord(null); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'mindProfile' && (
         <Suspense fallback={<ModuleLoadingFallback />}>
           <MyMindProfile
@@ -1629,7 +1658,7 @@ export default function App() {
       {page === 'innerCompass' && <Suspense fallback={<ModuleLoadingFallback />}><InnerCompassModule key={activeRecord?.id || `inner-compass-${innerCompassLevel}`} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} initialLevel={innerCompassLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
       {page === 'bondSense' && <Suspense fallback={<ModuleLoadingFallback />}><BondSenseModule key={activeRecord?.id || 'bondsense-active'} initialRecord={activeRecord?.assessmentType === 'bondSense' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={bondSensePersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'valueMap' && <Suspense fallback={<ModuleLoadingFallback />}><ValueMapModule key={activeRecord?.id || 'valuemap-active'} initialRecord={activeRecord?.assessmentType === 'valueMap' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={valueMapPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
-      {page === 'emotionLens' && <Suspense fallback={<ModuleLoadingFallback />}><EmotionLensModule key={activeRecord?.id || 'emotionlens-active'} initialRecord={activeRecord?.assessmentType === 'emotionLens' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={emotionLensPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
+      {page === 'emotionLens' && <Suspense fallback={<ModuleLoadingFallback />}><EmotionLensModule key={activeRecord?.id || `emotionlens-${emotionLensLevel}`} initialRecord={activeRecord?.assessmentType === 'emotionLens' ? activeRecord : null} initialLevel={emotionLensLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={emotionLensPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} />}
       {page === 'review' && <ReviewPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={handleGoToQuestion} onFinish={handleFinish} onBack={() => setPage('assessment')} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
       {page === 'result' && <ResultsPage record={activeRecord} onHome={() => { setAppData(loadAppData()); setPage('home') }} onRetake={handleRetake} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
