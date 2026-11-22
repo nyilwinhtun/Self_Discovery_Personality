@@ -4,7 +4,11 @@ import assert from 'node:assert/strict'
 
 const root = process.cwd()
 const rootMarkdown = fs.readdirSync(root).filter((name) => name.toLowerCase().endsWith('.md')).sort()
-assert.deepEqual(rootMarkdown, ['CHANGELOG.md', 'README.md'], 'Only README.md and CHANGELOG.md should remain at project root')
+assert.deepEqual(
+  rootMarkdown,
+  ['AGENTS.md', 'CHANGELOG.md', 'README.md'],
+  'Only AGENTS.md, CHANGELOG.md, and README.md should remain at project root',
+)
 
 const expected = [
   'docs/README.md',

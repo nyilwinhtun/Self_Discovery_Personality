@@ -1,0 +1,55 @@
+# Self Discovery — Compatibility Rules for Cursor and other editors
+
+This file is retained because the project owner requested `.cursorrules` compatibility. It is a legacy Cursor format; Antigravity's primary workspace instruction file is `AGENTS.md` (or `GEMINI.md` / `.agents/rules/*.md`). Keep this file aligned with `AGENTS.md`.
+
+## Project identity
+- Work only in the Self Discovery repository. Before every write, verify the workspace root, repository name, branch, and `git status`.
+- Do not edit `expense-tracker`, `pos-restaurant-analytics`, any restaurant project, ZIP extraction folder, or backup folder.
+- Product mission: Burmese-first self-understanding app. Help users reflect; never label, shame, diagnose, or define a person permanently.
+
+## Inspect first
+- Read README.md, CHANGELOG.md, package.json, Vite config, GitHub Pages workflow, and relevant docs before editing.
+- Verify the actual checked-out version and current Git state. Do not assume an assistant-generated ZIP has been installed or pushed.
+- Report an audit and proposed file list before editing. Stop if unexpected changes exist.
+
+## Protected behaviour — do not change without owner approval
+- TraitLens question wording, IDs, order, answer options, reverse scoring, scoring formulas, trait mapping, and 30/60/120 modes.
+- InnerCompass question wording, IDs, order, six dimensions, scoring, and pilot status.
+- Career Interest / RIASEC question banks and scoring.
+- Existing LocalStorage keys, stored data shapes, IDs, drafts, history, and backup/restore formats or semantics.
+- Never silently clear, overwrite, rename, or migrate user data. Keep old JSON backups compatible.
+
+## Privacy and assessment ethics
+- Keep answers, results, and reflection notes local by default. No Firebase, backend, cloud sync, analytics, telemetry, external API, paid service, or third-party data transfer without explicit approval.
+- Treat reflection notes as sensitive. No logging personal text. Explain local storage and backup behaviour.
+- Results are reflective indicators, not diagnosis or fixed personality labels. High is not always better; low is not a weakness.
+- Do not claim scientific/clinical validation or expert approval without evidence and owner approval.
+- InnerCompass is an original six-dimension self-reflection tool, not the official HEXACO assessment.
+
+## Stack and deployment
+- Current known stack: React JSX, JavaScript, Vite, Tailwind CSS with Vite plugin, lucide-react, Recharts. Verify current files before relying on this.
+- Do not convert to TypeScript without approval.
+- Preserve GitHub Pages deployment and the `/Self_Discovery_Personality/` base path; verify the current Vite config.
+- A stale PostCSS config previously failed because `autoprefixer` was missing and was renamed to `postcss.config.js.disabled.js`. Do not restore it or add autoprefixer without inspecting Tailwind/Vite configuration first.
+- Do not change dependency versions or lockfiles unnecessarily.
+
+## UI
+- Mobile-first, responsive, accessible, Burmese-readable. Avoid overflow and controls hidden behind bottom nav or phone safe areas.
+- Use adequate touch targets, keyboard focus, semantic controls, accessible labels, and clear text alongside icons.
+- Preserve desktop UI unless requested. Keep assessment flows focused and prevent accidental exit.
+
+## Knowledge Center governance
+- AI-generated content remains Draft until real language and psychology reviews are complete.
+- Keep review statuses and reviewers separate: Draft, Language Review, Psychology Review, Approved, Published.
+- Never invent reviewer identity, credentials, references, or approvals. Changes after approval require a new content version and review.
+
+## Git safety
+- Never commit, push, deploy, release, change remotes, force push, run `git reset --hard`, or run `git clean -fd` unless explicitly asked.
+- Never replace `.git`, `.github`, `node_modules`, or lockfiles by ZIP copying.
+- Make minimal targeted changes; do not reformat or delete unrelated files. Do not touch other projects.
+
+## Validation and truthfulness
+- Inspect npm scripts. Run focused tests, `npm run validate:all` if available, and `npm run build` when possible.
+- If a command cannot run, state why. Never claim unrun tests passed.
+- Review final diff for changes to question banks, scoring, storage, backups, and deployment configuration.
+- Communicate in Burmese. Explain actions simply, one step at a time. Request approval before destructive or data-migration work.

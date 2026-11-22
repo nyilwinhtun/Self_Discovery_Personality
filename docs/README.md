@@ -16,6 +16,8 @@
 ## အရေးကြီးသော စာတမ်းများ
 
 ### Project
+- [Antigravity Start Prompt](./01-project/ANTIGRAVITY_START_PROMPT.md)
+- [Handoff Guide (Burmese)](./01-project/README_HANDOFF_BURMESE.md)
 - [GitHub Pages Deployment Guide](./01-project/GITHUB_PAGES_DEPLOY_GUIDE.md)
 - [Beta Test Guide](./01-project/BETA_TEST_GUIDE.md)
 - [Phase 1 Specification](./01-project/PHASE_1_SPEC.md)
