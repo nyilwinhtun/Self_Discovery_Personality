@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, ClipboardCheck,
+  AlertTriangle, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, ClipboardCheck,
   Download, Home, LockKeyhole, PauseCircle, RotateCcw, ShieldCheck,
 } from 'lucide-react'
 import { CAREER_ANSWER_OPTIONS, CAREER_QUESTIONS, RIASEC_BANK_VERSION, RIASEC_CATEGORIES } from '../data/careerQuestions.js'
 import { buildCareerResult, getCareerScoreBand } from '../utils/careerScoring.js'
-import { clearDraft, loadAppData, loadDraft, saveAssessment, saveDraft } from '../utils/storage.js'
+import { downloadTextFile } from '../utils/download.js'
+import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
+import StorageWriteAlert from './StorageWriteAlert.jsx'
 
 const ASSESSMENT_TYPE = 'careerInterest'
 const LEVEL = 30
@@ -29,13 +31,14 @@ function categoryFor(question) {
   return RIASEC_CATEGORIES.find((item) => item.id === question?.categoryId) || RIASEC_CATEGORIES[0]
 }
 
-function IntroView({ draft, onResume, onStart, onHome }) {
+function IntroView({ draft, onResume, onStart, onHome, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [acknowledged, setAcknowledged] = useState(false)
   const answered = Object.keys(draft?.answers || {}).length
   const progress = Math.round((answered / LEVEL) * 100)
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
       <button onClick={onHome} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#716679] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button>
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-white card-shadow">
         <div className="bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f7edf0] px-6 py-8 sm:px-9 sm:py-10">
           <span className="inline-flex rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#80678f]">CAREER INTEREST</span>
@@ -80,7 +83,7 @@ function IntroView({ draft, onResume, onStart, onHome }) {
   )
 }
 
-function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, onSkip, onReview, onExit }) {
+function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const question = CAREER_QUESTIONS[index]
   const category = categoryFor(question)
   const selected = answers[question.id]
@@ -90,7 +93,8 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
   const isLast = index === CAREER_QUESTIONS.length - 1
   return (
     <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
-      <div className="mb-7 flex items-center justify-between gap-3"><button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#8b7d90] hover:text-[#614b6b]"><ArrowLeft size={16}/> ခဏရပ်မယ်</button><span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#8b7d90] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span></div>
+      <div className="mb-7 flex items-center justify-between gap-3"><button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#8b7d90] hover:text-[#614b6b]"><ArrowLeft size={16}/> ခဏရပ်မယ်</button>{storageError ? <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12}/> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span> : <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#8b7d90] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>}</div>
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-9">
         <div className="flex items-end justify-between gap-3"><div><p className="text-xs font-semibold tracking-wide text-[#a094a4]">CAREER INTEREST</p><h1 className="mt-2 text-xl font-bold text-[#4b3d50] sm:text-2xl">စိတ်ဝင်စားမှုကို ရွေးချယ်ပါ</h1></div><div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(index + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#b1a6b5]"> / ၃၀</span></div><p className="text-[10px] text-[#a196a5]">ဖြေပြီး {answered} · ကျော်ထား {skippedCount}</p></div></div>
         <div className="mt-5 flex items-center justify-between text-[10px] text-[#9b8e9f]"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-[#f1ebf2]"><div className="h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab] transition-all" style={{ width: `${progress}%` }}/></div>
@@ -116,7 +120,7 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
   )
 }
 
-function ReviewView({ answers, skipped, onGoTo, onFinish, onBack }) {
+function ReviewView({ answers, skipped, onGoTo, onFinish, onBack, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [filter, setFilter] = useState('incomplete')
   const answered = CAREER_QUESTIONS.filter((question) => answers[question.id] !== undefined)
   const skippedItems = CAREER_QUESTIONS.filter((question) => answers[question.id] === undefined && skipped.includes(question.id))
@@ -124,7 +128,7 @@ function ReviewView({ answers, skipped, onGoTo, onFinish, onBack }) {
   const complete = unanswered.length === 0 && skippedItems.length === 0
   const visible = filter === 'answered' ? answered : filter === 'skipped' ? skippedItems : filter === 'unanswered' ? unanswered : [...skippedItems, ...unanswered]
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12"><button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#887990]"><ArrowLeft size={16}/> မေးခွန်းသို့ ပြန်သွားမယ်</button><section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-8"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">CAREER INTEREST REVIEW</p><h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">ဖြေဆိုထားတာတွေကို ပြန်စစ်ပါ</h1><p className="mt-2 text-xs leading-6 text-[#938796]">ကျော်ထားတဲ့ မေးခွန်းနဲ့ မဖြေရသေးတဲ့ မေးခွန်းတွေကို ရွေးပြီး တိုက်ရိုက်ပြန်ဖြေနိုင်ပါတယ်။</p>
+    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12"><button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#887990]"><ArrowLeft size={16}/> မေးခွန်းသို့ ပြန်သွားမယ်</button><StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} /><section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-8"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">CAREER INTEREST REVIEW</p><h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">ဖြေဆိုထားတာတွေကို ပြန်စစ်ပါ</h1><p className="mt-2 text-xs leading-6 text-[#938796]">ကျော်ထားတဲ့ မေးခွန်းနဲ့ မဖြေရသေးတဲ့ မေးခွန်းတွေကို ရွေးပြီး တိုက်ရိုက်ပြန်ဖြေနိုင်ပါတယ်။</p>
       <div className="mt-6 grid grid-cols-3 gap-2"><div className="rounded-xl bg-[#f1f7f2] p-3"><p className="text-2xl font-bold text-[#5d8d6e]">{answered.length}</p><p className="mt-1 text-[10px] text-[#73917b]">ဖြေပြီး</p></div><div className="rounded-xl bg-[#fff7ed] p-3"><p className="text-2xl font-bold text-[#b98754]">{skippedItems.length}</p><p className="mt-1 text-[10px] text-[#a88768]">ကျော်ထား</p></div><div className="rounded-xl bg-[#f7f3f8] p-3"><p className="text-2xl font-bold text-[#887393]">{unanswered.length}</p><p className="mt-1 text-[10px] text-[#95869e]">မဖြေရသေး</p></div></div>
       <div className="mt-6 flex flex-wrap gap-2">{[['incomplete','မဖြေရသေး'],['skipped','ကျော်ထား'],['unanswered','မရောက်သေး'],['answered','ဖြေပြီး']].map(([value,label]) => <button key={value} onClick={() => setFilter(value)} className={`rounded-full px-3 py-2 text-xs font-semibold ${filter === value ? 'bg-[#80678f] text-white' : 'bg-[#f4eff5] text-[#80678f]'}`}>{label}</button>)}</div>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">{visible.length ? visible.map((question) => { const category = categoryFor(question); const done = answers[question.id] !== undefined; return <button key={question.id} onClick={() => onGoTo(CAREER_QUESTIONS.findIndex((item) => item.id === question.id))} className="flex items-start gap-3 rounded-xl border border-[#eee5ed] p-3 text-left hover:bg-[#fcf9fc]"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg text-xs font-bold ${done ? 'bg-[#edf6ef] text-[#5d8d6e]' : 'bg-[#fff4e8] text-[#a87a4d]'}`}>{question.id}</span><span><span className="block text-[10px] font-semibold text-[#8e7c96]">{category.name}</span><span className="mt-1 block text-xs leading-6 text-[#6f6274]">{question.text}</span><span className="mt-1 block text-[10px] text-[#a196a5]">{done ? `ဖြေထားသောအဖြေ ${answers[question.id]}` : 'မဖြေရသေးပါ · နှိပ်ပြီးပြန်ဖြေပါ'}</span></span></button> }) : <p className="col-span-full rounded-xl bg-[#faf7fa] p-5 text-center text-xs text-[#96899b]">ဒီအမျိုးအစားထဲမှာ မေးခွန်းမရှိပါ။</p>}</div>
@@ -133,7 +137,7 @@ function ReviewView({ answers, skipped, onGoTo, onFinish, onBack }) {
   )
 }
 
-function CareerResultView({ record, onHome, onRetake }) {
+function CareerResultView({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const result = useMemo(() => record ? buildCareerResult(record.answers || CAREER_QUESTIONS.reduce((acc, item) => ({ ...acc, [item.id]: 3 }), {})) : null, [record])
   if (!record || !result) return null
   const topCategories = result.topCategories.map((id) => RIASEC_CATEGORIES.find((item) => item.id === id))
@@ -148,16 +152,14 @@ function CareerResultView({ record, onHome, onRetake }) {
       ...ranked.map((category) => `${category.name} (${category.en}): ${result.scores[category.id].score}/100`),
       '', 'မှတ်ချက်: ရလဒ်များသည် လုပ်ဆောင်မှုအပေါ် စိတ်ဝင်စားမှုကိုသာ ဖော်ပြသည်။ လက်ရှိကျွမ်းကျင်မှု၊ အရည်အချင်း၊ အလုပ်အကိုင်သင့်တော်မှု သို့မဟုတ် အနာဂတ်အောင်မြင်မှုကို တိုက်ရိုက်မဆုံးဖြတ်ပါ။',
     ]
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = `career-interest-report-${new Date(record.createdAt).toISOString().slice(0, 10)}.txt`
-    anchor.click()
-    URL.revokeObjectURL(url)
+    downloadTextFile(
+      `career-interest-report-${new Date(record.createdAt).toISOString().slice(0, 10)}.txt`,
+      lines.join('\n'),
+    )
   }
   return (
     <main className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12 lg:px-8">
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#897b8e]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><Button secondary onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</Button><Button secondary onClick={() => window.print()} icon={ClipboardCheck}>Print</Button></div></div>
       <section className="print-card overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f7edf0] p-6 card-shadow sm:p-10"><div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#80678f]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><p className="mt-5 text-xs font-semibold tracking-[0.15em] text-[#a18fa7]">YOUR CAREER INTEREST PROFILE</p><h1 className="mt-3 text-3xl font-bold tracking-[0.18em] text-[#493a4e] sm:text-4xl">{result.code}</h1><p className="mt-2 text-sm font-semibold text-[#725f7a]">သင့်ရဲ့ အဓိကစိတ်ဝင်စားမှု ၃ မျိုး</p><p className="mt-2 text-xs text-[#9a8d9e]">{record.questionCount || 30} မေးခွန်း · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#76697b]">ဒီအတိုကောက်ဟာ သင့်အဖြေတွေထဲမှာ အညွှန်းရမှတ်အမြင့်ဆုံး ရရှိတဲ့ စိတ်ဝင်စားမှု အမျိုးအစား ၃ ခုကို အစဉ်လိုက်ဖော်ပြတာပါ။ ဒါဟာ သင့်အလုပ်အကိုင်ကို သတ်မှတ်ပေးတာ မဟုတ်ဘဲ ဆက်လက်စူးစမ်းကြည့်ဖို့ လမ်းညွှန်ချက်တစ်ခု ဖြစ်ပါတယ်။ {result.topScoresAreClose ? 'ထိပ်ဆုံး အမျိုးအစားတွေမှာ အမှတ်ကွာခြားမှု နည်းနေတဲ့အတွက် အဲဒီကဏ္ဍတွေကို နီးစပ်တဲ့ စိတ်ဝင်စားမှုများအဖြစ် အတူတကွ စဉ်းစားပါ။' : ''}</p></div>
         <div className="mt-8 grid gap-3 md:grid-cols-3">{topCategories.map((category, index) => <article key={category.id} className="rounded-2xl border border-white/90 bg-white/85 p-5"><div className="flex items-center justify-between"><span className="text-2xl">{category.icon}</span><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-[10px] font-semibold text-[#80678f]">အဆင့် {index + 1}</span></div><h2 className="mt-3 text-sm font-bold text-[#5b4b60]">{category.name}</h2><p className="mt-1 text-[10px] text-[#9b8ba0]">{category.en}</p><p className="mt-3 text-xs leading-7 text-[#827585]">{category.description}</p></article>)}</div>
@@ -172,7 +174,17 @@ function CareerResultView({ record, onHome, onRetake }) {
   )
 }
 
-export default function CareerInterestModule({ onHome, onDataChange, record: initialRecord = null, persistRef }) {
+export default function CareerInterestModule({
+  onHome,
+  onDataChange,
+  record: initialRecord = null,
+  persistRef,
+  onExportBackup,
+  storageError: sharedStorageError,
+  storageAlertVisible: sharedStorageAlertVisible,
+  onStorageWriteResult,
+  onDismissStorageError,
+}) {
   const initialDraft = loadDraft(LEVEL, ASSESSMENT_TYPE)
   const [page, setPage] = useState(initialRecord ? 'result' : 'intro')
   const [draft, setDraft] = useState(initialDraft)
@@ -182,7 +194,33 @@ export default function CareerInterestModule({ onHome, onDataChange, record: ini
   const [startedAt, setStartedAt] = useState(initialRecord?.startedAt || null)
   const [activeRecord, setActiveRecord] = useState(initialRecord)
   const [toast, setToast] = useState('')
+  const [localStorageError, setLocalStorageError] = useState(false)
+  const [localAlertDismissed, setLocalAlertDismissed] = useState(false)
+  const storageError = sharedStorageError ?? localStorageError
+  const storageAlertVisible = sharedStorageAlertVisible ?? (storageError && !localAlertDismissed)
   const latestStateRef = useRef(null)
+
+  const reportStorageWrite = (ok) => {
+    if (onStorageWriteResult) {
+      onStorageWriteResult(ok)
+      return
+    }
+    if (ok) {
+      setLocalStorageError(false)
+      setLocalAlertDismissed(false)
+    } else {
+      setLocalStorageError(true)
+      setLocalAlertDismissed(false)
+    }
+  }
+
+  const dismissStorageError = () => {
+    if (onDismissStorageError) {
+      onDismissStorageError()
+      return
+    }
+    setLocalAlertDismissed(true)
+  }
 
   const persistDraft = (override = {}) => {
     const next = {
@@ -199,6 +237,7 @@ export default function CareerInterestModule({ onHome, onDataChange, record: ini
       ...override,
     }
     const ok = saveDraft(next)
+    reportStorageWrite(ok)
     setDraft(loadDraft(LEVEL, ASSESSMENT_TYPE))
     onDataChange?.(loadAppData())
     return ok
@@ -235,7 +274,8 @@ export default function CareerInterestModule({ onHome, onDataChange, record: ini
 
   const startNew = () => {
     if (loadDraft(LEVEL, ASSESSMENT_TYPE) && !window.confirm('မပြီးသေးတဲ့ Career Interest Draft ရှိပါတယ်။ အသစ်ပြန်စရင် အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။')) return
-    clearDraft(LEVEL, ASSESSMENT_TYPE)
+    const cleared = clearDraft(LEVEL, ASSESSMENT_TYPE)
+    if (!cleared) reportStorageWrite(false)
     const now = new Date().toISOString()
     const empty = { assessmentType: ASSESSMENT_TYPE, questionBankVersion: RIASEC_BANK_VERSION, level: LEVEL, questionCount: 30, answers: {}, skippedQuestionIds: [], currentIndex: 0, startedAt: now, updatedAt: now, status: 'in-progress' }
     setDraft(empty)
@@ -244,7 +284,8 @@ export default function CareerInterestModule({ onHome, onDataChange, record: ini
     setIndex(0)
     setStartedAt(now)
     setActiveRecord(null)
-    saveDraft(empty)
+    const saved = saveDraft(empty)
+    reportStorageWrite(saved)
     onDataChange?.(loadAppData())
     setPage('instructions')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -272,7 +313,8 @@ export default function CareerInterestModule({ onHome, onDataChange, record: ini
     const nextSkipped = skipped.filter((id) => id !== questionId)
     setAnswers(nextAnswers)
     setSkipped(nextSkipped)
-    saveDraft({ assessmentType: ASSESSMENT_TYPE, questionBankVersion: RIASEC_BANK_VERSION, level: LEVEL, questionCount: 30, answers: nextAnswers, skippedQuestionIds: nextSkipped, currentIndex: index, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    const saved = saveDraft({ assessmentType: ASSESSMENT_TYPE, questionBankVersion: RIASEC_BANK_VERSION, level: LEVEL, questionCount: 30, answers: nextAnswers, skippedQuestionIds: nextSkipped, currentIndex: index, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    reportStorageWrite(saved)
     setDraft(loadDraft(LEVEL, ASSESSMENT_TYPE))
     onDataChange?.(loadAppData())
   }
@@ -291,7 +333,8 @@ export default function CareerInterestModule({ onHome, onDataChange, record: ini
     const nextIndex = Math.min(index + 1, CAREER_QUESTIONS.length - 1)
     setSkipped(nextSkipped)
     setIndex(nextIndex)
-    saveDraft({ assessmentType: ASSESSMENT_TYPE, questionBankVersion: RIASEC_BANK_VERSION, level: LEVEL, questionCount: 30, answers, skippedQuestionIds: nextSkipped, currentIndex: nextIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    const saved = saveDraft({ assessmentType: ASSESSMENT_TYPE, questionBankVersion: RIASEC_BANK_VERSION, level: LEVEL, questionCount: 30, answers, skippedQuestionIds: nextSkipped, currentIndex: nextIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    reportStorageWrite(saved)
     setDraft(loadDraft(LEVEL, ASSESSMENT_TYPE))
     onDataChange?.(loadAppData())
     if (index === CAREER_QUESTIONS.length - 1) setPage('review')
@@ -315,7 +358,11 @@ export default function CareerInterestModule({ onHome, onDataChange, record: ini
       careerCode: result.code,
       topCategories: result.topCategories,
     }
-    saveAssessment(record)
+    const { ok } = saveAssessmentWithStatus(record)
+    reportStorageWrite(ok)
+    if (!ok) {
+      setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
+    }
     setActiveRecord(record)
     setPage('result')
     onDataChange?.(loadAppData())
@@ -326,11 +373,11 @@ export default function CareerInterestModule({ onHome, onDataChange, record: ini
 
   return (
     <>
-      {page === 'intro' && <IntroView draft={draft} onResume={resume} onStart={startNew} onHome={onHome}/>}
-      {page === 'instructions' && <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6"><section className="rounded-[2rem] border border-[#eee4ed] bg-white p-6 card-shadow sm:p-9"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">BEFORE YOU BEGIN</p><h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">အဖြေရွေးချယ်ပုံ</h1><p className="mt-3 text-sm leading-8 text-[#827585]">လုပ်ဆောင်မှုတစ်ခုကို ကိုယ်တိုင်လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲဆိုတာ ရွေးပါ။ လုပ်ဖူး/မလုပ်ဖူး၊ တတ်/မတတ်ဆိုတာကို မစဉ်းစားပါနဲ့။</p><div className="mt-5 space-y-2">{CAREER_ANSWER_OPTIONS.map((item) => <div key={item.value} className="flex items-center gap-3 rounded-xl bg-[#faf7fa] p-3"><span className="grid h-8 w-8 place-items-center rounded-lg bg-white text-sm font-bold text-[#80678f]">{item.value}</span><span className="text-sm text-[#6f6274]">{item.label}</span></div>)}</div><div className="mt-7 flex flex-wrap justify-end gap-2"><Button secondary onClick={() => setPage('intro')}>နောက်သို့</Button><Button onClick={begin}>မေးခွန်း စတင်ဖြေမယ်</Button></div></section></main>}
-      {page === 'assessment' && <QuestionView answers={answers} skipped={skipped} index={index} onAnswer={answer} onPrevious={previous} onNext={next} onSkip={skip} onReview={() => setPage('review')} onExit={exit}/>}
-      {page === 'review' && <ReviewView answers={answers} skipped={skipped} onGoTo={goTo} onFinish={finish} onBack={() => setPage('assessment')}/>}
-      {page === 'result' && <CareerResultView record={activeRecord} onHome={onHome} onRetake={retake}/>}
+      {page === 'intro' && <IntroView draft={draft} onResume={resume} onStart={startNew} onHome={onHome} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
+      {page === 'instructions' && <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6"><StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={dismissStorageError} /><section className="rounded-[2rem] border border-[#eee4ed] bg-white p-6 card-shadow sm:p-9"><p className="text-xs font-semibold tracking-wide text-[#a18fa7]">BEFORE YOU BEGIN</p><h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">အဖြေရွေးချယ်ပုံ</h1><p className="mt-3 text-sm leading-8 text-[#827585]">လုပ်ဆောင်မှုတစ်ခုကို ကိုယ်တိုင်လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲဆိုတာ ရွေးပါ။ လုပ်ဖူး/မလုပ်ဖူး၊ တတ်/မတတ်ဆိုတာကို မစဉ်းစားပါနဲ့။</p><div className="mt-5 space-y-2">{CAREER_ANSWER_OPTIONS.map((item) => <div key={item.value} className="flex items-center gap-3 rounded-xl bg-[#faf7fa] p-3"><span className="grid h-8 w-8 place-items-center rounded-lg bg-white text-sm font-bold text-[#80678f]">{item.value}</span><span className="text-sm text-[#6f6274]">{item.label}</span></div>)}</div><div className="mt-7 flex flex-wrap justify-end gap-2"><Button secondary onClick={() => setPage('intro')}>နောက်သို့</Button><Button onClick={begin}>မေးခွန်း စတင်ဖြေမယ်</Button></div></section></main>}
+      {page === 'assessment' && <QuestionView answers={answers} skipped={skipped} index={index} onAnswer={answer} onPrevious={previous} onNext={next} onSkip={skip} onReview={() => setPage('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
+      {page === 'review' && <ReviewView answers={answers} skipped={skipped} onGoTo={goTo} onFinish={finish} onBack={() => setPage('assessment')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
+      {page === 'result' && <CareerResultView record={activeRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
       {toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#514357] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}
     </>
   )

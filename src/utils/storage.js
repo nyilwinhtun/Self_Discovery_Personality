@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'self-discovery-personality-v1'
 const BACKUP_FORMAT = 'self-discovery-backup'
 const BACKUP_VERSION = 1
-const MAX_HISTORY_ENTRIES = 500
+export const MAX_HISTORY_ENTRIES = 500
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
@@ -131,9 +131,9 @@ export function clearDraft(level = 30, assessmentType = 'personality') {
   return safeWrite({ ...data, drafts: nextDrafts, history: data.history })
 }
 
-export function saveAssessment(record) {
+export function saveAssessmentWithStatus(record) {
   const data = loadAppData()
-  const history = [normalizeRecord(record), ...data.history.filter((item) => item.id !== record.id)].slice(0, 50)
+  const history = [normalizeRecord(record), ...data.history.filter((item) => item.id !== record.id)].slice(0, MAX_HISTORY_ENTRIES)
   const drafts = { ...data.drafts }
   const assessmentType = record.assessmentType || 'personality'
   const level = String(record.level || 30)
@@ -143,21 +143,33 @@ export function saveAssessment(record) {
     if (Object.keys(typeDrafts).length) drafts[assessmentType] = typeDrafts
     else delete drafts[assessmentType]
   }
-  safeWrite({ ...data, drafts, history })
-  return history
+  const ok = safeWrite({ ...data, drafts, history })
+  return { ok, history }
+}
+
+export function saveAssessment(record) {
+  return saveAssessmentWithStatus(record).history
+}
+
+export function deleteAssessmentWithStatus(id) {
+  const data = loadAppData()
+  const history = data.history.filter((item) => item.id !== id)
+  const ok = safeWrite({ ...data, history })
+  return { ok, history }
 }
 
 export function deleteAssessment(id) {
+  return deleteAssessmentWithStatus(id).history
+}
+
+export function clearHistoryWithStatus() {
   const data = loadAppData()
-  const history = data.history.filter((item) => item.id !== id)
-  safeWrite({ ...data, history })
-  return history
+  const ok = safeWrite({ ...data, history: [] })
+  return { ok, history: [] }
 }
 
 export function clearHistory() {
-  const data = loadAppData()
-  safeWrite({ ...data, history: [] })
-  return []
+  return clearHistoryWithStatus().history
 }
 
 /** Create a portable JSON backup. The envelope is versioned for future compatibility. */

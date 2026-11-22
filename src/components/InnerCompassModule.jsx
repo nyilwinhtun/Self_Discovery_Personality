@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, Clock3, Download,
+  AlertTriangle, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, Clock3, Download,
   History, LockKeyhole, PauseCircle, Printer, RotateCcw, ShieldCheck, Sparkles,
 } from 'lucide-react'
 import {
@@ -11,15 +11,17 @@ import { InnerCompassLogo } from './AssessmentLogos.jsx'
 import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
+import StorageWriteAlert from './StorageWriteAlert.jsx'
 import {
   INNERCOMPASS_V02_ANSWER_OPTIONS,
   INNERCOMPASS_V02_DIMENSIONS,
   INNERCOMPASS_V02_QUESTIONS_30,
   INNERCOMPASS_V02_VERSION,
 } from '../data/innerCompassDraftV02.js'
+import { downloadTextFile } from '../utils/download.js'
 import { scoreInnerCompassV02 } from '../utils/innerCompassV02Scoring.js'
 import { getInnerCompassReportInsight, REPORT_INTERPRETATION_NOTICE } from '../utils/resultInterpretations.js'
-import { clearDraft, loadAppData, loadDraft, saveAssessment, saveDraft } from '../utils/storage.js'
+import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
 
 const ASSESSMENT_TYPE = 'innerCompass'
 const ASSESSMENT_LEVEL = 30
@@ -56,7 +58,7 @@ function SecondaryButton({ children, onClick, icon: Icon, disabled = false, clas
   )
 }
 
-function GuideView({ draft, onBack, onBegin, onResume, onRestart }) {
+function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [acknowledged, setAcknowledged] = useState(false)
   const answeredCount = Object.keys(draft?.answers || {}).length
   const skippedCount = (draft?.skippedQuestionIds || []).filter((id) => draft?.answers?.[id] === undefined).length
@@ -65,6 +67,7 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart }) {
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
       <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#6d8299] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button>
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="overflow-hidden rounded-[2rem] border border-[#d4e0ef] bg-white card-shadow">
         <div className="bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 sm:p-9">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -135,7 +138,7 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart }) {
   )
 }
 
-function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit }) {
+function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const question = INNERCOMPASS_V02_QUESTIONS_30[questionIndex]
   const dimension = INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === question.dimensionId)
   const answeredCount = Object.keys(answers).length
@@ -148,8 +151,13 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
     <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
       <div className="mb-7 flex items-center justify-between gap-3">
         <button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6d8299] hover:text-[#3f5873]"><ArrowLeft size={16}/> ခဏရပ်ပြီး ထွက်မယ်</button>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6d8299] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
+        {storageError ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12}/> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6d8299] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
+        )}
       </div>
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-[2rem] border border-[#d4e0ef] bg-white p-5 card-shadow sm:p-9">
         <div className="flex items-end justify-between gap-3">
           <div><p className="text-xs font-semibold tracking-wide text-[#6d8eaf]">INNERCOMPASS · 30 QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#3f5873] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
@@ -193,7 +201,7 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
   )
 }
 
-function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack }) {
+function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [filter, setFilter] = useState('incomplete')
   const answered = INNERCOMPASS_V02_QUESTIONS_30.filter((question) => answers[question.id] !== undefined)
   const skipped = INNERCOMPASS_V02_QUESTIONS_30.filter((question) => answers[question.id] === undefined && skippedQuestionIds.includes(question.id))
@@ -205,6 +213,7 @@ function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack }) {
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
       <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#6d8299] hover:text-[#3f5873]"><ArrowLeft size={16}/> မေးခွန်းသို့ ပြန်သွားမယ်</button>
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-[2rem] border border-[#d4e0ef] bg-white p-5 card-shadow sm:p-8">
         <p className="text-xs font-semibold tracking-wide text-[#6d8eaf]">INNERCOMPASS · REVIEW</p>
         <h1 className="mt-2 text-2xl font-bold text-[#3f5873]">ဖြေဆိုမှုကို ပြန်စစ်ပါ</h1>
@@ -228,7 +237,7 @@ function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack }) {
   )
 }
 
-function ResultView({ record, onHome, onRetake }) {
+function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const result = useMemo(() => scoreInnerCompassV02(record?.answers || {}), [record])
   if (!record || !result.complete) return null
   const chartData = result.dimensions.map((item) => ({ area: item.shortName, score: item.index }))
@@ -257,19 +266,15 @@ function ResultView({ record, onHome, onRetake }) {
       REPORT_INTERPRETATION_NOTICE,
       'InnerCompass သည် စမ်းသပ်အဆင့် ကိုယ်ပိုင်ရေးဆွဲထားသော reflection tool ဖြစ်ပြီး validated clinical/personality instrument သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။',
     ]
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `innercompass-reflection-${new Date(record.createdAt).toISOString().slice(0, 10)}.txt`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+    downloadTextFile(
+      `innercompass-reflection-${new Date(record.createdAt).toISOString().slice(0, 10)}.txt`,
+      lines.join('\n'),
+    )
   }
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6d8299] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
       <ReportSectionNavigation tone="blue" items={[
         { id: 'inner-report-overview', label: 'အနှစ်ချုပ်' },
@@ -312,7 +317,17 @@ function ResultView({ record, onHome, onRetake }) {
   )
 }
 
-export default function InnerCompassModule({ initialRecord = null, onHome, onDataChange, persistRef }) {
+export default function InnerCompassModule({
+  initialRecord = null,
+  onHome,
+  onDataChange,
+  persistRef,
+  onExportBackup,
+  storageError: sharedStorageError,
+  storageAlertVisible: sharedStorageAlertVisible,
+  onStorageWriteResult,
+  onDismissStorageError,
+}) {
   const initialDraft = initialRecord ? null : loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
   const [view, setView] = useState(initialRecord ? 'result' : 'guide')
   const [draft, setDraft] = useState(initialDraft)
@@ -322,6 +337,32 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
   const [startedAt, setStartedAt] = useState(initialRecord?.startedAt || initialDraft?.startedAt || null)
   const [record, setRecord] = useState(initialRecord)
   const [toast, setToast] = useState('')
+  const [localStorageError, setLocalStorageError] = useState(false)
+  const [localAlertDismissed, setLocalAlertDismissed] = useState(false)
+  const storageError = sharedStorageError ?? localStorageError
+  const storageAlertVisible = sharedStorageAlertVisible ?? (storageError && !localAlertDismissed)
+
+  const reportStorageWrite = (ok) => {
+    if (onStorageWriteResult) {
+      onStorageWriteResult(ok)
+      return
+    }
+    if (ok) {
+      setLocalStorageError(false)
+      setLocalAlertDismissed(false)
+    } else {
+      setLocalStorageError(true)
+      setLocalAlertDismissed(false)
+    }
+  }
+
+  const dismissStorageError = () => {
+    if (onDismissStorageError) {
+      onDismissStorageError()
+      return
+    }
+    setLocalAlertDismissed(true)
+  }
 
   const persistDraft = (override = {}) => {
     if (view !== 'question' && view !== 'review') return false
@@ -339,6 +380,7 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
       ...override,
     }
     const success = saveDraft(payload)
+    reportStorageWrite(success)
     setDraft(loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE))
     onDataChange?.(loadAppData())
     return success
@@ -369,7 +411,7 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
 
   const startFresh = () => {
     if (draft && !window.confirm('မပြီးသေးတဲ့ InnerCompass အဖြေဟောင်းရှိပါတယ်။ အသစ်ပြန်စရင် အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။')) return
-    if (draft) clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    if (draft && !clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)) reportStorageWrite(false)
     const now = new Date().toISOString()
     setAnswers({})
     setSkippedQuestionIds([])
@@ -383,7 +425,8 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
       answers: {}, skippedQuestionIds: [], currentIndex: 0,
       startedAt: now, updatedAt: now, status: 'in-progress',
     }
-    saveDraft(emptyDraft)
+    const saved = saveDraft(emptyDraft)
+    reportStorageWrite(saved)
     setDraft(emptyDraft)
     onDataChange?.(loadAppData())
     setView('question')
@@ -423,7 +466,8 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
       currentIndex: questionIndex, startedAt: startedAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(), status: 'in-progress',
     }
-    saveDraft(payload)
+    const saved = saveDraft(payload)
+    reportStorageWrite(saved)
     setDraft(payload)
     onDataChange?.(loadAppData())
   }
@@ -457,7 +501,8 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
       currentIndex: nextIndex, startedAt: startedAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(), status: 'in-progress',
     }
-    saveDraft(payload)
+    const saved = saveDraft(payload)
+    reportStorageWrite(saved)
     setDraft(payload)
     onDataChange?.(loadAppData())
     if (questionIndex === INNERCOMPASS_V02_QUESTIONS_30.length - 1) setView('review')
@@ -502,8 +547,13 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
       dimensions: result.dimensions,
       resultNote: result.note,
     }
-    saveAssessment(completed)
-    clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const { ok } = saveAssessmentWithStatus(completed)
+    reportStorageWrite(ok)
+    if (!ok) {
+      setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
+    }
+    const cleared = clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    if (!cleared) reportStorageWrite(false)
     setRecord(completed)
     setDraft(null)
     onDataChange?.(loadAppData())
@@ -517,7 +567,8 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
       ? 'အရင်ရလဒ်ကို History ထဲမှာ ထိန်းထားပါမယ်။ မပြီးသေးတဲ့ InnerCompass Draft ရှိနေတဲ့အတွက် အသစ်စတင်ပါက အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။'
       : 'အရင်ရလဒ်ကို History ထဲမှာ ထိန်းထားပြီး စမ်းသပ်မှုအသစ် စတင်မှာဖြစ်ပါတယ်။ ဆက်လုပ်မှာ သေချာပါသလား။'
     if (!window.confirm(warning)) return
-    clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const cleared = clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    if (!cleared) reportStorageWrite(false)
     const now = new Date().toISOString()
     setAnswers({})
     setSkippedQuestionIds([])
@@ -529,14 +580,15 @@ export default function InnerCompassModule({ initialRecord = null, onHome, onDat
       level: ASSESSMENT_LEVEL, answers: {}, skippedQuestionIds: [], currentIndex: 0,
       startedAt: now, updatedAt: now, status: 'in-progress',
     }
-    saveDraft(emptyDraft)
+    const saved = saveDraft(emptyDraft)
+    reportStorageWrite(saved)
     setDraft(emptyDraft)
     onDataChange?.(loadAppData())
     setView('question')
   }
 
-  if (view === 'question') return <><QuestionView answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
-  if (view === 'review') return <><ReviewView answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
-  if (view === 'result') return <ResultView record={record || initialRecord} onHome={onHome} onRetake={retake}/>
-  return <GuideView draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh}/>
+  if (view === 'question') return <><QuestionView answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
+  if (view === 'review') return <><ReviewView answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
+  if (view === 'result') return <ResultView record={record || initialRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>
+  return <GuideView draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>
 }

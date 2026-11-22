@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  ArrowLeft, ArrowRight, BookOpen, Brain, BriefcaseBusiness, Check, CheckCircle2,
+  AlertTriangle, ArrowLeft, ArrowRight, BookOpen, Brain, BriefcaseBusiness, Check, CheckCircle2,
   ChevronRight, CircleHelp, ClipboardCheck, Clock3, Download, Heart, History,
   Home, LockKeyhole, PauseCircle, RotateCcw, ShieldCheck, Sparkles,
   Target, Trash2, Users, X, Upload, FileJson,
@@ -19,10 +19,12 @@ import KnowledgeInlineHelp from './components/KnowledgeInlineHelp.jsx'
 import MobileBottomNavigation from './components/MobileBottomNavigation.jsx'
 import MobileQuestionActions from './components/MobileQuestionActions.jsx'
 import ReportSectionNavigation from './components/ReportSectionNavigation.jsx'
+import StorageWriteAlert from './components/StorageWriteAlert.jsx'
 import { TraitLensLogo, InnerCompassLogo, BondSenseLogo, ValueMapLogo } from './components/AssessmentLogos.jsx'
+import { downloadTextFile } from './utils/download.js'
 import {
-  clearDraft, clearHistory, createBackupSnapshot, deleteAssessment, inspectBackupSnapshot,
-  loadAppData, loadDraft, restoreBackupData, saveAssessment, saveDraft,
+  clearDraft, clearHistoryWithStatus, createBackupSnapshot, deleteAssessmentWithStatus, inspectBackupSnapshot,
+  loadAppData, loadDraft, restoreBackupData, saveAssessmentWithStatus, saveDraft,
 } from './utils/storage.js'
 
 const STORAGE_HINT = 'သင့်အဖြေများကို ဒီ Browser နဲ့ ဒီစက်ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser Data ရှင်းလိုက်ရင် အဖြေတွေ ပျောက်နိုင်ပါတယ်။'
@@ -116,7 +118,7 @@ function getDraftStats(draft, level) {
   return { total, answered, skipped, remaining: Math.max(0, total - answered), progress: total ? Math.round((answered / total) * 100) : 0 }
 }
 
-function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenKnowledge }) {
+function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenKnowledge, storageAlertVisible, onDismissStorageError }) {
   const completedCount = history.length
   const draftCount = Object.values(drafts || {}).reduce((sum, group) => {
     return sum + (group && typeof group === 'object' ? Object.keys(group).length : 0)
@@ -139,6 +141,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section aria-labelledby="beta-notice-title" className="mb-6 rounded-2xl border border-[#eadfc9] bg-[#fffaf1] p-4 shadow-sm sm:p-5">
         <div className="flex items-start gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f8edd8] text-[#9a743e]"><CircleHelp size={20} /></span>
@@ -415,12 +418,13 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
   )
 }
 
-function InstructionsPage({ level, onBack, onBegin }) {
+function InstructionsPage({ level, onBack, onBegin, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const selected = LEVELS.find((item) => item.value === Number(level)) || LEVELS[0]
   const [acknowledged, setAcknowledged] = useState(false)
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
       <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#716679] hover:text-[#614b6b]"><ArrowLeft size={16} /> နောက်သို့</button>
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="overflow-hidden rounded-[2rem] border border-[#e5d8e9] bg-white card-shadow">
         <div className="bg-gradient-to-br from-[#f2eaf5] via-[#fbf8fb] to-[#f8eff2] p-6 sm:p-9">
           <div className="flex items-center gap-4">
@@ -473,7 +477,7 @@ function InstructionsPage({ level, onBack, onBegin }) {
   )
 }
 
-function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit }) {
+function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const question = questions[questionIndex]
   const trait = TRAITS.find((item) => item.id === question.trait)
   const selectedAnswer = answers[question.id]
@@ -486,8 +490,13 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
     <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
       <div className="mb-7 flex items-center justify-between gap-3">
         <button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#8b7d90] hover:text-[#614b6b]"><ArrowLeft size={16} /> ခဏရပ်မယ်</button>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#8b7d90] shadow-sm"><LockKeyhole size={12} /> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
+        {storageError ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12} /> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#8b7d90] shadow-sm"><LockKeyhole size={12} /> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
+        )}
       </div>
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-9">
         <div className="flex items-end justify-between gap-3">
           <div><p className="text-xs font-semibold tracking-wide text-[#a094a4]">PERSONALITY ASSESSMENT · {questions.length} QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#4b3d50] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
@@ -532,7 +541,7 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
   )
 }
 
-function ReviewPage({ questions, answers, skippedQuestionIds, onGoTo, onFinish, onBack }) {
+function ReviewPage({ questions, answers, skippedQuestionIds, onGoTo, onFinish, onBack, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [filter, setFilter] = useState('incomplete')
   const answered = questions.filter((question) => answers[question.id] !== undefined)
   const skipped = questions.filter((question) => answers[question.id] === undefined && skippedQuestionIds.includes(question.id))
@@ -549,6 +558,7 @@ function ReviewPage({ questions, answers, skippedQuestionIds, onGoTo, onFinish, 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
       <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#887990] hover:text-[#614b6b]"><ArrowLeft size={16} /> မေးခွန်းသို့ ပြန်သွားမယ်</button>
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-8">
         <p className="text-xs font-semibold tracking-wide text-[#a18fa7]">ASSESSMENT REVIEW</p>
         <h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">ဖြေဆိုထားတာတွေကို ပြန်စစ်ပါ</h1>
@@ -618,7 +628,7 @@ function TraitReportCard({ trait, score }) {
   )
 }
 
-function ResultsPage({ record, onHome, onRetake }) {
+function ResultsPage({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const result = useMemo(() => {
     if (!record) return null
     return { scores: record.scores, profile: getPersonalityProfile(record.scores), facetScores: record.facetScores || null }
@@ -656,17 +666,15 @@ function ResultsPage({ record, onHome, onRetake }) {
       ...(record.level >= 120 && facetScores ? ['', 'အသေးစိတ် အချက် ၃၀ ၏ အညွှန်းရမှတ်:', ...FACETS.map((facet) => `${facet.name}: ${facetScores[facet.id]?.score ?? 0}/100`)] : []),
       '', REPORT_INTERPRETATION_NOTICE,
     ]
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `self-discovery-report-${new Date(record.createdAt).toISOString().slice(0, 10)}.txt`
-    link.click()
-    URL.revokeObjectURL(url)
+    downloadTextFile(
+      `self-discovery-report-${new Date(record.createdAt).toISOString().slice(0, 10)}.txt`,
+      lines.join('\n'),
+    )
   }
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
+      <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#897b8e] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={BookOpen}>Print</SecondaryButton></div></div>
       <ReportSectionNavigation items={[
         { id: 'trait-report-overview', label: 'အနှစ်ချုပ်' },
@@ -793,6 +801,19 @@ export default function App() {
   const [backupPreview, setBackupPreview] = useState(null)
   const [restoreMode, setRestoreMode] = useState('merge')
   const [pendingHomeSection, setPendingHomeSection] = useState(null)
+  const [storageError, setStorageError] = useState(false)
+  const [storageAlertDismissed, setStorageAlertDismissed] = useState(false)
+  const isStorageAlertVisible = storageError && !storageAlertDismissed
+  const reportStorageWriteResult = (ok) => {
+    if (ok) {
+      setStorageError(false)
+      setStorageAlertDismissed(false)
+    } else {
+      setStorageError(true)
+      setStorageAlertDismissed(false)
+    }
+  }
+  const dismissStorageAlert = () => setStorageAlertDismissed(true)
   const fileInputRef = useRef(null)
   const careerPersistRef = useRef(null)
   const innerCompassPersistRef = useRef(null)
@@ -822,6 +843,7 @@ export default function App() {
       ...override,
     }
     const success = saveDraft(draft)
+    reportStorageWriteResult(success)
     setAppData(loadAppData())
     return success
   }
@@ -895,9 +917,11 @@ export default function App() {
     if (!backupPreview?.data) return
     const result = restoreBackupData(backupPreview.data, restoreMode)
     if (!result.success) {
+      reportStorageWriteResult(false)
       setToast(result.error || 'Backup ပြန်ထည့်သွင်းရာမှာ မအောင်မြင်ပါ။')
       return
     }
+    reportStorageWriteResult(true)
     setAppData(result.data)
     setBackupPreview(null)
     setPage('home')
@@ -913,7 +937,8 @@ export default function App() {
     if (existing && forceNew) {
       const confirmed = window.confirm(`${nextLevel} မေးခွန်းအတွက် မပြီးသေးတဲ့ အဖြေဟောင်းရှိပါတယ်။ အသစ်ပြန်စရင် အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။`)
       if (!confirmed) return
-      clearDraft(nextLevel)
+      const cleared = clearDraft(nextLevel)
+      if (!cleared) reportStorageWriteResult(false)
     }
     const now = new Date().toISOString()
     setLevel(Number(nextLevel))
@@ -923,7 +948,8 @@ export default function App() {
     setStartedAt(now)
     setActiveRecord(null)
     setPage('instructions')
-    saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level: Number(nextLevel), answers: {}, skippedQuestionIds: [], currentIndex: 0, startedAt: now, updatedAt: now, status: 'in-progress' })
+    const saved = saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level: Number(nextLevel), answers: {}, skippedQuestionIds: [], currentIndex: 0, startedAt: now, updatedAt: now, status: 'in-progress' })
+    reportStorageWriteResult(saved)
     setAppData(loadAppData())
   }
 
@@ -954,7 +980,8 @@ export default function App() {
     const nextSkipped = skippedQuestionIds.filter((id) => id !== questionId)
     setAnswers(nextAnswers)
     setSkippedQuestionIds(nextSkipped)
-    saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level, answers: nextAnswers, skippedQuestionIds: nextSkipped, currentIndex: questionIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    const saved = saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level, answers: nextAnswers, skippedQuestionIds: nextSkipped, currentIndex: questionIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    reportStorageWriteResult(saved)
     setAppData(loadAppData())
   }
 
@@ -988,7 +1015,8 @@ export default function App() {
     setSkippedQuestionIds(nextSkipped)
     const nextIndex = Math.min(questionIndex + 1, questions.length - 1)
     setQuestionIndex(nextIndex)
-    saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level, answers, skippedQuestionIds: nextSkipped, currentIndex: nextIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    const saved = saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level, answers, skippedQuestionIds: nextSkipped, currentIndex: nextIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
+    reportStorageWriteResult(saved)
     setAppData(loadAppData())
     if (questionIndex === questions.length - 1) setPage('review')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1020,7 +1048,11 @@ export default function App() {
       scores,
       facetScores,
     }
-    const history = saveAssessment(record)
+    const { ok, history } = saveAssessmentWithStatus(record)
+    reportStorageWriteResult(ok)
+    if (!ok) {
+      setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
+    }
     setAppData({ ...loadAppData(), history })
     setActiveRecord(record)
     setPage('result')
@@ -1031,13 +1063,23 @@ export default function App() {
 
   const handleDeleteRecord = (id) => {
     if (!window.confirm('ဒီမှတ်တမ်းကို ဖျက်မှာ သေချာပါသလား။')) return
-    const history = deleteAssessment(id)
+    const { ok, history } = deleteAssessmentWithStatus(id)
+    reportStorageWriteResult(ok)
+    if (!ok) {
+      setToast('Browser Storage ထဲသို့ ပြောင်းလဲမှု သိမ်းဆည်း၍ မရပါ။')
+      return
+    }
     setAppData((current) => ({ ...current, history }))
   }
 
   const handleClearHistory = () => {
     if (!window.confirm('သိမ်းထားတဲ့ မှတ်တမ်းအားလုံးကို ဖျက်မှာ သေချာပါသလား။')) return
-    const history = clearHistory()
+    const { ok, history } = clearHistoryWithStatus()
+    reportStorageWriteResult(ok)
+    if (!ok) {
+      setToast('Browser Storage ထဲသို့ ပြောင်းလဲမှု သိမ်းဆည်း၍ မရပါ။')
+      return
+    }
     setAppData((current) => ({ ...current, history }))
   }
 
@@ -1107,15 +1149,22 @@ export default function App() {
   return (
     <div className={cn('min-h-screen bg-[#f8f5f6] text-[#403747]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenKnowledge={handleNavigateKnowledge} />}
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenKnowledge={handleNavigateKnowledge} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'knowledge' && <KnowledgeCenter onBack={handleNavigateHome} />}
-      {page === 'careerInterest' && <CareerInterestModule key={activeRecord?.id || 'career-new'} record={activeRecord?.assessmentType === 'careerInterest' ? activeRecord : null} onHome={handleNavigateHome} onDataChange={setAppData} persistRef={careerPersistRef} />}
-      {page === 'instructions' && <InstructionsPage level={level} onBack={() => setPage('home')} onBegin={handleBegin} />}
-      {page === 'innerCompass' && <InnerCompassModule key={activeRecord?.id || 'inner-compass-active'} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} />}
-      {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} />}
-      {page === 'review' && <ReviewPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={handleGoToQuestion} onFinish={handleFinish} onBack={() => setPage('assessment')} />}
-      {page === 'result' && <ResultsPage record={activeRecord} onHome={() => { setAppData(loadAppData()); setPage('home') }} onRetake={handleRetake} />}
-      {page === 'history' && <HistoryPage history={appData.history} onOpen={openHistoryRecord} onDelete={handleDeleteRecord} onClear={handleClearHistory} onStart={handleStart} />}
+      {page === 'careerInterest' && <CareerInterestModule key={activeRecord?.id || 'career-new'} record={activeRecord?.assessmentType === 'careerInterest' ? activeRecord : null} onHome={handleNavigateHome} onDataChange={setAppData} persistRef={careerPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'instructions' && <InstructionsPage level={level} onBack={() => setPage('home')} onBegin={handleBegin} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'innerCompass' && <InnerCompassModule key={activeRecord?.id || 'inner-compass-active'} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'review' && <ReviewPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={handleGoToQuestion} onFinish={handleFinish} onBack={() => setPage('assessment')} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'result' && <ResultsPage record={activeRecord} onHome={() => { setAppData(loadAppData()); setPage('home') }} onRetake={handleRetake} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'history' && (
+        <>
+          <div className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 lg:px-8">
+            <StorageWriteAlert visible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismiss={dismissStorageAlert} className="mb-0" />
+          </div>
+          <HistoryPage history={appData.history} onOpen={openHistoryRecord} onDelete={handleDeleteRecord} onClear={handleClearHistory} onStart={handleStart} />
+        </>
+      )}
       <footer className="no-print border-t border-[#eee5ed] bg-[#fbf9fa] px-4 py-6 text-center"><p className="text-[11px] font-semibold text-[#95889a]">Self Discovery · ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း</p><p className="mt-1 text-[10px] text-[#b0a6b2]">ပိုမိုနားလည်လာခြင်းက ကိုယ့်ကိုယ်ကို ဂရုစိုက်ခြင်းရဲ့ အစဖြစ်ပါတယ်။</p></footer>
       {showMobileNavigation && <MobileBottomNavigation active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} onHome={handleNavigateHome} onAssessment={handleNavigateAssessment} onKnowledge={handleNavigateKnowledge} onHistory={handleNavigateHistory} />}
       <input ref={fileInputRef} type="file" accept=".json,application/json" className="hidden" onChange={handleBackupFileSelected} />
