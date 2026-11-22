@@ -78,7 +78,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#6d4b44]">BONDSENSE</p>
                 <h1 className="mt-1 text-xl font-bold text-[#662f23] sm:text-2xl">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</h1>
-                <p className="mt-1 text-xs text-[#6d4b44]">မေးခွန်း {level === 80 ? '၈၀' : level === 40 ? '၄၀' : '၂၀'} · အချက် ၄ ချက် · {level === 80 ? '~၁၅ မိနစ်' : level === 40 ? '~၈ မိနစ်' : '~၄ မိနစ်'}</p>
+                <p className="mt-1 text-xs text-[#6d4b44]">မေးခွန်း {level === 120 ? '၁၂၀' : level === 80 ? '၈၀' : level === 40 ? '၄၀' : '၂၀'} · အချက် ၄ ချက် · {level === 120 ? '~၂၀ မိနစ်' : level === 80 ? '~၁၅ မိနစ်' : level === 40 ? '~၈ မိနစ်' : '~၄ မိနစ်'}</p>
               </div>
             </div>
             <span className="rounded-full border border-[#e5c6be] bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-[#7c392b]">Pilot Reflection · စမ်းသပ်မူကြမ်း</span>
@@ -88,7 +88,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
         <div className="p-6 sm:p-9">
           <div className="mb-6">
             <h2 className="text-base font-bold text-[#662f23]">ဖြေဆိုမည့် မေးခွန်းအဆင့် ရွေးချယ်ပါ</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="BondSense မေးခွန်းအဆင့် ရွေးချယ်မှု">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" role="radiogroup" aria-label="BondSense မေးခွန်းအဆင့် ရွေးချယ်မှု">
               {BONDSENSE_LEVELS.map((option) => {
                 const selected = level === option.value
                 const levelDraft = loadDraft(option.value, ASSESSMENT_TYPE)
@@ -305,11 +305,11 @@ function BondSensePolarTick({ payload, x, y, textAnchor }) {
 
 function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const answerCount = Object.keys(record?.answers || {}).length
-  const rawLevel = Number(record?.questionCount || record?.level || (answerCount > 40 ? 80 : answerCount > 20 ? 40 : 20))
-  const resolvedLevel = rawLevel === 80 ? 80 : rawLevel === 40 ? 40 : 20
+  const rawLevel = Number(record?.questionCount || record?.level || (answerCount > 80 ? 120 : answerCount > 40 ? 80 : answerCount > 20 ? 40 : 20))
+  const resolvedLevel = rawLevel === 120 ? 120 : rawLevel === 80 ? 80 : rawLevel === 40 ? 40 : 20
   const result = useMemo(() => scoreBondSense(record?.answers || {}, resolvedLevel), [record, resolvedLevel])
   if (!record || !result.complete) return null
-  const questionCountLabel = resolvedLevel === 80 ? '၈၀' : resolvedLevel === 40 ? '၄၀' : '၂၀'
+  const questionCountLabel = resolvedLevel === 120 ? '၁၂၀' : resolvedLevel === 80 ? '၈၀' : resolvedLevel === 40 ? '၄၀' : '၂၀'
   const chartData = result.dimensions.map((item) => ({ area: item.shortName, score: item.index }))
   const ordered = [...result.dimensions].sort((a, b) => b.index - a.index)
   const dimensionInsights = result.dimensions.map((dimension) => ({
@@ -404,10 +404,10 @@ export default function BondSenseModule({
 }) {
   const rawInitialLevel = Number(
     initialRecord
-      ? (initialRecord.questionCount || initialRecord.level || (Object.keys(initialRecord.answers || {}).length > 40 ? 80 : Object.keys(initialRecord.answers || {}).length > 20 ? 40 : 20))
+      ? (initialRecord.questionCount || initialRecord.level || (Object.keys(initialRecord.answers || {}).length > 80 ? 120 : Object.keys(initialRecord.answers || {}).length > 40 ? 80 : Object.keys(initialRecord.answers || {}).length > 20 ? 40 : 20))
       : initialLevel,
   )
-  const resolvedInitialLevel = rawInitialLevel === 80 ? 80 : rawInitialLevel === 40 ? 40 : 20
+  const resolvedInitialLevel = rawInitialLevel === 120 ? 120 : rawInitialLevel === 80 ? 80 : rawInitialLevel === 40 ? 40 : 20
   const [level, setLevel] = useState(resolvedInitialLevel)
   const activeQuestions = useMemo(() => getBondSenseQuestionsForLevel(level), [level])
   const initialDraft = initialRecord ? null : loadDraft(resolvedInitialLevel, ASSESSMENT_TYPE)
@@ -425,7 +425,7 @@ export default function BondSenseModule({
   const storageAlertVisible = sharedStorageAlertVisible ?? (storageError && !localAlertDismissed)
 
   const handleSelectLevel = (nextLevel) => {
-    const normalized = Number(nextLevel) === 80 ? 80 : Number(nextLevel) === 40 ? 40 : 20
+    const normalized = Number(nextLevel) === 120 ? 120 : Number(nextLevel) === 80 ? 80 : Number(nextLevel) === 40 ? 40 : 20
     const nextQuestions = getBondSenseQuestionsForLevel(normalized)
     const nextDraft = loadDraft(normalized, ASSESSMENT_TYPE)
     setLevel(normalized)

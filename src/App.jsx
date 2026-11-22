@@ -160,6 +160,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
   const bondSenseDraft20 = drafts?.bondSense?.['20'] || null
   const bondSenseDraft40 = drafts?.bondSense?.['40'] || null
   const bondSenseDraft80 = drafts?.bondSense?.['80'] || null
+  const bondSenseDraft120 = drafts?.bondSense?.['120'] || null
   const valueMapDraft20 = drafts?.valueMap?.['20'] || null
   const valueMapDraft40 = drafts?.valueMap?.['40'] || null
   const emotionLensDraft20 = drafts?.emotionLens?.['20'] || null
@@ -438,8 +439,8 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
               <p className="mt-1 text-xs font-semibold text-[#7c392b]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p>
               <p className="mt-2 flex-1 text-xs leading-6 text-[#6a4840]">ယုံကြည်မှု၊ ကိုယ်ပိုင်နယ်နိမိတ်၊ စာနာနားထောင်ပေးမှုနှင့် သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံတို့ကို ပြန်လည်သုံးသပ်ပါ။</p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#7c392b]">
-                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀ / ၈၀</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#fdf3f0] px-2.5 py-1"><Clock3 size={11} /> ~၄–၁၅ မိနစ်</span>
+                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀ / ၈၀ / ၁၂၀</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#fdf3f0] px-2.5 py-1"><Clock3 size={11} /> ~၄–၂၀ မိနစ်</span>
                 <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">အချက် ၄ ချက်</span>
               </div>
               <div className="mt-4 grid gap-2.5">
@@ -461,6 +462,12 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
                     title: 'အသေးစိတ် ၈၀ မေးခွန်း',
                     duration: '~၁၅ မိနစ်',
                     draft: bondSenseDraft80,
+                  },
+                  {
+                    levelValue: 120,
+                    title: 'အနက်ရှိုင်းဆုံး ၁၂၀ မေးခွန်း',
+                    duration: '~၂၀ မိနစ်',
+                    draft: bondSenseDraft120,
                   },
                 ].map((item) => {
                   const answered = Object.keys(item.draft?.answers || {}).length
@@ -1715,7 +1722,7 @@ export default function App() {
   return (
     <div className={cn('min-h-screen bg-[#faf8f5] text-[#242029]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 120 ? 120 : selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={(selectedLevel = 20) => { setActiveRecord(null); setBondSenseLevel(selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('bondSense') }} onOpenValueMap={(selectedLevel = 20) => { setActiveRecord(null); setValueMapLevel(selectedLevel === 40 ? 40 : 20); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 120 ? 120 : selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={(selectedLevel = 20) => { setActiveRecord(null); setBondSenseLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('bondSense') }} onOpenValueMap={(selectedLevel = 20) => { setActiveRecord(null); setValueMapLevel(selectedLevel === 40 ? 40 : 20); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'mindProfile' && (
         <Suspense fallback={<ModuleLoadingFallback />}>
           <MyMindProfile

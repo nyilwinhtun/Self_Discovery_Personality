@@ -5,15 +5,21 @@ import {
   BONDSENSE_QUESTIONS_40_EXTRA,
   BONDSENSE_QUESTIONS_80,
   BONDSENSE_QUESTIONS_80_EXTRA,
+  BONDSENSE_QUESTIONS_120,
+  BONDSENSE_QUESTIONS_120_EXTRA,
   getBondSenseQuestionsForLevel,
 } from '../data/bondSensePilot.js'
 
 function resolveQuestionSet(answers, level = null) {
   const normalizedLevel = Number(level)
+  if (normalizedLevel === 120) return BONDSENSE_QUESTIONS_120
   if (normalizedLevel === 80) return BONDSENSE_QUESTIONS_80
   if (normalizedLevel === 40) return BONDSENSE_QUESTIONS_40
   if (normalizedLevel === 20) return BONDSENSE_QUESTIONS_20
   const hasAnswers = answers && typeof answers === 'object' && !Array.isArray(answers)
+  if (hasAnswers && BONDSENSE_QUESTIONS_120_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
+    return BONDSENSE_QUESTIONS_120
+  }
   if (hasAnswers && BONDSENSE_QUESTIONS_80_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
     return BONDSENSE_QUESTIONS_80
   }
@@ -30,7 +36,9 @@ export function validateBondSenseAnswers(answers, level = null) {
     ? BONDSENSE_QUESTIONS_20
     : normalizedLevel === 40
       ? BONDSENSE_QUESTIONS_40
-      : BONDSENSE_QUESTIONS_80
+      : normalizedLevel === 80
+        ? BONDSENSE_QUESTIONS_80
+        : BONDSENSE_QUESTIONS_120
   return Object.entries(answers).every(([id, value]) => {
     const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5
