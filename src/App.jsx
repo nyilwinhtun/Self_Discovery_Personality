@@ -24,6 +24,7 @@ import {
 const BalancedSpectrumBar = lazy(() => import('./components/BalancedSpectrumBar.jsx'))
 const BondSenseModule = lazy(() => import('./components/BondSenseModule.jsx'))
 const CareerInterestModule = lazy(() => import('./components/CareerInterestModule.jsx'))
+const DailyMindPromptCard = lazy(() => import('./components/DailyMindPromptCard.jsx'))
 const HistoryPage = lazy(() => import('./components/HistoryPage.jsx'))
 const InnerCompassModule = lazy(() => import('./components/InnerCompassModule.jsx'))
 const KnowledgeCenter = lazy(() => import('./components/KnowledgeCenter.jsx'))
@@ -285,7 +286,8 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
           <p className="mt-2 max-w-3xl text-xs leading-6 text-[#6b5e70]">ဆန်းစစ်မှုတစ်ခုချင်းစီမှာ ကိုယ်ပိုင်ရည်ရွယ်ချက်၊ မေးခွန်းနဲ့ ရလဒ်ရှိပါတယ်။ အဖြေတစ်ခုတည်းနဲ့ သင့်ကို အပြီးသတ်သတ်မှတ်မှာ မဟုတ်ဘဲ ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်နိုင်ဖို့ ကူညီပေးမှာပါ။</p>
         </div>
 
-        <section id="personality-levels" className="scroll-mt-24 rounded-2xl border border-[#d8c7df] bg-white p-5 shadow-sm ring-1 ring-[#eee5f0] sm:p-6">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
+          <section id="personality-levels" className="scroll-mt-24 rounded-2xl border border-[#d8c7df] bg-white p-5 shadow-sm ring-1 ring-[#eee5f0] sm:p-6 md:col-span-12">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-4">
               <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><TraitLensLogo size={54}/></span>
@@ -335,7 +337,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
           </div>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-[#d4e0ef] bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-2xl border border-[#d4e0ef] bg-white p-5 shadow-sm sm:p-6 md:col-span-12">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-4">
               <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl bg-[#eaf1fa] text-[#446c96]"><InnerCompassLogo size={54}/></span>
@@ -405,13 +407,13 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
           <p className="mt-3 text-[11px] leading-5 text-[#4e6379]">စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုသာ ဖြစ်ပြီး အတည်ပြုထားသော စိတ်ပညာစမ်းသပ်မှု မဟုတ်ပါ။</p>
         </section>
 
-        <div className="mt-6">
+        <div className="md:col-span-12">
           <div className="mb-3">
             <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">MIND &amp; LIFE REFLECTION PILOTS</p>
             <h3 className="mt-1 text-lg font-bold text-[#514357]">ဆက်ဆံရေးနှင့် ဘဝတန်ဖိုး ဆိုင်ရာ လေ့လာမှုများ</h3>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <article className="flex flex-col rounded-2xl border border-[#ebd6d1] bg-white p-5 shadow-sm">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
+            <article className="flex flex-col rounded-2xl border border-[#ebd6d1] bg-white p-5 shadow-sm md:col-span-6">
               <div className="flex items-start justify-between gap-3">
                 <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#924433]"><BondSenseLogo size={44} /></span>
                 <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1 text-[11px] font-semibold text-[#7c392b]">စမ်းသပ်မူကြမ်း (Pilot)</span>
@@ -436,7 +438,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
               )}
             </article>
 
-            <article className="flex flex-col rounded-2xl border border-[#d4e1d7] bg-white p-5 shadow-sm">
+            <article className="flex flex-col rounded-2xl border border-[#d4e1d7] bg-white p-5 shadow-sm md:col-span-6">
               <div className="flex items-start justify-between gap-3">
                 <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef4ef] text-[#3d6347]"><ValueMapLogo size={44} /></span>
                 <span className="rounded-full bg-[#eef5f0] px-2.5 py-1 text-[11px] font-semibold text-[#33573d]">စမ်းသပ်မူကြမ်း (Pilot)</span>
@@ -463,7 +465,27 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
           </div>
         </div>
 
-        <article className="mt-5 flex flex-col justify-between gap-4 rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
+        <div className="md:col-span-7">
+          <Suspense fallback={<div className="h-full min-h-48 rounded-2xl border border-[#e7dce9] bg-[#fcf9fc] p-5 text-xs text-[#6b5e70]">နေ့စဉ်မေးခွန်းကို ဖွင့်နေပါသည်...</div>}>
+            <DailyMindPromptCard />
+          </Suspense>
+        </div>
+
+        <article className="flex flex-col justify-between rounded-2xl border border-[#e4d9e8] bg-gradient-to-br from-[#f8f3fa] via-white to-[#f6eff5] p-5 shadow-sm sm:p-6 md:col-span-5">
+          <div>
+            <div className="flex items-start justify-between gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#f1e7f5] text-[#6f587a]"><Brain size={24} /></span>
+              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-[#6f587a] shadow-xs">ပေါင်းစည်းမြင်ကွင်း</span>
+            </div>
+            <h3 className="mt-4 text-lg font-bold tracking-tight text-[#493b50]">ကျွန်ုပ်၏ စိတ်ပုံရိပ် (My Mind Profile)</h3>
+            <p className="mt-2 text-xs leading-6 text-[#5d5162]">TraitLens၊ InnerCompass၊ BondSense နဲ့ ValueMap တို့မှ ရလဒ်များကို တစ်နေရာတည်းမှာ ပေါင်းစည်းကြည့်ရှုပြီး ကိုယ့်ပုံရိပ်ကို ခြုံငုံသုံးသပ်နိုင်ပါတယ်။</p>
+          </div>
+          <button onClick={onOpenMindProfile} className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">
+            စိတ်ပုံရိပ်ကို ကြည့်မယ် <ArrowRight size={15} />
+          </button>
+        </article>
+
+        <article className="flex flex-col justify-between gap-4 rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6 md:col-span-12">
           <div className="flex items-start gap-4">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><BookOpen size={26}/></span>
             <div>
@@ -477,6 +499,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
           </div>
           <button onClick={onOpenKnowledge} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d9cce0] bg-[#f7f2f8] px-5 py-2.5 text-xs font-semibold text-[#6f587a] transition hover:bg-[#eee6f1]">စကားလုံးများ လေ့လာမယ် <ArrowRight size={15}/></button>
         </article>
+        </div>
       </section>
 
       <section className="mt-10 rounded-2xl border border-[#eee5ed] bg-[#fcfafd] p-5 sm:p-6">
