@@ -33,6 +33,8 @@ function getRecordComparisonKey(record) {
   const type = getRecordAssessmentType(record)
   if (type === 'personality') return `personality:${record?.level || record?.questionCount || 30}`
   if (type === 'innerCompass') return `innerCompass:${record?.questionCount || record?.level || 30}`
+  if (type === 'bondSense') return `bondSense:${record?.questionCount || record?.level || 20}`
+  if (type === 'valueMap') return `valueMap:${record?.questionCount || record?.level || 20}`
   if (type === 'emotionLens') return `emotionLens:${record?.questionCount || record?.level || 20}`
   return type
 }

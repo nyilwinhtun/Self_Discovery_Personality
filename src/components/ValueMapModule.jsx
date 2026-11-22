@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  AlertTriangle, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, Download,
+  AlertTriangle, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, Clock3, Download,
   LockKeyhole, Printer, RotateCcw, ShieldCheck,
 } from 'lucide-react'
 import {
@@ -18,15 +18,15 @@ import StorageWriteAlert from './StorageWriteAlert.jsx'
 import {
   VALUEMAP_ANSWER_OPTIONS,
   VALUEMAP_DIMENSIONS,
-  VALUEMAP_QUESTIONS_20,
+  VALUEMAP_LEVELS,
   VALUEMAP_VERSION,
+  getValueMapQuestionsForLevel,
 } from '../data/valueMapPilot.js'
 import { downloadTextFile } from '../utils/download.js'
 import { getValueMapInsight, scoreValueMap } from '../utils/valueMapScoring.js'
 import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
 
 const ASSESSMENT_TYPE = 'valueMap'
-const ASSESSMENT_LEVEL = 20
 const ACCENT = '#3d6347'
 
 function cn(...classes) {
@@ -60,11 +60,11 @@ function SecondaryButton({ children, onClick, icon: Icon, disabled = false, clas
   )
 }
 
-function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVisible, onExportBackup, onDismissStorageError }) {
+function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin, onResume, onRestart, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [acknowledged, setAcknowledged] = useState(false)
   const answeredCount = Object.keys(draft?.answers || {}).length
   const skippedCount = (draft?.skippedQuestionIds || []).filter((id) => draft?.answers?.[id] === undefined).length
-  const progress = Math.round((answeredCount / VALUEMAP_QUESTIONS_20.length) * 100)
+  const progress = questionCount ? Math.round((answeredCount / questionCount) * 100) : 0
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
@@ -78,7 +78,7 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#475e4d]">VALUEMAP</p>
                 <h1 className="mt-1 text-xl font-bold text-[#2c4a34] sm:text-2xl">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</h1>
-                <p className="mt-1 text-xs text-[#475e4d]">မေးခွန်း ၂၀ · အချက် ၄ ချက် · ~၄ မိနစ်</p>
+                <p className="mt-1 text-xs text-[#475e4d]">မေးခွန်း {level === 40 ? '၄၀' : '၂၀'} · အချက် ၄ ချက် · {level === 40 ? '~၈ မိနစ်' : '~၄ မိနစ်'}</p>
               </div>
             </div>
             <span className="rounded-full border border-[#c6d8ca] bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-[#33573d]">Pilot Reflection · စမ်းသပ်မူကြမ်း</span>
@@ -86,6 +86,40 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
           <p className="mt-6 text-sm leading-8 text-[#465e4c]">ဆုံးဖြတ်ချက်များ ချမှတ်ရာတွင် ကိုယ့်စိတ်ထဲ အလေးထားမိတတ်သည့် လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ကို ပြန်လည်သုံးသပ်နိုင်ရန် ရေးဆွဲထားသည့် စမ်းသပ်မူကြမ်း ဖြစ်ပါသည်။</p>
         </div>
         <div className="p-6 sm:p-9">
+          <div className="mb-6">
+            <h2 className="text-base font-bold text-[#2c4a34]">ဖြေဆိုမည့် မေးခွန်းအဆင့် ရွေးချယ်ပါ</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="ValueMap မေးခွန်းအဆင့် ရွေးချယ်မှု">
+              {VALUEMAP_LEVELS.map((option) => {
+                const selected = level === option.value
+                const levelDraft = loadDraft(option.value, ASSESSMENT_TYPE)
+                const levelAnswered = Object.keys(levelDraft?.answers || {}).length
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => onSelectLevel(option.value)}
+                    className={cn(
+                      'flex flex-col rounded-2xl border p-4 text-left transition',
+                      selected ? 'border-[#3d6347] bg-[#f5f9f6] ring-1 ring-[#3d6347]/30' : 'border-[#d4e1d7] bg-white hover:border-[#adc5b3] hover:bg-[#f7faf8]',
+                    )}
+                  >
+                    <div className="flex w-full items-center justify-between gap-2">
+                      <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-semibold', selected ? 'bg-[#3d6347] text-white' : 'bg-[#eef5f0] text-[#33573d]')}>{option.label}</span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#475e4d]"><Clock3 size={12} /> {option.duration}</span>
+                    </div>
+                    <p className="mt-3 text-sm font-bold text-[#2c4a34]">{option.title}</p>
+                    <p className="mt-1 text-xs leading-6 text-[#465e4c]">{option.subtitle}</p>
+                    {levelDraft && (
+                      <p className="mt-2 text-[11px] font-semibold text-[#3d6347]">မပြီးသေးသော Draft ({levelAnswered}/{option.value})</p>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           <h2 className="text-base font-bold text-[#2c4a34]">ဒီဆန်းစစ်မှုမှာ လေ့လာမယ့် အဓိက အချက် ၄ ချက်</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {VALUEMAP_DIMENSIONS.map((dimension, index) => (
@@ -144,12 +178,13 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
   )
 }
 
-function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError }) {
-  const question = VALUEMAP_QUESTIONS_20[questionIndex]
+function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError }) {
+  const question = activeQuestions[questionIndex]
+  const totalQuestions = activeQuestions.length
   const answeredCount = Object.keys(answers).length
   const skippedCount = skippedQuestionIds.filter((id) => answers[id] === undefined).length
-  const progress = Math.round((answeredCount / VALUEMAP_QUESTIONS_20.length) * 100)
-  const isLast = questionIndex === VALUEMAP_QUESTIONS_20.length - 1
+  const progress = Math.round((answeredCount / totalQuestions) * 100)
+  const isLast = questionIndex === totalQuestions - 1
   const selectedAnswer = answers[question.id]
 
   return (
@@ -165,8 +200,8 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-[2rem] border border-[#ebe5dc] bg-[#fffdf9] p-5 card-shadow sm:p-9">
         <div className="flex items-end justify-between gap-3">
-          <div><p className="text-xs font-semibold tracking-wide text-[#524b59]">VALUEMAP · PILOT 20</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
-          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#3d6347]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / 20</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
+          <div><p className="text-xs font-semibold tracking-wide text-[#524b59]">VALUEMAP · PILOT {totalQuestions}</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
+          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#3d6347]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / {totalQuestions}</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
         </div>
         <div className="mt-5 flex items-center justify-between text-[11px] text-[#524b59]"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e8ede7]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#3d6347] to-[#74a07f]" style={{ width: `${progress}%` }} /></div>
@@ -207,11 +242,11 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
   )
 }
 
-function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack, storageAlertVisible, onExportBackup, onDismissStorageError }) {
+function ReviewView({ activeQuestions, answers, skippedQuestionIds, onGoTo, onFinish, onBack, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [filter, setFilter] = useState('incomplete')
-  const answered = VALUEMAP_QUESTIONS_20.filter((question) => answers[question.id] !== undefined)
-  const skipped = VALUEMAP_QUESTIONS_20.filter((question) => answers[question.id] === undefined && skippedQuestionIds.includes(question.id))
-  const unanswered = VALUEMAP_QUESTIONS_20.filter((question) => answers[question.id] === undefined && !skippedQuestionIds.includes(question.id))
+  const answered = activeQuestions.filter((question) => answers[question.id] !== undefined)
+  const skipped = activeQuestions.filter((question) => answers[question.id] === undefined && skippedQuestionIds.includes(question.id))
+  const unanswered = activeQuestions.filter((question) => answers[question.id] === undefined && !skippedQuestionIds.includes(question.id))
   const incomplete = [...skipped, ...unanswered]
   const visible = filter === 'answered' ? answered : filter === 'skipped' ? skipped : filter === 'unanswered' ? unanswered : incomplete
   const statusOf = (question) => answers[question.id] !== undefined ? 'ဖြေပြီး · ပြန်ပြင်နိုင်သည်' : skippedQuestionIds.includes(question.id) ? 'ကျော်ထား · ပြန်ဖြေနိုင်သည်' : 'မဖြေရသေး'
@@ -232,7 +267,7 @@ function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack, sto
         <div className="mt-6 flex flex-wrap gap-2">{[['incomplete', `ပြန်ဖြေရန် (${incomplete.length})`], ['skipped', `ကျော်ထား (${skipped.length})`], ['unanswered', `မဖြေရသေး (${unanswered.length})`], ['answered', `ဖြေပြီး (${answered.length})`]].map(([value, label]) => <button key={value} onClick={() => setFilter(value)} className={cn('min-h-10 rounded-full px-3.5 py-2 text-[11px] font-semibold transition', filter === value ? 'bg-[#3d6347] text-white' : 'bg-[#eaf2ec] text-[#475e4d] hover:bg-[#dce8df]')}>{label}</button>)}</div>
         <div className="mt-4 rounded-2xl border border-[#dce6de] p-3 sm:p-4">
           {visible.length === 0 ? <div className="py-8 text-center"><CheckCircle2 className="mx-auto text-[#3d6347]" size={30} /><p className="mt-2 text-sm font-semibold text-[#3d6347]">ဒီအမျိုးအစားမှာ မေးခွန်းမရှိပါ။</p></div> : <div className="grid gap-2 sm:grid-cols-2">{visible.map((question) => {
-            const originalIndex = VALUEMAP_QUESTIONS_20.findIndex((item) => item.id === question.id)
+            const originalIndex = activeQuestions.findIndex((item) => item.id === question.id)
             return <button key={question.id} onClick={() => onGoTo(originalIndex)} className="flex min-w-0 items-start gap-3 rounded-xl border border-[#dce6de] bg-white p-3 text-left transition hover:border-[#b5cbb9] hover:bg-[#f7faf8]"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#edf3ee] text-xs font-bold text-[#475e4d]">{originalIndex + 1}</span><span className="min-w-0 flex-1"><span className="block text-[11px] font-semibold leading-5 text-[#2c4a34]">{question.text}</span><span className="mt-1 block text-[11px] text-[#475e4d]">{statusOf(question)}</span></span><ChevronRight size={15} className="mt-1 shrink-0 text-[#475e4d]" /></button>
           })}</div>}
         </div>
@@ -269,8 +304,10 @@ function ValueMapPolarTick({ payload, x, y, textAnchor }) {
 }
 
 function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
-  const result = useMemo(() => scoreValueMap(record?.answers || {}), [record])
+  const resolvedLevel = Number(record?.questionCount || record?.level) === 40 ? 40 : 20
+  const result = useMemo(() => scoreValueMap(record?.answers || {}, resolvedLevel), [record, resolvedLevel])
   if (!record || !result.complete) return null
+  const questionCountLabel = resolvedLevel === 40 ? '၄၀' : '၂၀'
   const chartData = result.dimensions.map((item) => ({ area: item.shortName, score: item.index }))
   const ordered = [...result.dimensions].sort((a, b) => b.index - a.index)
   const dimensionInsights = result.dimensions.map((dimension) => ({
@@ -282,6 +319,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
     const lines = [
       'Self Discovery — ValueMap ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုအစီရင်ခံစာ (Pilot Reflection)',
       `မေးခွန်းဗားရှင်း: ${record.questionBankVersion || VALUEMAP_VERSION}`,
+      `မေးခွန်းအရေအတွက်: ${resolvedLevel} ခု`,
       `ဖြေဆိုသည့်နေ့: ${formatDate(record.createdAt)}`,
       'ဤရလဒ်သည် စမ်းသပ်မူကြမ်း (Pilot Reflection) အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု အညွှန်းသာဖြစ်ပါသည်။',
       '',
@@ -305,14 +343,14 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#475e4d] hover:text-[#2c4a34]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><ResultShareCardButton tone="sage" getCardConfig={() => ({ filename: `valuemap-result-${new Date(record.createdAt).toISOString().slice(0, 10)}.png`, subtitle: 'VALUEMAP · PILOT REFLECTION', title: 'ဘဝတန်ဖိုးမြေပုံ အချက် ၄ ချက် အကျဉ်းချုပ်', metaLine: `မေးခွန်း ၂၀ · ${formatDate(record.createdAt)}`, items: dimensionInsights.map((d) => ({ label: d.name, score: d.index })), accentColor: '#3d6347', trackColor: '#e4efe7', footerNote: 'ValueMap သည် စမ်းသပ်မူကြမ်းအဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု reflection tool ဖြစ်ပြီး ရောဂါရှာဖွေမှု မဟုတ်ပါ။' })} /><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#475e4d] hover:text-[#2c4a34]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><ResultShareCardButton tone="sage" getCardConfig={() => ({ filename: `valuemap-result-${new Date(record.createdAt).toISOString().slice(0, 10)}.png`, subtitle: 'VALUEMAP · PILOT REFLECTION', title: 'ဘဝတန်ဖိုးမြေပုံ အချက် ၄ ချက် အကျဉ်းချုပ်', metaLine: `မေးခွန်း ${questionCountLabel} · ${formatDate(record.createdAt)}`, items: dimensionInsights.map((d) => ({ label: d.name, score: d.index })), accentColor: '#3d6347', trackColor: '#e4efe7', footerNote: 'ValueMap သည် စမ်းသပ်မူကြမ်းအဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု reflection tool ဖြစ်ပြီး ရောဂါရှာဖွေမှု မဟုတ်ပါ။' })} /><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
       <ReportSectionNavigation tone="sage" items={[
         { id: 'valuemap-report-overview', label: 'အနှစ်ချုပ်' },
         { id: 'valuemap-report-areas', label: 'အချက် ၄ ချက်' },
         { id: 'valuemap-report-notes', label: 'ရလဒ်ဖတ်ရှုရန်' },
       ]} />
       <section id="valuemap-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#d4e1d7] bg-gradient-to-br from-[#eef4ef] via-[#f9fcf9] to-[#eaf2ec] p-6 card-shadow sm:p-10">
-        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-xs font-semibold text-[#33573d]"><CheckCircle2 size={14} /> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#3d6347] shadow-sm"><ValueMapLogo size={50} /></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#475e4d]">VALUEMAP · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#2c4a34] sm:text-3xl">သင့်ရဲ့ ဘဝတန်ဖိုးမြေပုံ အကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#475e4d]">မေးခွန်း ၂၀ · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#465e4c]">အောက်ပါရလဒ်များသည် ဤစမ်းသပ်မူကြမ်းအတွင်း သင်ရွေးချယ်ထားသော အဖြေများကို အချက် ၄ ချက်အလိုက် စုစည်းပြသထားခြင်းသာ ဖြစ်ပါသည်။ ဘဝတန်ဖိုးများသည် အချိန်နှင့်အမျှ ပြောင်းလဲနိုင်ပါသည်။</p></div>
+        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-xs font-semibold text-[#33573d]"><CheckCircle2 size={14} /> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#3d6347] shadow-sm"><ValueMapLogo size={50} /></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#475e4d]">VALUEMAP · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#2c4a34] sm:text-3xl">သင့်ရဲ့ ဘဝတန်ဖိုးမြေပုံ အကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#475e4d]">မေးခွန်း {questionCountLabel} · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#465e4c]">အောက်ပါရလဒ်များသည် ဤစမ်းသပ်မူကြမ်းအတွင်း သင်ရွေးချယ်ထားသော အဖြေများကို အချက် ၄ ချက်အလိုက် စုစည်းပြသထားခြင်းသာ ဖြစ်ပါသည်။ ဘဝတန်ဖိုးများသည် အချိန်နှင့်အမျှ ပြောင်းလဲနိုင်ပါသည်။</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
           <div className="rounded-[1.5rem] border border-white/90 bg-white/90 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#2c4a34]">အဓိက တန်ဖိုး ၄ ခု၏ ရမှတ်</h2><span className="text-[11px] text-[#475e4d]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="56%" margin={{ top: 22, right: 44, bottom: 22, left: 44 }}><PolarGrid stroke="#dce6de" /><PolarAngleAxis dataKey="area" tick={<ValueMapPolarTick />} /><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#475e4d', fontSize: 11 }} axisLine={false} /><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#88b393" fillOpacity={0.55} strokeWidth={2} /><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#d4e1d7', fontSize: 12 }} /></RadarChart></ResponsiveContainer></div><p className="text-center text-[11px] leading-5 text-[#475e4d]">ဤအညွှန်းသည် ဖြေဆိုထားသည့်အဖြေများကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါသည်။</p></div>
           <div className="flex flex-col gap-3">
@@ -352,6 +390,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
 
 export default function ValueMapModule({
   initialRecord = null,
+  initialLevel = 20,
   onHome,
   onDataChange,
   persistRef,
@@ -361,12 +400,17 @@ export default function ValueMapModule({
   onStorageWriteResult,
   onDismissStorageError,
 }) {
-  const initialDraft = initialRecord ? null : loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+  const resolvedInitialLevel = initialRecord
+    ? (Number(initialRecord.questionCount || initialRecord.level) === 40 ? 40 : 20)
+    : (Number(initialLevel) === 40 ? 40 : 20)
+  const [level, setLevel] = useState(resolvedInitialLevel)
+  const activeQuestions = useMemo(() => getValueMapQuestionsForLevel(level), [level])
+  const initialDraft = initialRecord ? null : loadDraft(resolvedInitialLevel, ASSESSMENT_TYPE)
   const [view, setView] = useState(initialRecord ? 'result' : 'guide')
   const [draft, setDraft] = useState(initialDraft)
   const [answers, setAnswers] = useState(initialRecord?.answers || initialDraft?.answers || {})
   const [skippedQuestionIds, setSkippedQuestionIds] = useState(initialRecord ? [] : (initialDraft?.skippedQuestionIds || []))
-  const [questionIndex, setQuestionIndex] = useState(initialRecord ? 0 : Math.max(0, Math.min(Number(initialDraft?.currentIndex) || 0, VALUEMAP_QUESTIONS_20.length - 1)))
+  const [questionIndex, setQuestionIndex] = useState(initialRecord ? 0 : Math.max(0, Math.min(Number(initialDraft?.currentIndex) || 0, getValueMapQuestionsForLevel(resolvedInitialLevel).length - 1)))
   const [startedAt, setStartedAt] = useState(initialRecord?.startedAt || initialDraft?.startedAt || null)
   const [record, setRecord] = useState(initialRecord)
   const [toast, setToast] = useState('')
@@ -374,6 +418,18 @@ export default function ValueMapModule({
   const [localAlertDismissed, setLocalAlertDismissed] = useState(false)
   const storageError = sharedStorageError ?? localStorageError
   const storageAlertVisible = sharedStorageAlertVisible ?? (storageError && !localAlertDismissed)
+
+  const handleSelectLevel = (nextLevel) => {
+    const normalized = Number(nextLevel) === 40 ? 40 : 20
+    const nextQuestions = getValueMapQuestionsForLevel(normalized)
+    const nextDraft = loadDraft(normalized, ASSESSMENT_TYPE)
+    setLevel(normalized)
+    setDraft(nextDraft)
+    setAnswers(nextDraft?.answers || {})
+    setSkippedQuestionIds(nextDraft?.skippedQuestionIds || [])
+    setQuestionIndex(Math.max(0, Math.min(Number(nextDraft?.currentIndex) || 0, nextQuestions.length - 1)))
+    setStartedAt(nextDraft?.startedAt || null)
+  }
 
   const reportStorageWrite = (ok) => {
     if (onStorageWriteResult) {
@@ -403,7 +459,7 @@ export default function ValueMapModule({
     const payload = {
       assessmentType: ASSESSMENT_TYPE,
       questionBankVersion: VALUEMAP_VERSION,
-      level: ASSESSMENT_LEVEL,
+      level,
       answers,
       skippedQuestionIds,
       currentIndex: questionIndex,
@@ -414,7 +470,7 @@ export default function ValueMapModule({
     }
     const success = saveDraft(payload)
     reportStorageWrite(success)
-    setDraft(loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE))
+    setDraft(loadDraft(level, ASSESSMENT_TYPE))
     onDataChange?.(loadAppData())
     return success
   }
@@ -444,7 +500,7 @@ export default function ValueMapModule({
 
   const startFresh = () => {
     if (draft && !window.confirm('မပြီးသေးတဲ့ ValueMap အဖြေဟောင်းရှိပါတယ်။ အသစ်ပြန်စရင် အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။')) return
-    if (draft && !clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)) reportStorageWrite(false)
+    if (draft && !clearDraft(level, ASSESSMENT_TYPE)) reportStorageWrite(false)
     const now = new Date().toISOString()
     setAnswers({})
     setSkippedQuestionIds([])
@@ -454,7 +510,7 @@ export default function ValueMapModule({
     const emptyDraft = {
       assessmentType: ASSESSMENT_TYPE,
       questionBankVersion: VALUEMAP_VERSION,
-      level: ASSESSMENT_LEVEL,
+      level,
       answers: {}, skippedQuestionIds: [], currentIndex: 0,
       startedAt: now, updatedAt: now, status: 'in-progress',
     }
@@ -467,14 +523,14 @@ export default function ValueMapModule({
   }
 
   const resume = () => {
-    const saved = loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const saved = loadDraft(level, ASSESSMENT_TYPE)
     if (!saved) {
       setToast('ဆက်လက်ဖြေဆိုရန် သိမ်းထားတဲ့အဖြေ မတွေ့ပါ။')
       return
     }
     setAnswers(saved.answers || {})
     setSkippedQuestionIds(saved.skippedQuestionIds || [])
-    setQuestionIndex(Math.max(0, Math.min(Number(saved.currentIndex) || 0, VALUEMAP_QUESTIONS_20.length - 1)))
+    setQuestionIndex(Math.max(0, Math.min(Number(saved.currentIndex) || 0, activeQuestions.length - 1)))
     setStartedAt(saved.startedAt || saved.updatedAt || new Date().toISOString())
     setDraft(saved)
     setRecord(null)
@@ -495,7 +551,7 @@ export default function ValueMapModule({
     setSkippedQuestionIds(nextSkipped)
     const payload = {
       assessmentType: ASSESSMENT_TYPE, questionBankVersion: VALUEMAP_VERSION,
-      level: ASSESSMENT_LEVEL, answers: nextAnswers, skippedQuestionIds: nextSkipped,
+      level, answers: nextAnswers, skippedQuestionIds: nextSkipped,
       currentIndex: questionIndex, startedAt: startedAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(), status: 'in-progress',
     }
@@ -511,26 +567,26 @@ export default function ValueMapModule({
   }
 
   const goNext = () => {
-    const currentQuestion = VALUEMAP_QUESTIONS_20[questionIndex]
+    const currentQuestion = activeQuestions[questionIndex]
     if (answers[currentQuestion.id] === undefined) {
       setToast('အဖြေရွေးချယ်ပါ၊ ဒါမှမဟုတ် ဒီမေးခွန်းကို ကျော်ထားနိုင်ပါတယ်။')
       return
     }
-    if (questionIndex < VALUEMAP_QUESTIONS_20.length - 1) setQuestionIndex((current) => current + 1)
+    if (questionIndex < activeQuestions.length - 1) setQuestionIndex((current) => current + 1)
     else setView('review')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const skipQuestion = () => {
-    const currentQuestion = VALUEMAP_QUESTIONS_20[questionIndex]
+    const currentQuestion = activeQuestions[questionIndex]
     if (answers[currentQuestion.id] !== undefined) return
     const nextSkipped = [...new Set([...skippedQuestionIds, currentQuestion.id])]
-    const nextIndex = Math.min(questionIndex + 1, VALUEMAP_QUESTIONS_20.length - 1)
+    const nextIndex = Math.min(questionIndex + 1, activeQuestions.length - 1)
     setSkippedQuestionIds(nextSkipped)
     setQuestionIndex(nextIndex)
     const payload = {
       assessmentType: ASSESSMENT_TYPE, questionBankVersion: VALUEMAP_VERSION,
-      level: ASSESSMENT_LEVEL, answers, skippedQuestionIds: nextSkipped,
+      level, answers, skippedQuestionIds: nextSkipped,
       currentIndex: nextIndex, startedAt: startedAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(), status: 'in-progress',
     }
@@ -538,24 +594,24 @@ export default function ValueMapModule({
     reportStorageWrite(saved)
     setDraft(payload)
     onDataChange?.(loadAppData())
-    if (questionIndex === VALUEMAP_QUESTIONS_20.length - 1) setView('review')
+    if (questionIndex === activeQuestions.length - 1) setView('review')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const goToQuestion = (index) => {
-    setQuestionIndex(Math.max(0, Math.min(index, VALUEMAP_QUESTIONS_20.length - 1)))
+    setQuestionIndex(Math.max(0, Math.min(index, activeQuestions.length - 1)))
     setView('question')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const finish = () => {
-    const missing = VALUEMAP_QUESTIONS_20.filter((question) => answers[question.id] === undefined)
+    const missing = activeQuestions.filter((question) => answers[question.id] === undefined)
     if (missing.length) {
       setToast(`မဖြေရသေးတဲ့ မေးခွန်း ${missing.length} ခု ကျန်နေပါသေးတယ်။`)
       setView('review')
       return
     }
-    const result = scoreValueMap(answers)
+    const result = scoreValueMap(answers, level)
     if (!result.complete) {
       setToast('အဖြေတချို့ မမှန်ကန်ပါ။ မေးခွန်းစာရင်းကို ပြန်စစ်ပါ။')
       setView('review')
@@ -571,8 +627,8 @@ export default function ValueMapModule({
       assessmentType: ASSESSMENT_TYPE,
       assessmentName: 'ValueMap',
       questionBankVersion: VALUEMAP_VERSION,
-      level: ASSESSMENT_LEVEL,
-      questionCount: VALUEMAP_QUESTIONS_20.length,
+      level,
+      questionCount: activeQuestions.length,
       startedAt: startedAt || new Date().toISOString(),
       createdAt: new Date().toISOString(),
       answers: { ...answers },
@@ -585,7 +641,7 @@ export default function ValueMapModule({
     if (!ok) {
       setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
     }
-    const cleared = clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const cleared = clearDraft(level, ASSESSMENT_TYPE)
     if (!cleared) reportStorageWrite(false)
     setRecord(completed)
     setDraft(null)
@@ -595,12 +651,12 @@ export default function ValueMapModule({
   }
 
   const retake = () => {
-    const existingDraft = loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const existingDraft = loadDraft(level, ASSESSMENT_TYPE)
     const warning = existingDraft
       ? 'အရင်ရလဒ်ကို History ထဲမှာ ထိန်းထားပါမယ်။ မပြီးသေးတဲ့ ValueMap Draft ရှိနေတဲ့အတွက် အသစ်စတင်ပါက အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။'
       : 'အရင်ရလဒ်ကို History ထဲမှာ ထိန်းထားပြီး စမ်းသပ်မှုအသစ် စတင်မှာဖြစ်ပါတယ်။ ဆက်လုပ်မှာ သေချာပါသလား။'
     if (!window.confirm(warning)) return
-    const cleared = clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const cleared = clearDraft(level, ASSESSMENT_TYPE)
     if (!cleared) reportStorageWrite(false)
     const now = new Date().toISOString()
     setAnswers({})
@@ -610,7 +666,7 @@ export default function ValueMapModule({
     setRecord(null)
     const emptyDraft = {
       assessmentType: ASSESSMENT_TYPE, questionBankVersion: VALUEMAP_VERSION,
-      level: ASSESSMENT_LEVEL, answers: {}, skippedQuestionIds: [], currentIndex: 0,
+      level, answers: {}, skippedQuestionIds: [], currentIndex: 0,
       startedAt: now, updatedAt: now, status: 'in-progress',
     }
     const saved = saveDraft(emptyDraft)
@@ -620,8 +676,8 @@ export default function ValueMapModule({
     setView('question')
   }
 
-  if (view === 'question') return <><QuestionView answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#2c4a34] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
-  if (view === 'review') return <><ReviewView answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#2c4a34] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
+  if (view === 'question') return <><QuestionView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#2c4a34] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
+  if (view === 'review') return <><ReviewView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#2c4a34] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
   if (view === 'result') return <ResultView record={record || initialRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />
-  return <GuideView draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />
+  return <GuideView level={level} onSelectLevel={handleSelectLevel} questionCount={activeQuestions.length} draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />
 }

@@ -1,27 +1,44 @@
 import {
   VALUEMAP_DIMENSIONS,
   VALUEMAP_QUESTIONS_20,
+  VALUEMAP_QUESTIONS_40,
+  VALUEMAP_QUESTIONS_40_EXTRA,
+  getValueMapQuestionsForLevel,
 } from '../data/valueMapPilot.js'
 
-export function validateValueMapAnswers(answers) {
+function resolveQuestionSet(answers, level = null) {
+  if (Number(level) === 40) return VALUEMAP_QUESTIONS_40
+  if (Number(level) === 20) return VALUEMAP_QUESTIONS_20
+  const hasExtendedItem = answers && typeof answers === 'object' && !Array.isArray(answers)
+    ? VALUEMAP_QUESTIONS_40_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))
+    : false
+  return hasExtendedItem ? VALUEMAP_QUESTIONS_40 : VALUEMAP_QUESTIONS_20
+}
+
+export function validateValueMapAnswers(answers, level = null) {
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return false
+  const allowedQuestions = Number(level) === 20
+    ? VALUEMAP_QUESTIONS_20
+    : VALUEMAP_QUESTIONS_40
   return Object.entries(answers).every(([id, value]) => {
-    const knownQuestion = VALUEMAP_QUESTIONS_20.some((question) => question.id === id)
+    const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5
   })
 }
 
-export function scoreValueMap(answers) {
+export function scoreValueMap(answers, level = null) {
   const safeAnswers = answers && typeof answers === 'object' && !Array.isArray(answers)
     ? answers
     : {}
-  const missingQuestionIds = VALUEMAP_QUESTIONS_20
+  const activeQuestions = level ? getValueMapQuestionsForLevel(level) : resolveQuestionSet(safeAnswers)
+  const missingQuestionIds = activeQuestions
     .filter((question) => !Number.isInteger(safeAnswers[question.id]) || safeAnswers[question.id] < 1 || safeAnswers[question.id] > 5)
     .map((question) => question.id)
 
-  if (missingQuestionIds.length > 0 || !validateValueMapAnswers(safeAnswers)) {
+  if (missingQuestionIds.length > 0 || !validateValueMapAnswers(safeAnswers, activeQuestions.length)) {
     return {
       complete: false,
+      questionCount: activeQuestions.length,
       missingQuestionIds,
       dimensions: [],
       note: 'မေးခွန်းအားလုံး မဖြေဆိုရသေးသောကြောင့် အပြီးသတ်ရလဒ် မတွက်ချက်ရသေးပါ။',
@@ -29,7 +46,7 @@ export function scoreValueMap(answers) {
   }
 
   const dimensions = VALUEMAP_DIMENSIONS.map((dimension) => {
-    const questions = VALUEMAP_QUESTIONS_20
+    const questions = activeQuestions
       .filter((question) => question.dimensionId === dimension.id)
     const keyedScores = questions.map((question) => {
       const response = safeAnswers[question.id]
@@ -51,6 +68,7 @@ export function scoreValueMap(answers) {
 
   return {
     complete: true,
+    questionCount: activeQuestions.length,
     missingQuestionIds: [],
     dimensions,
     note: 'စမ်းသပ်မူကြမ်း (Pilot Reflection) အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု အညွှန်းသာဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုရမှတ် မဟုတ်ပါ။',

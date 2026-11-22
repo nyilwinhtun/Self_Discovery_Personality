@@ -170,3 +170,154 @@ export const BONDSENSE_QUESTIONS_20 = [
     text: 'ကိုယ်တိုင် အမှားလုပ်မိတဲ့အခါ ဆင်ခြေမပေးဘဲ ရိုးရိုးသားသား တောင်းပန်ပြီး ပြန်ပြင်ဆင်နိုင်ပါတယ်။',
   },
 ]
+
+export const BONDSENSE_QUESTIONS_40_EXTRA = [
+  {
+    id: 'bs-21',
+    dimensionId: 'trust-openness',
+    reverse: false,
+    text: 'ကိုယ့်စိတ်ထဲက စိုးရိမ်မှုတစ်ခုကို ရင်းနှီးသူတစ်ဦးနဲ့ မျှဝေပြီးနောက် စိတ်ပေါ့ပါးသွားတယ်လို့ ခံစားရတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-22',
+    dimensionId: 'healthy-boundaries',
+    reverse: false,
+    text: 'သူတစ်ပါးရဲ့ ကိစ္စတွေကို ကိုယ်တိုင်တာဝန်ယူ ဖြေရှင်းပေးမယ့်အစား သူတို့ကိုယ်တိုင် ဖြေရှင်းနိုင်ဖို့ နေရာပေးတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-23',
+    dimensionId: 'empathy-listening',
+    reverse: false,
+    text: 'တစ်ဖက်သား ပြောနေတဲ့ စကားလုံးတွေအပြင် သူ့မျက်နှာအမူအရာနဲ့ လေသံကနေ ခံစားချက်ကို သတိထားမိတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-24',
+    dimensionId: 'conflict-navigation',
+    reverse: false,
+    text: 'ပြဿနာတစ်ခုကို ဆွေးနွေးတဲ့အခါ အရင်တုန်းက အမှားဟောင်းတွေကို ပြန်မဖော်ဘဲ လက်ရှိအကြောင်းအရာကိုပဲ အာရုံစိုက်တတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-25',
+    dimensionId: 'trust-openness',
+    reverse: true,
+    text: 'ကိုယ်တကယ် ခံစားနေရတာကို ဖွင့်ပြောလိုက်ရင် အထင်သေးခံရမလားလို့ စိုးရိမ်ပြီး ဟန်ဆောင်ပြုံးနေမိတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-26',
+    dimensionId: 'healthy-boundaries',
+    reverse: true,
+    text: 'မိသားစု သို့မဟုတ် မိတ်ဆွေတွေက ကိုယ့်ကိုယ်ရေးကိုယ်တာ ကိစ္စတွေမှာ ဝင်ရောက်ဆုံးဖြတ်ပေးတဲ့အခါ မကြိုက်ပေမယ့် မပြောဘဲ နေမိတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-27',
+    dimensionId: 'empathy-listening',
+    reverse: true,
+    text: 'တစ်ဖက်သား ရင်ဖွင့်နေချိန်မှာ “အဲဒါ ဘာမှမဟုတ်ပါဘူး” လို့ အလွယ်တကူ နှစ်သိမ့်မိပြီး သူ့ခံစားချက်ကို လျှော့တွက်မိတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-28',
+    dimensionId: 'conflict-navigation',
+    reverse: true,
+    text: 'စိတ်ဆိုးနေချိန်မှာ နှုတ်ဆိတ်သွားပြီး တစ်ဖက်သား ဘာဖြစ်မှန်းမသိအောင် အေးစက်စက် ဆက်ဆံမိတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-29',
+    dimensionId: 'trust-openness',
+    reverse: false,
+    text: 'ရင်းနှီးသူတစ်ဦးဆီက စိတ်ပျက်စရာတစ်ခု ကြုံရရင်တောင် တစ်ခါတည်း အဆက်အသွယ်ဖြတ်မပစ်ဘဲ ပြန်လည်ဆွေးနွေးဖို့ အခွင့်အရေးပေးတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-30',
+    dimensionId: 'healthy-boundaries',
+    reverse: false,
+    text: 'ကိုယ့်အတွက် အဆင်မပြေတဲ့ စကားအသုံးအနှုန်း သို့မဟုတ် အပြုအမူမျိုးကို ယဉ်ကျေးပြီး တည်ငြိမ်စွာ သတိပေးပြောဆိုနိုင်ပါတယ်။',
+  },
+  {
+    id: 'bs-31',
+    dimensionId: 'empathy-listening',
+    reverse: false,
+    text: 'ကိုယ်နဲ့ အမြင်မတူတဲ့သူ ပြောတာကိုတောင် သူ့ဘက်က အခြေအနေကို နားလည်အောင် စိတ်ရှည်ရှည် နားထောင်ပေးနိုင်ပါတယ်။',
+  },
+  {
+    id: 'bs-32',
+    dimensionId: 'conflict-navigation',
+    reverse: false,
+    text: 'သဘောထားကွဲလွဲမှု ပြီးသွားတဲ့နောက် တစ်ဖက်သားအပေါ် စိတ်ထဲမှာ အငြိုးအတေး မထားဘဲ ပုံမှန်အတိုင်း ပြန်ဆက်ဆံနိုင်ပါတယ်။',
+  },
+  {
+    id: 'bs-33',
+    dimensionId: 'trust-openness',
+    reverse: true,
+    text: 'လူတွေကို ယုံကြည်မိလိုက်ရင် နောက်ဆုံးမှာ စိတ်ထိခိုက်ရမယ်လို့ တွေးပြီး ခပ်ခွာခွာပဲ နေတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-34',
+    dimensionId: 'healthy-boundaries',
+    reverse: true,
+    text: 'တစ်ဖက်သား စိတ်ဆိုးမှာစိုးလို့ ကိုယ်မပေးနိုင်တဲ့ ကတိတွေကို အလွယ်တကူ ပေးမိတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-35',
+    dimensionId: 'empathy-listening',
+    reverse: true,
+    text: 'တစ်စုံတစ်ယောက် စကားပြောနေချိန်မှာ ကိုယ်ဘာပြန်ပြောရမလဲဆိုတာကိုပဲ ကြိုတွေးနေမိလို့ သူ့စကားအချို့ကို လွတ်သွားတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-36',
+    dimensionId: 'conflict-navigation',
+    reverse: true,
+    text: 'အငြင်းပွားမှု ဖြစ်လာရင် တစ်ဖက်သားကို အပြစ်တင်တဲ့ စကားလုံးတွေ အရင်ထွက်သွားမိတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-37',
+    dimensionId: 'trust-openness',
+    reverse: true,
+    text: 'ကိုယ့်လိုအပ်ချက်ကို တိုက်ရိုက်မပြောဘဲ တစ်ဖက်သားက အလိုလို နားလည်ပေးစေချင်တဲ့ စိတ်မျိုး ဖြစ်တတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-38',
+    dimensionId: 'healthy-boundaries',
+    reverse: true,
+    text: 'အခြားသူတွေရဲ့ စိတ်ခံစားချက် မကောင်းဖြစ်နေတာကို မြင်ရင် ကိုယ့်ကြောင့်လားဆိုပြီး မလိုအပ်ဘဲ အပြစ်ရှိသလို ခံစားရတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-39',
+    dimensionId: 'empathy-listening',
+    reverse: true,
+    text: 'ကိုယ်နဲ့ မတူတဲ့ အတွေ့အကြုံကို တစ်ဖက်သား ပြောပြတဲ့အခါ နားလည်ပေးဖို့ထက် ဘာကြောင့် မှားနေသလဲဆိုတာကိုပဲ မြင်မိတတ်ပါတယ်။',
+  },
+  {
+    id: 'bs-40',
+    dimensionId: 'conflict-navigation',
+    reverse: true,
+    text: 'ဆက်ဆံရေးမှာ အဆင်မပြေမှုလေးတစ်ခု ဖြစ်လာရင် ပြန်ညှိနှိုင်းဖို့ထက် ဒီတိုင်းပဲ ဝေးသွားလိုက်ချင်စိတ် ပေါ်လာတတ်ပါတယ်။',
+  },
+]
+
+export const BONDSENSE_QUESTIONS_40 = [
+  ...BONDSENSE_QUESTIONS_20,
+  ...BONDSENSE_QUESTIONS_40_EXTRA,
+]
+
+export const BONDSENSE_LEVELS = [
+  {
+    value: 20,
+    title: 'အခြေခံ ၂၀ မေးခွန်း',
+    subtitle: 'ဆက်ဆံရေးပုံစံ အဓိက အချက် ၄ ချက်ကို အကျဉ်းချုပ် သုံးသပ်ရန်',
+    duration: '~၄ မိနစ်',
+    label: 'အခြေခံ',
+    recommended: true,
+  },
+  {
+    value: 40,
+    title: 'အသေးစိတ် ၄၀ မေးခွန်း',
+    subtitle: 'အချက် ၄ ချက်ကို မေးခွန်းပိုများဖြင့် ပိုမိုစုံလင်စွာ သုံးသပ်ရန်',
+    duration: '~၈ မိနစ်',
+    label: 'အသေးစိတ်',
+    recommended: false,
+  },
+]
+
+export function getBondSenseQuestionsForLevel(level = 20) {
+  return Number(level) === 40 ? BONDSENSE_QUESTIONS_40 : BONDSENSE_QUESTIONS_20
+}

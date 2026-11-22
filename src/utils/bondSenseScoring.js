@@ -1,27 +1,44 @@
 import {
   BONDSENSE_DIMENSIONS,
   BONDSENSE_QUESTIONS_20,
+  BONDSENSE_QUESTIONS_40,
+  BONDSENSE_QUESTIONS_40_EXTRA,
+  getBondSenseQuestionsForLevel,
 } from '../data/bondSensePilot.js'
 
-export function validateBondSenseAnswers(answers) {
+function resolveQuestionSet(answers, level = null) {
+  if (Number(level) === 40) return BONDSENSE_QUESTIONS_40
+  if (Number(level) === 20) return BONDSENSE_QUESTIONS_20
+  const hasExtendedItem = answers && typeof answers === 'object' && !Array.isArray(answers)
+    ? BONDSENSE_QUESTIONS_40_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))
+    : false
+  return hasExtendedItem ? BONDSENSE_QUESTIONS_40 : BONDSENSE_QUESTIONS_20
+}
+
+export function validateBondSenseAnswers(answers, level = null) {
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return false
+  const allowedQuestions = Number(level) === 20
+    ? BONDSENSE_QUESTIONS_20
+    : BONDSENSE_QUESTIONS_40
   return Object.entries(answers).every(([id, value]) => {
-    const knownQuestion = BONDSENSE_QUESTIONS_20.some((question) => question.id === id)
+    const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5
   })
 }
 
-export function scoreBondSense(answers) {
+export function scoreBondSense(answers, level = null) {
   const safeAnswers = answers && typeof answers === 'object' && !Array.isArray(answers)
     ? answers
     : {}
-  const missingQuestionIds = BONDSENSE_QUESTIONS_20
+  const activeQuestions = level ? getBondSenseQuestionsForLevel(level) : resolveQuestionSet(safeAnswers)
+  const missingQuestionIds = activeQuestions
     .filter((question) => !Number.isInteger(safeAnswers[question.id]) || safeAnswers[question.id] < 1 || safeAnswers[question.id] > 5)
     .map((question) => question.id)
 
-  if (missingQuestionIds.length > 0 || !validateBondSenseAnswers(safeAnswers)) {
+  if (missingQuestionIds.length > 0 || !validateBondSenseAnswers(safeAnswers, activeQuestions.length)) {
     return {
       complete: false,
+      questionCount: activeQuestions.length,
       missingQuestionIds,
       dimensions: [],
       note: 'မေးခွန်းအားလုံး မဖြေဆိုရသေးသောကြောင့် အပြီးသတ်ရလဒ် မတွက်ချက်ရသေးပါ။',
@@ -29,7 +46,7 @@ export function scoreBondSense(answers) {
   }
 
   const dimensions = BONDSENSE_DIMENSIONS.map((dimension) => {
-    const questions = BONDSENSE_QUESTIONS_20
+    const questions = activeQuestions
       .filter((question) => question.dimensionId === dimension.id)
     const keyedScores = questions.map((question) => {
       const response = safeAnswers[question.id]
@@ -51,6 +68,7 @@ export function scoreBondSense(answers) {
 
   return {
     complete: true,
+    questionCount: activeQuestions.length,
     missingQuestionIds: [],
     dimensions,
     note: 'စမ်းသပ်မူကြမ်း (Pilot Reflection) အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု အညွှန်းသာဖြစ်ပြီး ဆေးဘက်ဆိုင်ရာ သို့မဟုတ် စိတ်ပညာဆိုင်ရာ အတည်ပြုရမှတ် မဟုတ်ပါ။',

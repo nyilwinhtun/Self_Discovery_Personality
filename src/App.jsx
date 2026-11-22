@@ -156,12 +156,10 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
   const careerProgress = Math.round((careerAnswered / 30) * 100)
   const innerCompassDraft30 = drafts?.innerCompass?.['30'] || null
   const innerCompassDraft60 = drafts?.innerCompass?.['60'] || null
-  const bondSenseDraft = drafts?.bondSense?.['20'] || null
-  const bondSenseAnswered = Object.keys(bondSenseDraft?.answers || {}).length
-  const bondSenseProgress = Math.round((bondSenseAnswered / 20) * 100)
-  const valueMapDraft = drafts?.valueMap?.['20'] || null
-  const valueMapAnswered = Object.keys(valueMapDraft?.answers || {}).length
-  const valueMapProgress = Math.round((valueMapAnswered / 20) * 100)
+  const bondSenseDraft20 = drafts?.bondSense?.['20'] || null
+  const bondSenseDraft40 = drafts?.bondSense?.['40'] || null
+  const valueMapDraft20 = drafts?.valueMap?.['20'] || null
+  const valueMapDraft40 = drafts?.valueMap?.['40'] || null
   const emotionLensDraft20 = drafts?.emotionLens?.['20'] || null
   const emotionLensDraft40 = drafts?.emotionLens?.['40'] || null
   const recentPersonalityHistory = history.slice(0, 3)
@@ -427,20 +425,49 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
               <p className="mt-1 text-xs font-semibold text-[#7c392b]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p>
               <p className="mt-2 flex-1 text-xs leading-6 text-[#6a4840]">ယုံကြည်မှု၊ ကိုယ်ပိုင်နယ်နိမိတ်၊ စာနာနားထောင်ပေးမှုနှင့် သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံတို့ကို ပြန်လည်သုံးသပ်ပါ။</p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#7c392b]">
-                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">မေးခွန်း ၂၀</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#fdf3f0] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
+                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#fdf3f0] px-2.5 py-1"><Clock3 size={11} /> ~၄–၈ မိနစ်</span>
                 <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">အချက် ၄ ချက်</span>
               </div>
-              {bondSenseDraft ? (
-                <div className="mt-4 rounded-xl bg-[#fdf7f5] p-3">
-                  <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#7c392b]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6d4b44]">{bondSenseProgress}%</span></div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#f0dfdb]"><div className="h-full rounded-full bg-[#924433]" style={{ width: `${bondSenseProgress}%` }} /></div>
-                  <p className="mt-2 text-[11px] text-[#6d4b44]">ဖြေပြီး {bondSenseAnswered} ခု · ကျော်ထား {(bondSenseDraft.skippedQuestionIds || []).filter((id) => bondSenseDraft.answers?.[id] === undefined).length} ခု</p>
-                  <button onClick={onOpenBondSense} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#924433] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#7d3829]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
-                </div>
-              ) : (
-                <button onClick={onOpenBondSense} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#e5cbc5] bg-[#fdf7f5] px-4 py-2.5 text-xs font-semibold text-[#7c392b] transition hover:bg-[#faeae5]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
-              )}
+              <div className="mt-4 grid gap-2.5">
+                {[
+                  {
+                    levelValue: 20,
+                    title: 'အခြေခံ ၂၀ မေးခွန်း',
+                    duration: '~၄ မိနစ်',
+                    draft: bondSenseDraft20,
+                  },
+                  {
+                    levelValue: 40,
+                    title: 'အသေးစိတ် ၄၀ မေးခွန်း',
+                    duration: '~၈ မိနစ်',
+                    draft: bondSenseDraft40,
+                  },
+                ].map((item) => {
+                  const answered = Object.keys(item.draft?.answers || {}).length
+                  const skipped = (item.draft?.skippedQuestionIds || []).filter((id) => item.draft?.answers?.[id] === undefined).length
+                  const progress = Math.round((answered / item.levelValue) * 100)
+                  if (item.draft) {
+                    return (
+                      <div key={item.levelValue} className="rounded-xl border border-[#ebd6d1] bg-[#fdf7f5] p-3">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-semibold text-[#7c392b]">{item.title} · ဆက်လက်ဖြေဆိုရန်</span>
+                          <span className="text-[#6d4b44]">{progress}%</span>
+                        </div>
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#f0dfdb]"><div className="h-full rounded-full bg-[#924433]" style={{ width: `${progress}%` }} /></div>
+                        <p className="mt-1.5 text-[11px] text-[#6d4b44]">ဖြေပြီး {answered}/{item.levelValue} · ကျော်ထား {skipped} ခု</p>
+                        <button onClick={() => onOpenBondSense(item.levelValue)} className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#924433] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#7d3829]">ဆက်လက်ဖြေဆိုမယ် ({item.levelValue}) <ArrowRight size={14} /></button>
+                      </div>
+                    )
+                  }
+                  return (
+                    <button key={item.levelValue} onClick={() => onOpenBondSense(item.levelValue)} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-[#e5cbc5] bg-[#fdf7f5] px-3.5 py-2.5 text-left text-xs font-semibold text-[#7c392b] transition hover:bg-[#faeae5]">
+                      <span>{item.title}</span>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-[#924433]">{item.duration} <ArrowRight size={14} /></span>
+                    </button>
+                  )
+                })}
+              </div>
             </article>
 
             <article className="flex flex-col rounded-2xl border border-[#d4e1d7] bg-white p-5 shadow-sm md:col-span-4">
@@ -452,20 +479,49 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
               <p className="mt-1 text-xs font-semibold text-[#33573d]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p>
               <p className="mt-2 flex-1 text-xs leading-6 text-[#465e4c]">လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ထဲမှ ကိုယ်အလေးထားရာကို ပြန်လည်သုံးသပ်ပါ။</p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#33573d]">
-                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">မေးခွန်း ၂၀</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#eef5f0] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
+                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#eef5f0] px-2.5 py-1"><Clock3 size={11} /> ~၄–၈ မိနစ်</span>
                 <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">အချက် ၄ ချက်</span>
               </div>
-              {valueMapDraft ? (
-                <div className="mt-4 rounded-xl bg-[#f5f9f6] p-3">
-                  <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#33573d]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#475e4d]">{valueMapProgress}%</span></div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#dce7df]"><div className="h-full rounded-full bg-[#3d6347]" style={{ width: `${valueMapProgress}%` }} /></div>
-                  <p className="mt-2 text-[11px] text-[#475e4d]">ဖြေပြီး {valueMapAnswered} ခု · ကျော်ထား {(valueMapDraft.skippedQuestionIds || []).filter((id) => valueMapDraft.answers?.[id] === undefined).length} ခု</p>
-                  <button onClick={onOpenValueMap} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#3d6347] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#31523a]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
-                </div>
-              ) : (
-                <button onClick={onOpenValueMap} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cad9ce] bg-[#f5f9f6] px-4 py-2.5 text-xs font-semibold text-[#33573d] transition hover:bg-[#e8f2eb]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
-              )}
+              <div className="mt-4 grid gap-2.5">
+                {[
+                  {
+                    levelValue: 20,
+                    title: 'အခြေခံ ၂၀ မေးခွန်း',
+                    duration: '~၄ မိနစ်',
+                    draft: valueMapDraft20,
+                  },
+                  {
+                    levelValue: 40,
+                    title: 'အသေးစိတ် ၄၀ မေးခွန်း',
+                    duration: '~၈ မိနစ်',
+                    draft: valueMapDraft40,
+                  },
+                ].map((item) => {
+                  const answered = Object.keys(item.draft?.answers || {}).length
+                  const skipped = (item.draft?.skippedQuestionIds || []).filter((id) => item.draft?.answers?.[id] === undefined).length
+                  const progress = Math.round((answered / item.levelValue) * 100)
+                  if (item.draft) {
+                    return (
+                      <div key={item.levelValue} className="rounded-xl border border-[#d4e1d7] bg-[#f5f9f6] p-3">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-semibold text-[#33573d]">{item.title} · ဆက်လက်ဖြေဆိုရန်</span>
+                          <span className="text-[#475e4d]">{progress}%</span>
+                        </div>
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#dce7df]"><div className="h-full rounded-full bg-[#3d6347]" style={{ width: `${progress}%` }} /></div>
+                        <p className="mt-1.5 text-[11px] text-[#475e4d]">ဖြေပြီး {answered}/{item.levelValue} · ကျော်ထား {skipped} ခု</p>
+                        <button onClick={() => onOpenValueMap(item.levelValue)} className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#3d6347] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#31523a]">ဆက်လက်ဖြေဆိုမယ် ({item.levelValue}) <ArrowRight size={14} /></button>
+                      </div>
+                    )
+                  }
+                  return (
+                    <button key={item.levelValue} onClick={() => onOpenValueMap(item.levelValue)} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-[#cad9ce] bg-[#f5f9f6] px-3.5 py-2.5 text-left text-xs font-semibold text-[#33573d] transition hover:bg-[#e8f2eb]">
+                      <span>{item.title}</span>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-[#3d6347]">{item.duration} <ArrowRight size={14} /></span>
+                    </button>
+                  )
+                })}
+              </div>
             </article>
 
             <article className="flex flex-col rounded-2xl border border-[#cce0e2] bg-white p-5 shadow-sm md:col-span-4">
@@ -1155,6 +1211,8 @@ export default function App() {
   const valueMapPersistRef = useRef(null)
   const emotionLensPersistRef = useRef(null)
   const [innerCompassLevel, setInnerCompassLevel] = useState(30)
+  const [bondSenseLevel, setBondSenseLevel] = useState(20)
+  const [valueMapLevel, setValueMapLevel] = useState(20)
   const [emotionLensLevel, setEmotionLensLevel] = useState(20)
   const questions = useMemo(() => getQuestionsForLevel(level), [level])
   const currentDraft = appData.drafts?.personality?.[String(level)] || null
@@ -1626,7 +1684,7 @@ export default function App() {
   return (
     <div className={cn('min-h-screen bg-[#faf8f5] text-[#242029]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={(selectedLevel = 20) => { setActiveRecord(null); setBondSenseLevel(selectedLevel === 40 ? 40 : 20); setPage('bondSense') }} onOpenValueMap={(selectedLevel = 20) => { setActiveRecord(null); setValueMapLevel(selectedLevel === 40 ? 40 : 20); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'mindProfile' && (
         <Suspense fallback={<ModuleLoadingFallback />}>
           <MyMindProfile
@@ -1656,8 +1714,8 @@ export default function App() {
       {page === 'careerInterest' && <Suspense fallback={<ModuleLoadingFallback />}><CareerInterestModule key={activeRecord?.id || 'career-new'} record={activeRecord?.assessmentType === 'careerInterest' ? activeRecord : null} onHome={handleNavigateHome} onDataChange={setAppData} persistRef={careerPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
       {page === 'instructions' && <InstructionsPage level={level} onBack={() => setPage('home')} onBegin={handleBegin} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
       {page === 'innerCompass' && <Suspense fallback={<ModuleLoadingFallback />}><InnerCompassModule key={activeRecord?.id || `inner-compass-${innerCompassLevel}`} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} initialLevel={innerCompassLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
-      {page === 'bondSense' && <Suspense fallback={<ModuleLoadingFallback />}><BondSenseModule key={activeRecord?.id || 'bondsense-active'} initialRecord={activeRecord?.assessmentType === 'bondSense' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={bondSensePersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
-      {page === 'valueMap' && <Suspense fallback={<ModuleLoadingFallback />}><ValueMapModule key={activeRecord?.id || 'valuemap-active'} initialRecord={activeRecord?.assessmentType === 'valueMap' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={valueMapPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
+      {page === 'bondSense' && <Suspense fallback={<ModuleLoadingFallback />}><BondSenseModule key={activeRecord?.id || `bondsense-${bondSenseLevel}`} initialRecord={activeRecord?.assessmentType === 'bondSense' ? activeRecord : null} initialLevel={bondSenseLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={bondSensePersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
+      {page === 'valueMap' && <Suspense fallback={<ModuleLoadingFallback />}><ValueMapModule key={activeRecord?.id || `valuemap-${valueMapLevel}`} initialRecord={activeRecord?.assessmentType === 'valueMap' ? activeRecord : null} initialLevel={valueMapLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={valueMapPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'emotionLens' && <Suspense fallback={<ModuleLoadingFallback />}><EmotionLensModule key={activeRecord?.id || `emotionlens-${emotionLensLevel}`} initialRecord={activeRecord?.assessmentType === 'emotionLens' ? activeRecord : null} initialLevel={emotionLensLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={emotionLensPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} />}
       {page === 'review' && <ReviewPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={handleGoToQuestion} onFinish={handleFinish} onBack={() => setPage('assessment')} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
