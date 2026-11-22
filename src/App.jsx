@@ -21,6 +21,7 @@ import {
   loadAppData, loadDraft, restoreBackupData, saveAssessmentWithStatus, saveDraft,
 } from './utils/storage.js'
 
+const BalancedSpectrumBar = lazy(() => import('./components/BalancedSpectrumBar.jsx'))
 const BondSenseModule = lazy(() => import('./components/BondSenseModule.jsx'))
 const CareerInterestModule = lazy(() => import('./components/CareerInterestModule.jsx'))
 const InnerCompassModule = lazy(() => import('./components/InnerCompassModule.jsx'))
@@ -28,6 +29,7 @@ const KnowledgeCenter = lazy(() => import('./components/KnowledgeCenter.jsx'))
 const KnowledgeInlineHelp = lazy(() => import('./components/KnowledgeInlineHelp.jsx'))
 const LikertScaleSelector = lazy(() => import('./components/LikertScaleSelector.jsx'))
 const ReflectionNotesSection = lazy(() => import('./components/ReflectionNotesSection.jsx'))
+const ResultShareCardButton = lazy(() => import('./components/ResultShareCardButton.jsx'))
 const TraitRadarChart = lazy(() => import('./components/TraitRadarChart.jsx'))
 const ValueMapModule = lazy(() => import('./components/ValueMapModule.jsx'))
 
@@ -751,7 +753,7 @@ function TraitReportCard({ trait, score }) {
         </div>
         <div className="shrink-0 text-right"><div className="text-lg font-bold tabular-nums text-[#80678f]">{score}<span className="text-[11px] font-medium text-[#6b5e70]"> / 100</span></div><div className="text-[11px] text-[#6b5e70]">{getScoreBand(score)}</div></div>
       </div>
-      <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#f2edf3]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${score}%` }} /></div>
+      <Suspense fallback={null}><BalancedSpectrumBar score={score} poleId={trait.id} /></Suspense>
       {insight && <>
         <p className="mt-3 rounded-xl bg-[#faf7fb] px-3 py-2 text-[11px] font-semibold leading-6 text-[#80678f]">{insight.label}</p>
         <div className="mt-4 space-y-3 text-xs leading-7 text-[#6b5e70]">
@@ -831,7 +833,7 @@ function ResultsPage({ record, onHome, onRetake, storageAlertVisible, onExportBa
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={BookOpen}>Print</SecondaryButton></div></div>
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</SecondaryButton><Suspense fallback={null}><ResultShareCardButton getCardConfig={() => ({ preset: 'traitLens', record, scores })} /></Suspense><SecondaryButton onClick={() => window.print()} icon={BookOpen}>Print</SecondaryButton></div></div>
       <ReportSectionNavigation items={[
         { id: 'trait-report-overview', label: 'အနှစ်ချုပ်' },
         { id: 'trait-report-areas', label: 'အချက် ၅ ချက်' },

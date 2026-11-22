@@ -8,11 +8,13 @@ import {
   ResponsiveContainer, Tooltip,
 } from 'recharts'
 import { InnerCompassLogo } from './AssessmentLogos.jsx'
+import BalancedSpectrumBar from './BalancedSpectrumBar.jsx'
 import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
 import LikertScaleSelector from './LikertScaleSelector.jsx'
 import ReflectionNotesSection from './ReflectionNotesSection.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
+import ResultShareCardButton from './ResultShareCardButton.jsx'
 import StorageWriteAlert from './StorageWriteAlert.jsx'
 import {
   INNERCOMPASS_V02_ANSWER_OPTIONS,
@@ -28,6 +30,14 @@ import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft
 
 const ASSESSMENT_TYPE = 'innerCompass'
 const ACCENT = '#446c96'
+const INNERCOMPASS_SPECTRUM_POLES = {
+  'trust-accountability': ['အခြေအနေအလိုက် ချိန်ညှိတတ်မှု', 'ကတိနှင့် တာဝန်ခံမှု ခိုင်မာခြင်း'],
+  'emotional-awareness-regulation': ['ခံစားချက်ကို တိုက်ရိုက်ခံစားတုံ့ပြန်မှု', 'ခံစားချက်ကို သတိပြုထိန်းညှိမှု'],
+  'social-self-expression': ['တိတ်ဆိတ်စွာ နားထောင်လေ့လာမှု', 'ပွင့်လင်းစွာ ပါဝင်ဖော်ပြမှု'],
+  'disagreement-handling': ['ကိုယ်ပိုင်အမြင်ကို ခိုင်မာစွာ ရပ်တည်မှု', 'အမြင်မတူမှုကို ညှိနှိုင်းနားထောင်မှု'],
+  'personal-organization': ['အခြေအနေအလိုက် ပြောင်းလွယ်ပြင်လွယ်', 'စနစ်တကျ အဆင့်လိုက် စီမံမှု'],
+  'curiosity-open-thinking': ['လက်တွေ့တည်ငြိမ်သော အမြင်', 'စူးစမ်းတွေးခေါ်မှု ကျယ်ပြန့်ခြင်း'],
+}
 
 function cn(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -343,7 +353,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#4e6379] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#4e6379] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><ResultShareCardButton tone="blue" getCardConfig={() => ({ filename: `innercompass-result-${new Date(record.createdAt).toISOString().slice(0, 10)}.png`, subtitle: 'INNERCOMPASS · PILOT REFLECTION', title: 'အတွင်းစိတ် စိတ်နေသဘောထား ၆ ချက် အကျဉ်းချုပ်', metaLine: `မေးခွန်း ${recordQuestionCount === 60 ? '၆၀' : '၃၀'} · ${formatDate(record.createdAt)}`, items: dimensionInsights.map((d) => ({ label: d.name, score: d.index })), accentColor: '#446c96', trackColor: '#e6eff8', footerNote: 'InnerCompass သည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု reflection tool ဖြစ်ပြီး ရောဂါရှာဖွေမှု မဟုတ်ပါ။' })} /><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
       <ReportSectionNavigation tone="blue" items={[
         { id: 'inner-report-overview', label: 'အနှစ်ချုပ်' },
         { id: 'inner-report-areas', label: 'အချက် ၆ ချက်' },
@@ -366,7 +376,13 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
           {dimensionInsights.map((dimension) => (
             <article key={dimension.id} className="rounded-2xl border border-[#e4edf5] bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold leading-6 text-[#4f6680]">{dimension.name}</p><p className="mt-1 text-[11px] leading-5 text-[#4e6379]">{dimension.itemCount} မေးခွန်း · ပျမ်းမျှ {dimension.average}/5</p></div><span className="shrink-0 rounded-xl bg-[#eef4fa] px-3 py-2 text-sm font-bold tabular-nums text-[#446c96]">{dimension.index}/100</span></div>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#edf2f7]"><div className="h-full rounded-full bg-gradient-to-r from-[#6e94bc] to-[#adc5dc]" style={{ width: `${dimension.index}%` }}/></div>
+              <BalancedSpectrumBar
+                score={dimension.index}
+                leftLabel={(INNERCOMPASS_SPECTRUM_POLES[dimension.id] || ['နိမ့်ပိုင်း', 'မြင့်ပိုင်း'])[0]}
+                rightLabel={(INNERCOMPASS_SPECTRUM_POLES[dimension.id] || ['နိမ့်ပိုင်း', 'မြင့်ပိုင်း'])[1]}
+                tone="blue"
+                ariaLabel={`${dimension.name} — ${dimension.index}/100`}
+              />
               {dimension.insight && <>
                 <p className="mt-3 rounded-xl bg-[#f4f8fc] px-3 py-2 text-[11px] font-semibold leading-6 text-[#446c96]">{dimension.insight.label}</p>
                 <div className="mt-4 space-y-3 text-xs leading-7 text-[#4e6379]">

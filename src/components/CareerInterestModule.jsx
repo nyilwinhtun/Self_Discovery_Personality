@@ -14,6 +14,7 @@ import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
 import LikertScaleSelector from './LikertScaleSelector.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
+import ResultShareCardButton from './ResultShareCardButton.jsx'
 import StorageWriteAlert from './StorageWriteAlert.jsx'
 
 const ASSESSMENT_TYPE = 'careerInterest'
@@ -199,7 +200,7 @@ function CareerResultView({ record, onHome, onRetake, storageAlertVisible, onExp
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><Button secondary onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</Button><Button secondary onClick={() => window.print()} icon={ClipboardCheck}>Print</Button></div></div>
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><Button secondary onClick={downloadReport} icon={Download}>အစီရင်ခံစာ သိမ်းမယ်</Button><ResultShareCardButton tone="plum" getCardConfig={() => ({ filename: `career-interest-result-${new Date(record.createdAt).toISOString().slice(0, 10)}.png`, subtitle: 'CAREER INTEREST · RIASEC REFLECTION', title: 'အလုပ်အကိုင်စိတ်ဝင်စားမှု ၆ မျိုး အကျဉ်းချုပ်', metaLine: `မေးခွန်း ${record.questionCount || 30} · ${formatDate(record.createdAt)}`, highlightLine: `အဓိကစိတ်ဝင်စားမှု အတိုကောက်: ${result.code}`, items: ranked.map((c) => ({ label: `${c.name} (${c.id})`, score: result.scores[c.id].score })), accentColor: '#80678f', trackColor: '#efe8f1', footerNote: 'ရလဒ်များသည် လုပ်ဆောင်မှုအပေါ် စိတ်ဝင်စားမှုကိုသာ ဖော်ပြပြီး လက်ရှိကျွမ်းကျင်မှု သို့မဟုတ် အလုပ်အကိုင်သင့်တော်မှုကို တိုက်ရိုက်မဆုံးဖြတ်ပါ။' })} /><Button secondary onClick={() => window.print()} icon={ClipboardCheck}>Print</Button></div></div>
       <ReportSectionNavigation tone="plum" items={[
         { id: 'career-report-overview', label: 'အနှစ်ချုပ်' },
         { id: 'career-report-scores', label: 'စိတ်ဝင်စားမှု ၆ မျိုး' },

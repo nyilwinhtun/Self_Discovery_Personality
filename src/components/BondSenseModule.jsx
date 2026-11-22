@@ -12,6 +12,7 @@ import LikertScaleSelector from './LikertScaleSelector.jsx'
 import ReflectionNotesSection from './ReflectionNotesSection.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
+import ResultShareCardButton from './ResultShareCardButton.jsx'
 import StorageWriteAlert from './StorageWriteAlert.jsx'
 import {
   BONDSENSE_ANSWER_OPTIONS,
@@ -299,7 +300,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#6d4b44] hover:text-[#57342d]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#6d4b44] hover:text-[#57342d]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><ResultShareCardButton tone="terracotta" getCardConfig={() => ({ filename: `bondsense-result-${new Date(record.createdAt).toISOString().slice(0, 10)}.png`, subtitle: 'BONDSENSE · PILOT REFLECTION', title: 'ဆက်ဆံရေးပုံစံ အချက် ၄ ချက် အကျဉ်းချုပ်', metaLine: `မေးခွန်း ၂၀ · ${formatDate(record.createdAt)}`, items: dimensionInsights.map((d) => ({ label: d.name, score: d.index })), accentColor: '#924433', trackColor: '#f5e6e2', footerNote: 'BondSense သည် စမ်းသပ်မူကြမ်းအဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု reflection tool ဖြစ်ပြီး ရောဂါရှာဖွေမှု မဟုတ်ပါ။' })} /><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
       <ReportSectionNavigation tone="terracotta" items={[
         { id: 'bondsense-report-overview', label: 'အနှစ်ချုပ်' },
         { id: 'bondsense-report-areas', label: 'အချက် ၄ ချက်' },
