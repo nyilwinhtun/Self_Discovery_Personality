@@ -20,7 +20,7 @@ import {
 } from '../data/innerCompassDraftV02.js'
 import { downloadTextFile } from '../utils/download.js'
 import { scoreInnerCompassV02 } from '../utils/innerCompassV02Scoring.js'
-import { getInnerCompassReportInsight, REPORT_INTERPRETATION_NOTICE } from '../utils/resultInterpretations.js'
+import { getInnerCompassLifeDomainSummary, getInnerCompassReportInsight, REPORT_INTERPRETATION_NOTICE } from '../utils/resultInterpretations.js'
 import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
 
 const ASSESSMENT_TYPE = 'innerCompass'
@@ -237,6 +237,31 @@ function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack, sto
   )
 }
 
+function wrapInnerCompassLabel(value) {
+  const text = String(value || '')
+  if (text.length <= 11) return [text]
+  const spaceIndex = text.indexOf(' ', Math.floor(text.length / 3))
+  if (spaceIndex > 0 && spaceIndex < text.length - 2) {
+    return [text.slice(0, spaceIndex), text.slice(spaceIndex + 1)]
+  }
+  const mid = Math.ceil(text.length / 2)
+  return [text.slice(0, mid), text.slice(mid)]
+}
+
+function InnerCompassPolarTick({ payload, x, y, textAnchor }) {
+  const lines = wrapInnerCompassLabel(payload?.value)
+  const startDy = lines.length > 1 ? -4 : 4
+  return (
+    <text x={x} y={y} textAnchor={textAnchor} fill="#4e6379" fontSize={11} fontFamily="Noto Sans Myanmar">
+      {lines.map((line, index) => (
+        <tspan key={index} x={x} dy={index === 0 ? startDy : 13}>
+          {line}
+        </tspan>
+      ))}
+    </text>
+  )
+}
+
 function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const result = useMemo(() => scoreInnerCompassV02(record?.answers || {}), [record])
   if (!record || !result.complete) return null
@@ -246,6 +271,8 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
     ...dimension,
     insight: getInnerCompassReportInsight(dimension.id, dimension.index),
   }))
+  const scoreMap = Object.fromEntries(result.dimensions.map((item) => [item.id, { score: item.index }]))
+  const lifeDomains = getInnerCompassLifeDomainSummary(scoreMap)
 
   const downloadReport = () => {
     const lines = [
@@ -261,6 +288,12 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
         `နေ့စဉ်ဘဝ ဥပမာ: ${dimension.insight?.example || ''}`,
         `ပြန်လည်စဉ်းစားရန်: ${dimension.insight?.reflection || ''}`,
         `စမ်းကြည့်ရန်: ${dimension.insight?.tryThis || ''}`,
+        '',
+      ]),
+      'နေ့စဉ်ဘဝ ကဏ္ဍ ၃ ခုအလိုက် ပြန်လည်သုံးသပ်ချက်:',
+      ...lifeDomains.flatMap((domain) => [
+        `${domain.title} (${domain.subtitle}): ${domain.summary}`,
+        `ပြန်လည်စဉ်းစားရန်: ${domain.prompt}`,
         '',
       ]),
       REPORT_INTERPRETATION_NOTICE,
@@ -279,12 +312,13 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
       <ReportSectionNavigation tone="blue" items={[
         { id: 'inner-report-overview', label: 'အနှစ်ချုပ်' },
         { id: 'inner-report-areas', label: 'အချက် ၆ ချက်' },
+        { id: 'inner-report-domains', label: 'နေ့စဉ်ဘဝ ကဏ္ဍ ၃ ခု' },
         { id: 'inner-report-notes', label: 'ရလဒ်ဖတ်ရှုရန်' },
       ]} />
       <section id="inner-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#d4e0ef] bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 card-shadow sm:p-10">
         <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#446c96]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#446c96] shadow-sm"><InnerCompassLogo size={50}/></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#4e6379]">INNERCOMPASS · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#3f5873] sm:text-3xl">သင့်ရဲ့ ဖြေဆိုမှုအကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#4e6379]">မေးခွန်း ၃၀ · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#5f748b]">အောက်ပါရလဒ်တွေက ဒီမေးခွန်းမူကြမ်းအတွင်း သင်ရွေးချယ်ထားတဲ့ အဖြေတွေကို အချက် ၆ ချက်အလိုက် စုစည်းပြသထားပါတယ်။ ဒါတွေက သင့်ပင်ကိုစရိုက်ကို အပြီးသတ်သတ်မှတ်ပေးတာ မဟုတ်ပါ။</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
-          <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#4f6680]">အဓိက အချက် ၆ ချက်၏ ရမှတ်</h2><span className="text-[11px] text-[#4e6379]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="70%"><PolarGrid stroke="#e1eaf3"/><PolarAngleAxis dataKey="area" tick={{ fill: '#4e6379', fontSize: 11, fontFamily: 'Noto Sans Myanmar' }}/><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#4e6379', fontSize: 11 }} axisLine={false}/><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#9db9d5" fillOpacity={0.55} strokeWidth={2}/><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#dce6f0', fontSize: 12 }}/></RadarChart></ResponsiveContainer></div><p className="text-center text-[11px] leading-5 text-[#4e6379]">ဒီအညွှန်းဟာ ဖြေဆိုထားတဲ့အဖြေတွေကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါတယ်။</p></div>
+          <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#4f6680]">အဓိက အချက် ၆ ချက်၏ ရမှတ်</h2><span className="text-[11px] text-[#4e6379]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="54%" margin={{ top: 22, right: 42, bottom: 22, left: 42 }}><PolarGrid stroke="#e1eaf3"/><PolarAngleAxis dataKey="area" tick={<InnerCompassPolarTick />}/><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#4e6379', fontSize: 11 }} axisLine={false}/><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#9db9d5" fillOpacity={0.55} strokeWidth={2}/><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#dce6f0', fontSize: 12 }}/></RadarChart></ResponsiveContainer></div><p className="text-center text-[11px] leading-5 text-[#4e6379]">ဒီအညွှန်းဟာ ဖြေဆိုထားတဲ့အဖြေတွေကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါတယ်။</p></div>
           <div className="flex flex-col gap-3">
             {ordered.slice(0, 2).map((dimension, index) => <article key={dimension.id} className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#4e6379]">ဒီဖြေဆိုမှုအတွင်း အညွှန်းရမှတ် ပိုမြင့်နေသော အချက် {index + 1}</p><h3 className="mt-2 text-sm font-bold leading-6 text-[#3f5873]">{dimension.name}</h3><p className="mt-1 text-xl font-bold text-[#446c96]">{dimension.index} / 100</p><p className="mt-2 text-[11px] font-semibold leading-6 text-[#446c96]">{getInnerCompassReportInsight(dimension.id, dimension.index)?.label}</p><p className="mt-2 text-xs leading-7 text-[#4e6379]">{INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === dimension.id)?.description}</p></article>)}
             <div className="rounded-[1.5rem] border border-[#dce6f0] bg-white/75 p-5"><p className="text-xs font-bold text-[#4f6680]">ရလဒ်ကို ဖတ်ရှုရာတွင်</p><p className="mt-2 text-xs leading-7 text-[#4e6379]">ရမှတ်ပိုမြင့်ခြင်းဟာ ဒီမေးခွန်းအုပ်စုထဲက အပြုသဘောဖော်ပြထားတဲ့ အချက်တွေနဲ့ ပိုမိုကိုက်ညီတဲ့အဖြေတွေ ရှိတယ်လို့သာ အဓိပ္ပာယ်ရပါတယ်။ အခြားသူတွေနဲ့ နှိုင်းယှဉ်ထားတဲ့ ရမှတ်မဟုတ်သလို ကောင်းခြင်း၊ မကောင်းခြင်းကိုလည်း မဆုံးဖြတ်ပါ။</p></div>
@@ -307,6 +341,26 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
                   <div className="rounded-xl border border-[#e4edf5] p-3"><p className="font-bold text-[#446c96]">စမ်းကြည့်နိုင်တဲ့ အဆင့်ငယ်</p><p>{dimension.insight.tryThis}</p></div>
                 </div>
               </>}
+            </article>
+          ))}
+        </div>
+      </section>
+      <section id="inner-report-domains" className="mt-8 scroll-mt-28">
+        <div className="mb-4">
+          <p className="text-xs font-semibold tracking-wide text-[#4e6379]">EVERYDAY LIFE REFLECTION</p>
+          <h2 className="mt-1 text-xl font-bold text-[#3f5873]">နေ့စဉ်ဘဝ ကဏ္ဍ ၃ ခုအလိုက် ပြန်လည်သုံးသပ်ချက်</h2>
+          <p className="mt-2 text-xs leading-7 text-[#4e6379]">သင့်အဖြေများမှ ပေါ်လွင်သော လက်ရှိအလေ့အထများကို နေ့စဉ်ဘဝအခြေအနေ ၃ ခုနှင့် ဆက်စပ်ပြီး စဉ်းစားနိုင်ရန် ဖော်ပြထားပါသည်။ ယင်းတို့သည် အပြီးသတ်သတ်မှတ်ချက်များ မဟုတ်ပါ။</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {lifeDomains.map((domain) => (
+            <article key={domain.id} className="rounded-2xl border border-[#e4edf5] bg-white p-5 shadow-sm">
+              <p className="text-[11px] font-semibold tracking-wide text-[#446c96]">{domain.subtitle}</p>
+              <h3 className="mt-1 text-sm font-bold leading-6 text-[#3f5873]">{domain.title}</h3>
+              <p className="mt-3 text-xs leading-7 text-[#4e6379]">{domain.summary}</p>
+              <div className="mt-4 rounded-xl bg-[#f4f8fc] p-3">
+                <p className="text-[11px] font-bold text-[#405f82]">ကိုယ့်ကိုယ်ကို ပြန်မေးကြည့်ရန်</p>
+                <p className="mt-1 text-[11px] leading-6 text-[#4e6379]">{domain.prompt}</p>
+              </div>
             </article>
           ))}
         </div>
