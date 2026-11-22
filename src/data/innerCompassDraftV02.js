@@ -218,6 +218,89 @@ export const INNERCOMPASS_V02_QUESTIONS_60 = [
   ...INNERCOMPASS_V02_QUESTIONS_60_EXTRA,
 ]
 
+/**
+ * Additional 60 original reflection prompts for the 120-item (~20 min) mode.
+ * Balanced at 10 items per dimension (2 per theme, 2 reverse-scored per dimension).
+ */
+export const INNERCOMPASS_V02_QUESTIONS_120_EXTRA = [
+  // IC1 — Trust and accountability (10 items: 2 per theme, 2 reverse)
+  { id: 'icv02-61', dimensionId: 'trust-accountability', themeIndex: 0, text: 'တစ်စုံတစ်ယောက်ကို ပေးထားတဲ့ ကတိသေးသေးလေးပဲဖြစ်ဖြစ် မမေ့မလျော့ ဖြည့်ဆည်းပေးဖို့ ဂရုစိုက်တတ်တယ်။', reverse: false },
+  { id: 'icv02-62', dimensionId: 'trust-accountability', themeIndex: 0, text: 'ကိုယ်မလုပ်နိုင်မှန်း သိနေတဲ့ အလုပ်တစ်ခုကို အားနာတာကြောင့် လုပ်ပေးမယ်လို့ လွယ်လွယ်ကတိပေးမိတတ်တယ်။', reverse: true },
+  { id: 'icv02-63', dimensionId: 'trust-accountability', themeIndex: 1, text: 'မိသားစု ဒါမှမဟုတ် အဖွဲ့အစည်းနဲ့ ဆိုင်တဲ့ ရွေးချယ်မှုလုပ်တဲ့အခါ အခြားသူတွေရဲ့ အဆင်ပြေမှုကိုပါ ထည့်သွင်းစဉ်းစားတတ်တယ်။', reverse: false },
+  { id: 'icv02-64', dimensionId: 'trust-accountability', themeIndex: 1, text: 'ကိုယ့်အတွက် အကျိုးရှိမယ့် ဆုံးဖြတ်ချက်တစ်ခုကြောင့် အခြားသူတွေ ဘယ်လိုအခက်အခဲ ကြုံနိုင်မလဲ ပြန်သုံးသပ်တတ်တယ်။', reverse: false },
+  { id: 'icv02-65', dimensionId: 'trust-accountability', themeIndex: 2, text: 'အမှားတစ်ခု ဖြစ်သွားတဲ့အခါ ဆင်ခြေပေးဖို့ထက် ဘယ်နေရာမှာ ကိုယ့်ဘက်က ပြင်ဆင်နိုင်မလဲ အရင်ကြည့်တတ်တယ်။', reverse: false },
+  { id: 'icv02-66', dimensionId: 'trust-accountability', themeIndex: 2, text: 'ကိုယ့်တာဝန်ပိုင်းမှာ လစ်ဟင်းမှု ရှိသွားရင်တောင် အခြားသူတွေ သတိမထားမိသေးသရွေ့ ငြိမ်နေမိတတ်တယ်။', reverse: true },
+  { id: 'icv02-67', dimensionId: 'trust-accountability', themeIndex: 3, text: 'အတူလုပ်နေတဲ့ အလုပ်မှာ ပြဿနာအရိပ်အယောင် စတွေ့တာနဲ့ သက်ဆိုင်သူတွေကို ပွင့်ပွင့်လင်းလင်း အသိပေးတတ်တယ်။', reverse: false },
+  { id: 'icv02-68', dimensionId: 'trust-accountability', themeIndex: 3, text: 'ကိုယ်နားမလည်သေးတဲ့ အချက်တစ်ခုရှိရင် သိသလို ဟန်ဆောင်မနေဘဲ မေးမြန်းအတည်ပြုတတ်တယ်။', reverse: false },
+  { id: 'icv02-69', dimensionId: 'trust-accountability', themeIndex: 4, text: 'နောက်ကွယ်ကနေ တိတ်တဆိတ် ကူညီပေးခဲ့သူတွေရဲ့ ကြိုးစားမှုကိုလည်း မေ့မထားဘဲ ဖော်ပြအသိအမှတ်ပြုတတ်တယ်။', reverse: false },
+  { id: 'icv02-70', dimensionId: 'trust-accountability', themeIndex: 4, text: 'တစ်စုံတစ်ယောက်ရဲ့ အကြံဉာဏ်ကို ယူသုံးဖြစ်တဲ့အခါ သူ့ရဲ့ ပါဝင်မှုကို ထုတ်ဖော်ပြောဆိုတတ်တယ်။', reverse: false },
+
+  // IC2 — Emotional awareness and regulation (10 items: 2 per theme, 2 reverse)
+  { id: 'icv02-71', dimensionId: 'emotional-awareness-regulation', themeIndex: 0, text: 'စိတ်တိုနေတာလား၊ ဝမ်းနည်းနေတာလား၊ စိုးရိမ်နေတာလားဆိုတာကို ကိုယ့်စိတ်ထဲမှာ ခွဲခြားသိမြင်တတ်တယ်။', reverse: false },
+  { id: 'icv02-72', dimensionId: 'emotional-awareness-regulation', themeIndex: 0, text: 'တစ်နေ့တာအတွင်း ကိုယ့်စိတ်ခံစားချက် ဘာကြောင့် ပြောင်းလဲသွားသလဲဆိုတာ ပြန်သတိထားမိတတ်တယ်။', reverse: false },
+  { id: 'icv02-73', dimensionId: 'emotional-awareness-regulation', themeIndex: 1, text: 'အရေးပေါ်အခြေအနေ ဒါမှမဟုတ် ဖိအားများတဲ့အချိန်မှာ စိတ်လောပြီး မလုပ်မိအောင် ကိုယ့်ကိုယ်ကို ထိန်းနိုင်တယ်။', reverse: false },
+  { id: 'icv02-74', dimensionId: 'emotional-awareness-regulation', themeIndex: 1, text: 'စိတ်ရှုပ်ထွေးလာတဲ့အခါ ခံစားချက်တွေကို မထိန်းနိုင်ဘဲ အနီးအနားကလူတွေအပေါ် စိတ်တိုတိုနဲ့ တုံ့ပြန်မိတတ်တယ်။', reverse: true },
+  { id: 'icv02-75', dimensionId: 'emotional-awareness-regulation', themeIndex: 2, text: 'ကိုယ့်စိတ်ထဲမှာ မနိုင်မနင်း ခံစားရတဲ့အခါ မိတ်ဆွေ ဒါမှမဟုတ် မိသားစုဆီက အားပေးစကားနဲ့ အကြံဉာဏ် တောင်းတတ်တယ်။', reverse: false },
+  { id: 'icv02-76', dimensionId: 'emotional-awareness-regulation', themeIndex: 2, text: 'အခက်အခဲ ကြုံနေချိန်မှာ အကူအညီတောင်းရင် အားနည်းရာကျမယ်ထင်ပြီး တစ်ယောက်တည်း ကြိတ်ခံနေမိတတ်တယ်။', reverse: true },
+  { id: 'icv02-77', dimensionId: 'emotional-awareness-regulation', themeIndex: 3, text: 'တစ်ဖက်လူရဲ့ လေသံနဲ့ မျက်နှာအမူအရာကို ကြည့်ပြီး သူ့စိတ်အခြေအနေကို သတိထားနားလည်တတ်တယ်။', reverse: false },
+  { id: 'icv02-78', dimensionId: 'emotional-awareness-regulation', themeIndex: 3, text: 'အခြားသူတစ်ယောက် ခံစားနေရချိန်မှာ ချက်ချင်းဆုံးမစကားပြောဖို့ထက် သူ့ခံစားချက်ကို အရင်နားလည်ပေးတတ်တယ်။', reverse: false },
+  { id: 'icv02-79', dimensionId: 'emotional-awareness-regulation', themeIndex: 4, text: 'မမျှော်လင့်ထားတဲ့ အနှောင့်အယှက်တစ်ခု ကြုံပြီးနောက် ကိုယ့်စိတ်ကို ပြန်စုစည်းပြီး အလုပ်ဆက်လုပ်နိုင်တယ်။', reverse: false },
+  { id: 'icv02-80', dimensionId: 'emotional-awareness-regulation', themeIndex: 4, text: 'စိတ်အနှောင့်အယှက် ဖြစ်စရာတစ်ခု ပြီးသွားပေမယ့် ကျန်တဲ့တစ်နေ့လုံး ဘာမှဆက်မလုပ်နိုင်အောင် စိတ်ထဲစွဲနေတတ်တယ်။', reverse: false },
+
+  // IC3 — Social self-expression (10 items: 2 per theme, 2 reverse)
+  { id: 'icv02-81', dimensionId: 'social-self-expression', themeIndex: 0, text: 'ပွဲလမ်းသဘင် ဒါမှမဟုတ် သင်တန်းလို နေရာမျိုးမှာ လူသစ်တွေနဲ့ မိတ်ဆက်စကားပြောရတာ သက်သောင့်သက်သာ ရှိတယ်။', reverse: false },
+  { id: 'icv02-82', dimensionId: 'social-self-expression', themeIndex: 0, text: 'မရင်းနှီးတဲ့ လူအုပ်စုထဲ ရောက်သွားတဲ့အခါ တစ်ယောက်တည်းပဲ ဘေးနားမှာ တိတ်တိတ်နေမိတတ်တယ်။', reverse: true },
+  { id: 'icv02-83', dimensionId: 'social-self-expression', themeIndex: 1, text: 'ဆွေးနွေးပွဲတစ်ခုမှာ ကိုယ့်အတွေးအမြင်က အထောက်အကူ ဖြစ်မယ်ထင်ရင် ယုံကြည်မှုရှိရှိ မျှဝေတတ်တယ်။', reverse: false },
+  { id: 'icv02-84', dimensionId: 'social-self-expression', themeIndex: 1, text: 'ကိုယ်သဘောမတူတဲ့ အကြောင်းအရာတစ်ခု ဆွေးနွေးနေရင်တောင် ယဉ်ယဉ်ကျေးကျေးနဲ့ ကိုယ့်အမြင်ကို ထည့်ပြောတတ်တယ်။', reverse: false },
+  { id: 'icv02-85', dimensionId: 'social-self-expression', themeIndex: 2, text: 'အများနဲ့ စုပေါင်းလုပ်ရတဲ့ အလုပ်တွေမှာ အားလုံးအဆင်ပြေအောင် ကိုယ်တတ်နိုင်တဲ့ဘက်က ဝင်ကူတတ်တယ်။', reverse: false },
+  { id: 'icv02-86', dimensionId: 'social-self-expression', themeIndex: 2, text: 'အဖွဲ့အစည်းထဲမှာ လူတွေ စကားဝိုင်းဖွဲ့နေတဲ့အခါ ကိုယ်လည်း သဘာဝကျကျ ဝင်ရောနှောတတ်တယ်။', reverse: false },
+  { id: 'icv02-87', dimensionId: 'social-self-expression', themeIndex: 3, text: 'လူအများရှေ့မှာ ရှင်းလင်းတင်ပြရမယ့် အလှည့်ရောက်ရင် စိတ်လှုပ်ရှားပေမယ့် ကိုယ်ပြောချင်တာကို ပြီးဆုံးအောင် ပြောနိုင်တယ်။', reverse: false },
+  { id: 'icv02-88', dimensionId: 'social-self-expression', themeIndex: 3, text: 'လူများတဲ့အခါ ကိုယ့်အမြင်ကို ထုတ်ပြောရမှာ စိုးရိမ်လို့ အရေးကြီးတဲ့အချက်တွေကိုတောင် မပြောဘဲ ချန်ထားမိတတ်တယ်။', reverse: true },
+  { id: 'icv02-89', dimensionId: 'social-self-expression', themeIndex: 4, text: 'ပေါ့ပေါ့ပါးပါး စကားဝိုင်းနဲ့ တရားဝင်အခြေအနေတွေမှာ ကိုယ့်ပြောဆိုပုံကို သင့်တော်သလို ချိန်ညှိတတ်တယ်။', reverse: false },
+  { id: 'icv02-90', dimensionId: 'social-self-expression', themeIndex: 4, text: 'ကိုယ့်ကိုယ်ပိုင်နယ်နိမိတ်နဲ့ သင့်တော်သလောက်ပဲ ကိုယ်ရေးကိုယ်တာ အကြောင်းတွေကို မျှဝေတတ်တယ်။', reverse: false },
+
+  // IC4 — Handling disagreement (10 items: 2 per theme, 2 reverse)
+  { id: 'icv02-91', dimensionId: 'disagreement-handling', themeIndex: 0, text: 'တစ်ဖက်လူရဲ့ အမြင်ကို သဘောမတူရင်တောင် သူဘာကြောင့် အဲဒီလိုမြင်ရသလဲဆိုတာ နားလည်အောင် နားထောင်တတ်တယ်။', reverse: false },
+  { id: 'icv02-92', dimensionId: 'disagreement-handling', themeIndex: 0, text: 'ဆွေးနွေးနေတုန်း တစ်ဖက်လူ စကားမဆုံးသေးခင်မှာပဲ ကိုယ့်ဘက်က ပြန်ချေပဖို့ စိတ်စောနေမိတတ်တယ်။', reverse: true },
+  { id: 'icv02-93', dimensionId: 'disagreement-handling', themeIndex: 1, text: 'ကိုယ်မှားနေကြောင်း ခိုင်လုံတဲ့ အထောက်အထား တွေ့ရင် မာနမထားဘဲ ကိုယ့်အမြင်ကို ပြန်ပြင်တတ်တယ်။', reverse: false },
+  { id: 'icv02-94', dimensionId: 'disagreement-handling', themeIndex: 1, text: 'အချိန်ကြာလာတာနဲ့အမျှ အတွေ့အကြုံအသစ်တွေပေါ် မူတည်ပြီး ကိုယ့်အယူအဆဟောင်းတွေကို ပြန်သုံးသပ်တတ်တယ်။', reverse: false },
+  { id: 'icv02-95', dimensionId: 'disagreement-handling', themeIndex: 2, text: 'အမြင်မတူမှု ဖြစ်တဲ့အခါ ဘယ်သူနိုင်မလဲဆိုတာထက် နှစ်ဖက်စလုံးအတွက် အကျိုးရှိမယ့် အဖြေကို ဦးစားပေးတတ်တယ်။', reverse: false },
+  { id: 'icv02-96', dimensionId: 'disagreement-handling', themeIndex: 2, text: 'သဘောထားကွဲလွဲနေတဲ့ ကိစ္စတစ်ခုမှာ နှစ်ဖက်စလုံး တူညီတဲ့အချက်လေးတွေကို အရင်ရှာဖွေတတ်တယ်။', reverse: false },
+  { id: 'icv02-97', dimensionId: 'disagreement-handling', themeIndex: 3, text: 'ကိုယ့်အတွေးအမြင်နဲ့ မတူတဲ့ ရှုထောင့်တစ်ခုကို ကြားရတဲ့အခါ အဲဒီအမြင်မှာ ဘယ်အချက်တွေ မှန်နိုင်မလဲ စဉ်းစားကြည့်တတ်တယ်။', reverse: false },
+  { id: 'icv02-98', dimensionId: 'disagreement-handling', themeIndex: 3, text: 'တစ်စုံတစ်ယောက်က ကိုယ့်အကြံကို ဝေဖန်လာရင် အကြောင်းအရာကို စဉ်းစားဖို့ထက် ကိုယ့်ကို တိုက်ခိုက်တယ်လို့ပဲ ခံစားမိတတ်တယ်။', reverse: true },
+  { id: 'icv02-99', dimensionId: 'disagreement-handling', themeIndex: 4, text: 'စကားပြောရင်း တင်းမာလာတဲ့အခါ အခြေအနေ ပိုဆိုးမသွားအောင် ခဏနားပြီးမှ ပြန်ဆွေးနွေးဖို့ အကြံပြုတတ်တယ်။', reverse: false },
+  { id: 'icv02-100', dimensionId: 'disagreement-handling', themeIndex: 4, text: 'စိတ်လှုပ်ရှားနေချိန်မှာ မက်ဆေ့ချ် ဒါမှမဟုတ် စကားပြန်ဖို့ အလျင်စလို မလုပ်ဘဲ စိတ်အေးမှ ပြန်ပြောတတ်တယ်။', reverse: false },
+
+  // IC5 — Personal organisation (10 items: 2 per theme, 2 reverse)
+  { id: 'icv02-101', dimensionId: 'personal-organization', themeIndex: 0, text: 'အလုပ်ကြီးတစ်ခု ရလာတဲ့အခါ လုပ်ရလွယ်အောင် အပိုင်းငယ်လေးတွေ ခွဲပြီး အဆင့်လိုက် စီစဉ်တတ်တယ်။', reverse: false },
+  { id: 'icv02-102', dimensionId: 'personal-organization', themeIndex: 0, text: 'တစ်ပတ်စာ ဒါမှမဟုတ် တစ်နေ့စာ အဓိကလုပ်စရာတွေကို မှတ်စုထဲမှာ ကြိုတင်ချရေးထားတတ်တယ်။', reverse: false },
+  { id: 'icv02-103', dimensionId: 'personal-organization', themeIndex: 1, text: 'စိတ်ပါဝင်စားမှု လျော့သွားတဲ့အခါမျိုးမှာတောင် ပြီးဆုံးရမယ့်အလုပ်ကို အပြီးသတ်နိုင်အောင် ဆက်ကြိုးစားတတ်တယ်။', reverse: false },
+  { id: 'icv02-104', dimensionId: 'personal-organization', themeIndex: 1, text: 'အလုပ်တစ်ခုကို စတင်ဖို့ အချိန်ရွှေ့ဆိုင်းနေမိပြီး နောက်ဆုံးအချိန်ရောက်မှ အလောသုံးဆယ် လုပ်မိတတ်တယ်။', reverse: true },
+  { id: 'icv02-105', dimensionId: 'personal-organization', themeIndex: 2, text: 'အရေးကြီးတဲ့ အချိန်းအချက်၊ ရက်စွဲနဲ့ အချက်အလက်တွေကို နှစ်ခါပြန်စစ်ဆေးပြီးမှ အတည်ပြုတတ်တယ်။', reverse: false },
+  { id: 'icv02-106', dimensionId: 'personal-organization', themeIndex: 2, text: 'အလုပ်တစ်ခု ပြီးသွားတာနဲ့ စိတ်ချပြီး အသေးစိတ်အမှားလေးတွေ ကျန်မကျန် ပြန်မစစ်ဘဲ ထားလိုက်မိတတ်တယ်။', reverse: true },
+  { id: 'icv02-107', dimensionId: 'personal-organization', themeIndex: 3, text: 'ငွေကြေး ဒါမှမဟုတ် အချိန်ကုန်ကျမယ့် ကိစ္စတွေမှာ လတ်တလော အဆင်ပြေမှုထက် ရေရှည်အကျိုးဆက်ကို ကြည့်တတ်တယ်။', reverse: false },
+  { id: 'icv02-108', dimensionId: 'personal-organization', themeIndex: 3, text: 'အစီအစဉ်တစ်ခု မစခင် မမျှော်လင့်ထားတဲ့ အခက်အခဲဖြစ်လာရင် ဘယ်လိုဖြေရှင်းမလဲဆိုတာပါ ကြိုတွေးထားတတ်တယ်။', reverse: false },
+  { id: 'icv02-109', dimensionId: 'personal-organization', themeIndex: 4, text: 'ဖုန်းနဲ့ ကွန်ပျူတာထဲက ဖိုင်တွေ၊ ဓာတ်ပုံတွေကို ရှာရလွယ်အောင် အုပ်စုခွဲပြီး သိမ်းတတ်တယ်။', reverse: false },
+  { id: 'icv02-110', dimensionId: 'personal-organization', themeIndex: 4, text: 'ကိုယ်နေထိုင်တဲ့ အခန်း ဒါမှမဟုတ် အလုပ်စားပွဲကို သပ်သပ်ရပ်ရပ်ဖြစ်အောင် ပုံမှန်ပြန်ရှင်းလင်းတတ်တယ်။', reverse: false },
+
+  // IC6 — Curiosity and open thinking (10 items: 2 per theme, 2 reverse)
+  { id: 'icv02-111', dimensionId: 'curiosity-open-thinking', themeIndex: 0, text: 'စိတ်ဝင်စားစရာ အကြောင်းအရာအသစ်တစ်ခု ကြားရရင် အသေးစိတ်သိရအောင် စာဖတ်တာ ဒါမှမဟုတ် ရှာဖွေကြည့်တာ လုပ်တတ်တယ်။', reverse: false },
+  { id: 'icv02-112', dimensionId: 'curiosity-open-thinking', themeIndex: 0, text: 'ကိုယ်နဲ့ မဆိုင်သေးတဲ့ ပညာရပ် ဒါမှမဟုတ် ဗဟုသုတအသစ်တွေကိုလည်း သိချင်စိတ်နဲ့ လေ့လာကြည့်တတ်တယ်။', reverse: false },
+  { id: 'icv02-113', dimensionId: 'curiosity-open-thinking', themeIndex: 1, text: 'ကိစ္စတစ်ခုကို ရှုထောင့်တစ်ခုတည်းကနေ မကြည့်ဘဲ အခြားသူတွေရဲ့ အမြင်ကနေပါ စဉ်းစားကြည့်တတ်တယ်။', reverse: false },
+  { id: 'icv02-114', dimensionId: 'curiosity-open-thinking', themeIndex: 1, text: 'ပုံမှန်လုပ်နေကျ နည်းလမ်းက အလုပ်ဖြစ်နေသရွေ့ အခြားပိုကောင်းနိုင်တဲ့ နည်းလမ်းအသစ်တွေကို စဉ်းစားဖို့ စိတ်မဝင်စားတတ်ဘူး။', reverse: true },
+  { id: 'icv02-115', dimensionId: 'curiosity-open-thinking', themeIndex: 2, text: 'ကောင်းကင်အရောင်ပြောင်းတာ၊ သစ်ပင်ပန်းမန်တွေ ဒါမှမဟုတ် ဖန်တီးမှုလက်ရာတွေကို ကြည့်ပြီး စိတ်ချမ်းသာမှု ခံစားရတတ်တယ်။', reverse: false },
+  { id: 'icv02-116', dimensionId: 'curiosity-open-thinking', themeIndex: 2, text: 'စာအုပ်ကောင်းတစ်အုပ်၊ ရုပ်ရှင် ဒါမှမဟုတ် အနုပညာတစ်ခုထဲက အတွေးအခေါ်တွေကို ပြန်လည်ခံစားတွေးတောတတ်တယ်။', reverse: false },
+  { id: 'icv02-117', dimensionId: 'curiosity-open-thinking', themeIndex: 3, text: 'မတူညီတဲ့ လူနေမှုပုံစံနဲ့ ယဉ်ကျေးမှုတွေအကြောင်း ကြားရရင် အကဲဖြတ်ဖို့ထက် နားလည်ချင်စိတ် ပိုများတယ်။', reverse: false },
+  { id: 'icv02-118', dimensionId: 'curiosity-open-thinking', themeIndex: 3, text: 'ကိုယ်နဲ့ အမြင်မတူတဲ့ အယူအဆအသစ်တွေကို နားထောင်ရတာ အချိန်ကုန်တယ်လို့ ခံစားမိတတ်တယ်။', reverse: true },
+  { id: 'icv02-119', dimensionId: 'curiosity-open-thinking', themeIndex: 4, text: 'မချက်ဖူးသေးတဲ့ ဟင်းတစ်မျိုး ဒါမှမဟုတ် မလုပ်ဖူးသေးတဲ့ ဝါသနာအသစ်တစ်ခုကို စမ်းကြည့်ရတာ ပျော်တတ်တယ်။', reverse: false },
+  { id: 'icv02-120', dimensionId: 'curiosity-open-thinking', themeIndex: 4, text: 'နေ့စဉ်ဘဝမှာ အသုံးဝင်နိုင်မယ့် နည်းပညာ ဒါမှမဟုတ် အလေ့အကျင့်အသစ်တွေကို လက်တွေ့စမ်းသပ်သင်ယူတတ်တယ်။', reverse: false },
+]
+
+export const INNERCOMPASS_V02_QUESTIONS_120 = [
+  ...INNERCOMPASS_V02_QUESTIONS_60,
+  ...INNERCOMPASS_V02_QUESTIONS_120_EXTRA,
+]
+
 export const INNERCOMPASS_V02_LEVELS = [
   {
     value: 30,
@@ -235,10 +318,20 @@ export const INNERCOMPASS_V02_LEVELS = [
     label: 'အသေးစိတ်',
     recommended: false,
   },
+  {
+    value: 120,
+    title: 'အနက်ရှိုင်းဆုံး ၁၂၀ မေးခွန်း',
+    subtitle: 'အချက် ၆ ချက်ကို ရှုထောင့်စုံမှ အနက်ရှိုင်းဆုံး ပြန်လည်သုံးသပ်ရန်',
+    duration: '~၂၀ မိနစ်',
+    label: 'အနက်ရှိုင်းဆုံး',
+    recommended: false,
+  },
 ]
 
 export function getInnerCompassQuestionsForLevel(level = 30) {
-  return Number(level) === 60 ? INNERCOMPASS_V02_QUESTIONS_60 : INNERCOMPASS_V02_QUESTIONS_30
+  if (Number(level) === 120) return INNERCOMPASS_V02_QUESTIONS_120
+  if (Number(level) === 60) return INNERCOMPASS_V02_QUESTIONS_60
+  return INNERCOMPASS_V02_QUESTIONS_30
 }
 
 export const INNERCOMPASS_V02_PUBLICATION_STATUS = {

@@ -3,12 +3,19 @@ import {
   INNERCOMPASS_V02_QUESTIONS_30,
   INNERCOMPASS_V02_QUESTIONS_60,
   INNERCOMPASS_V02_QUESTIONS_60_EXTRA,
+  INNERCOMPASS_V02_QUESTIONS_120,
+  INNERCOMPASS_V02_QUESTIONS_120_EXTRA,
   getInnerCompassQuestionsForLevel,
 } from '../data/innerCompassDraftV02.js'
 
 function resolveQuestionSet(answers, level = null) {
+  if (Number(level) === 120) return INNERCOMPASS_V02_QUESTIONS_120
   if (Number(level) === 60) return INNERCOMPASS_V02_QUESTIONS_60
   if (Number(level) === 30) return INNERCOMPASS_V02_QUESTIONS_30
+  const hasDeepItem = answers && typeof answers === 'object' && !Array.isArray(answers)
+    ? INNERCOMPASS_V02_QUESTIONS_120_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))
+    : false
+  if (hasDeepItem) return INNERCOMPASS_V02_QUESTIONS_120
   const hasExtendedItem = answers && typeof answers === 'object' && !Array.isArray(answers)
     ? INNERCOMPASS_V02_QUESTIONS_60_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))
     : false
@@ -19,7 +26,9 @@ export function validateInnerCompassV02Answers(answers, level = null) {
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return false
   const allowedQuestions = Number(level) === 30
     ? INNERCOMPASS_V02_QUESTIONS_30
-    : INNERCOMPASS_V02_QUESTIONS_60
+    : Number(level) === 60
+      ? INNERCOMPASS_V02_QUESTIONS_60
+      : INNERCOMPASS_V02_QUESTIONS_120
   return Object.entries(answers).every(([id, value]) => {
     const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5

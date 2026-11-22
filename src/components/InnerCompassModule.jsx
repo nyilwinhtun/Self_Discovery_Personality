@@ -44,6 +44,19 @@ function cn(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+function normalizeInnerCompassLevel(value) {
+  const num = Number(value)
+  if (num === 120) return 120
+  if (num === 60) return 60
+  return 30
+}
+
+function formatInnerCompassCountMm(count) {
+  if (count === 120) return '၁၂၀'
+  if (count === 60) return '၆၀'
+  return '၃၀'
+}
+
 function formatDate(value) {
   if (!value) return 'မသိရှိပါ'
   try {
@@ -89,7 +102,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#4e6379]">INNERCOMPASS</p>
                 <h1 className="mt-1 text-xl font-bold text-[#3f5873] sm:text-2xl">စိတ်နေသဘောထားကို လေ့လာခြင်း</h1>
-                <p className="mt-1 text-xs text-[#4e6379]">မေးခွန်း {level === 60 ? '၆၀' : '၃၀'} · အချက် ၆ ချက်</p>
+                <p className="mt-1 text-xs text-[#4e6379]">မေးခွန်း {formatInnerCompassCountMm(level)} · အချက် ၆ ချက်</p>
               </div>
             </div>
             <span className="rounded-full border border-[#cbd9e9] bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-[#456d97]">Pilot · စမ်းသပ်အသုံးပြုမှု</span>
@@ -99,7 +112,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
         <div className="p-6 sm:p-9">
           <div className="mb-6">
             <h2 className="text-base font-bold text-[#435a72]">ဖြေဆိုမည့် မေးခွန်းအဆင့် ရွေးချယ်ပါ</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="InnerCompass မေးခွန်းအဆင့် ရွေးချယ်မှု">
+            <div className="mt-3 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="InnerCompass မေးခွန်းအဆင့် ရွေးချယ်မှု">
               {INNERCOMPASS_V02_LEVELS.map((option) => {
                 const selected = level === option.value
                 const levelDraft = loadDraft(option.value, ASSESSMENT_TYPE)
@@ -311,7 +324,7 @@ function InnerCompassPolarTick({ payload, x, y, textAnchor }) {
 }
 
 function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
-  const recordQuestionCount = Number(record?.questionCount || record?.level) === 60 ? 60 : 30
+  const recordQuestionCount = normalizeInnerCompassLevel(record?.questionCount || record?.level)
   const result = useMemo(() => scoreInnerCompassV02(record?.answers || {}, record?.questionCount || record?.level || null), [record])
   if (!record || !result.complete) return null
   const chartData = result.dimensions.map((item) => ({ area: item.shortName, score: item.index }))
@@ -358,7 +371,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#4e6379] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><ResultShareCardButton tone="blue" getCardConfig={() => ({ filename: `innercompass-result-${new Date(record.createdAt).toISOString().slice(0, 10)}.png`, subtitle: 'INNERCOMPASS · PILOT REFLECTION', title: 'အတွင်းစိတ် စိတ်နေသဘောထား ၆ ချက် အကျဉ်းချုပ်', metaLine: `မေးခွန်း ${recordQuestionCount === 60 ? '၆၀' : '၃၀'} · ${formatDate(record.createdAt)}`, items: dimensionInsights.map((d) => ({ label: d.name, score: d.index })), accentColor: '#446c96', trackColor: '#e6eff8', footerNote: 'InnerCompass သည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု reflection tool ဖြစ်ပြီး ရောဂါရှာဖွေမှု မဟုတ်ပါ။' })} /><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
+      <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3"><button onClick={onHome} className="inline-flex items-center gap-2 text-sm font-semibold text-[#4e6379] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button><div className="flex flex-wrap gap-2"><SecondaryButton onClick={downloadReport} icon={Download}>အစီရင်ခံစာသိမ်းမယ်</SecondaryButton><ResultShareCardButton tone="blue" getCardConfig={() => ({ filename: `innercompass-result-${new Date(record.createdAt).toISOString().slice(0, 10)}.png`, subtitle: 'INNERCOMPASS · PILOT REFLECTION', title: 'အတွင်းစိတ် စိတ်နေသဘောထား ၆ ချက် အကျဉ်းချုပ်', metaLine: `မေးခွန်း ${formatInnerCompassCountMm(recordQuestionCount)} · ${formatDate(record.createdAt)}`, items: dimensionInsights.map((d) => ({ label: d.name, score: d.index })), accentColor: '#446c96', trackColor: '#e6eff8', footerNote: 'InnerCompass သည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု reflection tool ဖြစ်ပြီး ရောဂါရှာဖွေမှု မဟုတ်ပါ။' })} /><SecondaryButton onClick={() => window.print()} icon={Printer}>Print</SecondaryButton></div></div>
       <ReportSectionNavigation tone="blue" items={[
         { id: 'inner-report-overview', label: 'အနှစ်ချုပ်' },
         { id: 'inner-report-areas', label: 'အချက် ၆ ချက်' },
@@ -366,7 +379,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
         { id: 'inner-report-notes', label: 'ရလဒ်ဖတ်ရှုရန်' },
       ]} />
       <section id="inner-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#d4e0ef] bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 card-shadow sm:p-10">
-        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#446c96]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#446c96] shadow-sm"><InnerCompassLogo size={50}/></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#4e6379]">INNERCOMPASS · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#3f5873] sm:text-3xl">သင့်ရဲ့ ဖြေဆိုမှုအကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#4e6379]">မေးခွန်း {recordQuestionCount === 60 ? '၆၀' : '၃၀'} · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#5f748b]">အောက်ပါရလဒ်တွေက ဒီမေးခွန်းမူကြမ်းအတွင်း သင်ရွေးချယ်ထားတဲ့ အဖြေတွေကို အချက် ၆ ချက်အလိုက် စုစည်းပြသထားပါတယ်။ ဒါတွေက သင့်ပင်ကိုစရိုက်ကို အပြီးသတ်သတ်မှတ်ပေးတာ မဟုတ်ပါ။</p></div>
+        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#446c96]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#446c96] shadow-sm"><InnerCompassLogo size={50}/></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#4e6379]">INNERCOMPASS · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#3f5873] sm:text-3xl">သင့်ရဲ့ ဖြေဆိုမှုအကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#4e6379]">မေးခွန်း {formatInnerCompassCountMm(recordQuestionCount)} · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#5f748b]">အောက်ပါရလဒ်တွေက ဒီမေးခွန်းမူကြမ်းအတွင်း သင်ရွေးချယ်ထားတဲ့ အဖြေတွေကို အချက် ၆ ချက်အလိုက် စုစည်းပြသထားပါတယ်။ ဒါတွေက သင့်ပင်ကိုစရိုက်ကို အပြီးသတ်သတ်မှတ်ပေးတာ မဟုတ်ပါ။</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
           <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#4f6680]">အဓိက အချက် ၆ ချက်၏ ရမှတ်</h2><span className="text-[11px] text-[#4e6379]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="54%" margin={{ top: 22, right: 42, bottom: 22, left: 42 }}><PolarGrid stroke="#e1eaf3"/><PolarAngleAxis dataKey="area" tick={<InnerCompassPolarTick />}/><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#4e6379', fontSize: 11 }} axisLine={false}/><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#9db9d5" fillOpacity={0.55} strokeWidth={2}/><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#dce6f0', fontSize: 12 }}/></RadarChart></ResponsiveContainer></div><p className="text-center text-[11px] leading-5 text-[#4e6379]">ဒီအညွှန်းဟာ ဖြေဆိုထားတဲ့အဖြေတွေကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါတယ်။</p></div>
           <div className="flex flex-col gap-3">
@@ -442,8 +455,8 @@ export default function InnerCompassModule({
   onOpenKnowledgeTerm,
 }) {
   const resolvedInitialLevel = initialRecord
-    ? (Number(initialRecord.questionCount || initialRecord.level) === 60 ? 60 : 30)
-    : (Number(initialLevel) === 60 ? 60 : 30)
+    ? normalizeInnerCompassLevel(initialRecord.questionCount || initialRecord.level)
+    : normalizeInnerCompassLevel(initialLevel)
   const [level, setLevel] = useState(resolvedInitialLevel)
   const activeQuestions = useMemo(() => getInnerCompassQuestionsForLevel(level), [level])
   const initialDraft = initialRecord ? null : loadDraft(resolvedInitialLevel, ASSESSMENT_TYPE)
@@ -461,7 +474,7 @@ export default function InnerCompassModule({
   const storageAlertVisible = sharedStorageAlertVisible ?? (storageError && !localAlertDismissed)
 
   const handleSelectLevel = (nextLevel) => {
-    const normalized = Number(nextLevel) === 60 ? 60 : 30
+    const normalized = normalizeInnerCompassLevel(nextLevel)
     const nextQuestions = getInnerCompassQuestionsForLevel(normalized)
     const nextDraft = loadDraft(normalized, ASSESSMENT_TYPE)
     setLevel(normalized)
