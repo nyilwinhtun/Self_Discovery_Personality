@@ -7,9 +7,9 @@ const accents = {
     link: 'text-[#80678f]',
   },
   blue: {
-    primary: 'bg-[#527daa] hover:bg-[#456d97] disabled:bg-[#c5d4e3]',
-    soft: 'border-[#d8e3ee] text-[#55799e] hover:bg-[#f4f8fc]',
-    link: 'text-[#527daa]',
+    primary: 'bg-[#446c96] hover:bg-[#385b80] disabled:bg-[#c5d4e3]',
+    soft: 'border-[#d8e3ee] text-[#446c96] hover:bg-[#f4f8fc]',
+    link: 'text-[#446c96]',
   },
 }
 
@@ -48,11 +48,11 @@ export default function MobileQuestionActions({
       </div>
       <div className="mx-auto mt-2 flex max-w-3xl items-center justify-between gap-3 pb-[calc(0.65rem+env(safe-area-inset-bottom))]">
         {showSkip ? (
-          <button type="button" onClick={onSkip} className={`inline-flex min-h-9 items-center gap-1.5 px-1 text-xs font-semibold ${theme.link}`}>
+          <button type="button" onClick={onSkip} className={`inline-flex min-h-11 items-center gap-1.5 px-1 text-xs font-semibold ${theme.link}`}>
             <SkipForward size={14} /> ဒီမေးခွန်းကို ကျော်မယ်
           </button>
-        ) : <span className="min-h-9" />}
-        <button type="button" onClick={onReview} className={`min-h-9 px-1 text-xs font-semibold ${theme.link}`}>
+        ) : <span className="min-h-11" />}
+        <button type="button" onClick={onReview} className={`min-h-11 px-1 text-xs font-semibold ${theme.link}`}>
           မေးခွန်းစာရင်းကြည့်မယ်
         </button>
       </div>

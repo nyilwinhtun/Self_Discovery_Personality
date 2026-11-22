@@ -1,7 +1,7 @@
 export default function ReportSectionNavigation({ items, tone = 'plum' }) {
   const palette = tone === 'blue'
-    ? { active: 'border-[#b9cce0] bg-[#edf4fb] text-[#456d97]', idle: 'border-[#e5edf5] bg-white text-[#71869b]' }
-    : { active: 'border-[#d9c9e0] bg-[#f4eef6] text-[#725981]', idle: 'border-[#eee5ef] bg-white text-[#938698]' }
+    ? { active: 'border-[#b9cce0] bg-[#edf4fb] text-[#456d97]', idle: 'border-[#e5edf5] bg-white text-[#4e6379]' }
+    : { active: 'border-[#d9c9e0] bg-[#f4eef6] text-[#725981]', idle: 'border-[#eee5ef] bg-white text-[#6b5e70]' }
 
   const goTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
