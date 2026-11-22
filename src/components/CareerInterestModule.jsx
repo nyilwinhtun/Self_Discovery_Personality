@@ -49,7 +49,7 @@ function IntroView({ draft, onResume, onStart, onHome, storageAlertVisible, onEx
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl bg-[#faf7fa] p-4"><p className="text-xs text-[#74677b]">မေးခွန်း</p><p className="mt-1 text-2xl font-bold text-[#80678f]">၃၀ ခု</p></div>
             <div className="rounded-2xl bg-[#faf7fa] p-4"><p className="text-xs text-[#74677b]">စိတ်ဝင်စားမှု အမျိုးအစား</p><p className="mt-1 text-2xl font-bold text-[#80678f]">၆ မျိုး</p></div>
-            <div className="rounded-2xl bg-[#faf7fa] p-4"><p className="text-xs text-[#74677b]">ဖြေဆိုမှု</p><p className="mt-1 text-sm font-bold leading-6 text-[#80678f]">ခဏရပ်၊ ပြန်ဆက်နိုင်</p></div>
+            <div className="rounded-2xl bg-[#faf7fa] p-4"><p className="text-xs text-[#74677b]">ကြာချိန် · ဖြေဆိုမှု</p><p className="mt-1 text-sm font-bold leading-6 text-[#80678f]">~၅ မိနစ် · ခဏရပ်၊ ပြန်ဆက်နိုင်</p></div>
           </div>
           <div className="mt-6 space-y-3">
             {[
@@ -59,6 +59,18 @@ function IntroView({ draft, onResume, onStart, onHome, storageAlertVisible, onEx
               ['ဒီစစ်ဆေးမှုက ဘာကို မတိုင်းတာသလဲ', 'လက်ရှိကျွမ်းကျင်မှု၊ ဉာဏ်ရည်၊ အလုပ်ရရှိနိုင်မှု၊ အောင်မြင်မှု သို့မဟုတ် အနာဂတ်ကို ခန့်မှန်းတာ မဟုတ်ပါ။'],
               ['အဖြေတွေ အလိုအလျောက်သိမ်းမယ်', 'ခဏရပ်သွားရင် နောက်တစ်ကြိမ် ဒီစက်နဲ့ Browser ကို ပြန်ဖွင့်ပြီး အရင်နေရာကနေ ဆက်ဖြေနိုင်ပါတယ်။'],
             ].map(([title, body]) => <div key={title} className="flex gap-3 rounded-2xl bg-[#faf7fa] p-4"><span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white text-[#80678f] shadow-sm"><Check size={16}/></span><div><h2 className="text-sm font-bold text-[#5c4c62]">{title}</h2><p className="mt-1 text-xs leading-6 text-[#716679]">{body}</p></div></div>)}
+          </div>
+          <div className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fcfafb] p-4">
+            <h2 className="text-sm font-bold text-[#5c4c62]">အဖြေရွေးချယ်ပုံ (၁ မှ ၅ အထိ)</h2>
+            <p className="mt-1 text-xs leading-6 text-[#716679]">လုပ်ဆောင်မှုတစ်ခုကို ကိုယ်တိုင်လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲဆိုတာ ရွေးပါ။ လုပ်ဖူး/မလုပ်ဖူး၊ တတ်/မတတ်ဆိုတာကို မစဉ်းစားပါနဲ့။</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-5">
+              {CAREER_ANSWER_OPTIONS.map((item) => (
+                <div key={item.value} className="flex items-center gap-2 rounded-xl bg-white p-2.5 shadow-xs sm:flex-col sm:items-start">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#faf7fa] text-xs font-bold text-[#80678f]">{item.value}</span>
+                  <span className="text-[11px] leading-5 text-[#6f6274]">{item.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fcfafb] p-4"><div className="flex gap-3"><ShieldCheck size={18} className="mt-0.5 shrink-0 text-[#6b5e70]"/><p className="text-xs leading-7 text-[#716679]">{STORAGE_HINT} ရလဒ်ရမှတ်များသည် သင်ဖြေဆိုထားသည့် အဖြေများကို အညွှန်းအဖြစ် ဖော်ပြခြင်းသာဖြစ်ပြီး လူအများနှင့် နှိုင်းယှဉ်ထားခြင်း မဟုတ်ပါ။</p></div></div>
           <div className="mt-5 rounded-2xl border border-[#eadfe9] bg-[#fbf7fb] p-4">
@@ -287,7 +299,7 @@ export default function CareerInterestModule({
     const saved = saveDraft(empty)
     reportStorageWrite(saved)
     onDataChange?.(loadAppData())
-    setPage('instructions')
+    setPage('assessment')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -307,7 +319,6 @@ export default function CareerInterestModule({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const begin = () => { setPage('assessment'); window.scrollTo({ top: 0, behavior: 'smooth' }) }
   const answer = (questionId, value) => {
     const nextAnswers = { ...answers, [questionId]: value }
     const nextSkipped = skipped.filter((id) => id !== questionId)
@@ -374,7 +385,6 @@ export default function CareerInterestModule({
   return (
     <>
       {page === 'intro' && <IntroView draft={draft} onResume={resume} onStart={startNew} onHome={onHome} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
-      {page === 'instructions' && <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6"><StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={dismissStorageError} /><section className="rounded-[2rem] border border-[#eee4ed] bg-white p-6 card-shadow sm:p-9"><p className="text-xs font-semibold tracking-wide text-[#6b5e70]">BEFORE YOU BEGIN</p><h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">အဖြေရွေးချယ်ပုံ</h1><p className="mt-3 text-sm leading-8 text-[#6b5e70]">လုပ်ဆောင်မှုတစ်ခုကို ကိုယ်တိုင်လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲဆိုတာ ရွေးပါ။ လုပ်ဖူး/မလုပ်ဖူး၊ တတ်/မတတ်ဆိုတာကို မစဉ်းစားပါနဲ့။</p><div className="mt-5 space-y-2">{CAREER_ANSWER_OPTIONS.map((item) => <div key={item.value} className="flex items-center gap-3 rounded-xl bg-[#faf7fa] p-3"><span className="grid h-8 w-8 place-items-center rounded-lg bg-white text-sm font-bold text-[#80678f]">{item.value}</span><span className="text-sm text-[#6f6274]">{item.label}</span></div>)}</div><div className="mt-7 flex flex-wrap justify-end gap-2"><Button secondary onClick={() => setPage('intro')}>နောက်သို့</Button><Button onClick={begin}>မေးခွန်း စတင်ဖြေမယ်</Button></div></section></main>}
       {page === 'assessment' && <QuestionView answers={answers} skipped={skipped} index={index} onAnswer={answer} onPrevious={previous} onNext={next} onSkip={skip} onReview={() => setPage('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
       {page === 'review' && <ReviewView answers={answers} skipped={skipped} onGoTo={goTo} onFinish={finish} onBack={() => setPage('assessment')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
       {page === 'result' && <CareerResultView record={activeRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}

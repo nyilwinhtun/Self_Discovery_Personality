@@ -38,9 +38,9 @@ function ModuleLoadingFallback() {
 
 const STORAGE_HINT = 'သင့်အဖြေများကို ဒီ Browser နဲ့ ဒီစက်ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser Data ရှင်းလိုက်ရင် အဖြေတွေ ပျောက်နိုင်ပါတယ်။'
 const LEVELS = [
-  { value: 30, title: 'အခြေခံဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်ကို အကျဉ်းချုပ် လေ့လာရန်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'အခြေခံ' },
-  { value: 60, title: 'အသေးစိတ်ဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်ကို မေးခွန်းပိုများဖြင့် အသေးစိတ် လေ့လာရန်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'အသေးစိတ်' },
-  { value: 120, title: 'နက်ရှိုင်းစွာ ဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်နဲ့ အသေးစိတ် အချက် ၃၀ ကို လေ့လာရန်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'နက်ရှိုင်း' },
+  { value: 30, title: 'အခြေခံဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်ကို အကျဉ်းချုပ် လေ့လာရန်', duration: '~၅ မိနစ်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'အခြေခံ', recommended: true },
+  { value: 60, title: 'အသေးစိတ်ဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်ကို မေးခွန်းပိုများဖြင့် အသေးစိတ် လေ့လာရန်', duration: '~၁၀ မိနစ်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'အသေးစိတ်' },
+  { value: 120, title: 'နက်ရှိုင်းစွာ ဆန်းစစ်မှု', subtitle: 'ပင်ကိုစရိုက် အချက် ၅ ချက်နဲ့ အသေးစိတ် အချက် ၃၀ ကို လေ့လာရန်', duration: '~၂၀ မိနစ်', time: 'ခဏရပ်ပြီး ပြန်ဆက်နိုင်', label: 'နက်ရှိုင်း' },
 ]
 
 function cn(...classes) {
@@ -88,7 +88,7 @@ function Header({ onHome, onHistory, onKnowledge, active }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Brand onClick={onHome} />
         <nav className="hidden items-center gap-1 rounded-full bg-[#f2edf2] p-1 sm:flex">
-          <button onClick={onHome} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active !== 'history' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#6b5e70] hover:text-[#614b6b]')}>
+          <button onClick={onHome} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'home' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#6b5e70] hover:text-[#614b6b]')}>
             <Home size={15} /> <span className="hidden sm:inline">ပင်မစာမျက်နှာ</span>
           </button>
           <button onClick={onHistory} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'history' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#6b5e70] hover:text-[#614b6b]')}>
@@ -128,6 +128,7 @@ function getDraftStats(draft, level) {
 }
 
 function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenKnowledge, storageAlertVisible, onDismissStorageError }) {
+  const [betaDetailsOpen, setBetaDetailsOpen] = useState(false)
   const completedCount = history.length
   const draftCount = Object.values(drafts || {}).reduce((sum, group) => {
     return sum + (group && typeof group === 'object' ? Object.keys(group).length : 0)
@@ -151,63 +152,33 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
   return (
     <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <section aria-labelledby="beta-notice-title" className="mb-6 rounded-2xl border border-[#eadfc9] bg-[#fffaf1] p-4 shadow-sm sm:p-5">
-        <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f8edd8] text-[#825824]"><CircleHelp size={20} /></span>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 id="beta-notice-title" className="text-sm font-bold text-[#715832] sm:text-base">လက်ရှိ Beta စမ်းသပ်ဗားရှင်း ဖြစ်ပါတယ်</h2>
-              <span className="rounded-full bg-[#f8edd8] px-2.5 py-1 text-[11px] font-bold tracking-wide text-[#825824]">BETA · စမ်းသပ်ဆဲ</span>
-            </div>
-            <p className="mt-2 text-xs leading-7 text-[#806f58]">ဤ App ကို အသုံးပြုသူများထံမှ အကြံပြုချက်ရယူပြီး ပိုမိုကောင်းမွန်လာစေရန် စမ်းသပ်ပြင်ဆင်နေဆဲ ဖြစ်ပါသည်။ ထို့ကြောင့် မေးခွန်း၊ မြန်မာစာအသုံးအနှုန်း၊ ရလဒ်ရှင်းလင်းချက်နှင့် လုပ်ဆောင်ချက်အချို့ ပြောင်းလဲနိုင်သလို မမျှော်လင့်ထားသော အမှားများလည်း ဖြစ်ပေါ်နိုင်ပါသည်။</p>
-          </div>
-        </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-[#f0e6d4] bg-white/75 p-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><BookOpen size={15} /> ရလဒ်များကို သတိထားဖတ်ပါ</div>
-            <p className="mt-1.5 text-[11px] leading-6 text-[#85745d]">ရလဒ်များသည် မိမိကိုယ်ကို ပြန်လည်သုံးသပ်ရန် အထောက်အကူပေးသည့် အညွှန်းများသာ ဖြစ်ပါသည်။ သင့်ကို အမျိုးအစားတစ်ခုတည်းဖြင့် အပြီးသတ်သတ်မှတ်ခြင်း သို့မဟုတ် အခြားသူများနှင့် အဆင့်ချင်းနှိုင်းယှဉ်ခြင်း မဟုတ်ပါ။ Career Interest ရလဒ်သည် အလုပ်ရရှိမှု သို့မဟုတ် အောင်မြင်မှုကို အာမမခံပါ။</p>
-          </div>
-          <div className="rounded-xl border border-[#f0e6d4] bg-white/75 p-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><ShieldCheck size={15} /> ပညာရှင်၏ ဆုံးဖြတ်ချက်အစား မသုံးပါနှင့်</div>
-            <p className="mt-1.5 text-[11px] leading-6 text-[#85745d]">ဤ App သည် စိတ်ကျန်းမာရေးဆိုင်ရာ ရောဂါရှာဖွေခြင်း၊ ကုသမှု၊ ဆေးဝါးသုံးစွဲမှု သို့မဟုတ် အရေးကြီးသော ဆုံးဖြတ်ချက်များအတွက် မဟုတ်ပါ။ လိုအပ်ပါက သက်ဆိုင်ရာ ပညာရှင်နှင့် တိုင်ပင်ပါ။</p>
-          </div>
-          <div className="rounded-xl border border-[#f0e6d4] bg-white/75 p-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><LockKeyhole size={15} /> အဖြေများကို ဒီ Browser ထဲတွင် သိမ်းထားပါသည်</div>
-            <p className="mt-1.5 text-[11px] leading-6 text-[#85745d]">အဖြေများ၊ Draft နှင့် မှတ်တမ်းများကို လက်ရှိ Browser/စက်၏ LocalStorage ထဲတွင်သာ သိမ်းဆည်းထားပြီး Cloud Sync မရှိသေးပါ။ Browser Data ရှင်းခြင်း၊ Private/Incognito အသုံးပြုခြင်း သို့မဟုတ် Browser/စက်ပြောင်းခြင်းကြောင့် Data ပျောက်နိုင်ပါသည်။</p>
-          </div>
-          <div className="rounded-xl border border-[#f0e6d4] bg-white/75 p-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><FileJson size={15} /> Backup ကို လုံခြုံစွာ သိမ်းပါ</div>
-            <p className="mt-1.5 text-[11px] leading-6 text-[#85745d]">Browser Data မရှင်းမီ JSON Backup ထုတ်ယူထားပါ။ Backup ဖိုင်ထဲတွင် ကိုယ်ရေးကိုယ်တာ အဖြေများနှင့် ရလဒ်များ ပါဝင်နိုင်သောကြောင့် အခြားသူများထံ မမျှဝေပါနှင့်။</p>
-          </div>
-        </div>
-        <p className="mt-3 rounded-xl bg-[#f8f0e3] px-3 py-2 text-[11px] leading-6 text-[#806f58]">စမ်းသပ်ရာတွင် Error သို့မဟုတ် နားမလည်သောအချက်တွေ့ပါက အသုံးပြုနေသည့် ဖုန်း/ကွန်ပျူတာ၊ Browser အမျိုးအစားနှင့် ဖြစ်ပွားပုံကို မှတ်သားပြီး အကြံပြုချက်ပေးနိုင်ပါသည်။ Screenshot ပို့မည်ဆိုပါက ကိုယ်ရေးကိုယ်တာအချက်အလက်များကို ဖုံးကွယ်ပေးပါ။ မဖြေလိုသော မေးခွန်းရှိပါက ဆက်မဖြေဘဲ စမ်းသပ်မှုကို ရပ်နားနိုင်ပါသည်။</p>
-      </section>
 
-      <section className="relative overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f4e9ed] px-6 py-10 card-shadow sm:px-10 sm:py-14 lg:px-14">
+      <section className="relative overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f4e9ed] px-6 py-8 card-shadow sm:px-10 sm:py-12 lg:px-14">
         <div className="soft-grid pointer-events-none absolute inset-0 opacity-30" />
         <div className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-full bg-[#e0d2e8]/50 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-[#f1d9e1]/60 blur-3xl" />
-        <div className="relative grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="relative grid items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="max-w-2xl">
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#80678f] shadow-sm"><Sparkles size={14} /> ကိုယ့်ကိုယ်ကို နားလည်ဖို့ ခရီးစဉ်ငယ်တစ်ခု</span>
+            <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#6f587a] shadow-sm"><Sparkles size={14} /> ကိုယ့်ကိုယ်ကို နားလည်ဖို့ ခရီးစဉ်ငယ်တစ်ခု</span>
             <h1 className="text-3xl font-bold leading-[1.45] tracking-tight text-[#44364a] sm:text-4xl lg:text-[2.8rem]">ကိုယ့်ပင်ကိုစရိုက်နဲ့<br className="hidden sm:block" /> အတွင်းစိတ်ကို ပိုမိုနားလည်ပါ</h1>
-            <p className="mt-5 max-w-xl text-sm leading-8 text-[#776b7b] sm:text-base">မိမိရဲ့ အတွေးအခေါ်၊ စိတ်ခံစားမှု၊ အပြုအမူနဲ့ ဆက်ဆံရေးပုံစံတွေကို အဆင့်ဆင့် လေ့လာပြီး ကိုယ့်ကိုယ်ကို ပိုမိုနားလည်လာစေဖို့ ရည်ရွယ်ပါတယ်။</p>
-            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#6b5e70]">
-              <span className="inline-flex items-center gap-1.5"><ClipboardCheck size={14} /> မိမိရွေးချယ်နိုင်တဲ့ ဆန်းစစ်မှုများ</span>
+            <p className="mt-4 max-w-xl text-sm leading-8 text-[#5d5162] sm:text-base">မိမိရဲ့ အတွေးအခေါ်၊ စိတ်ခံစားမှု၊ အပြုအမူနဲ့ ဆက်ဆံရေးပုံစံတွေကို အဆင့်ဆင့် လေ့လာပြီး ကိုယ့်ကိုယ်ကို ပိုမိုနားလည်လာစေဖို့ ရည်ရွယ်ပါတယ်။</p>
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#5d5162]">
+              <span className="inline-flex items-center gap-1.5"><Clock3 size={14} /> ၅ မိနစ်မှ စတင်နိုင်</span>
               <span className="inline-flex items-center gap-1.5"><PauseCircle size={14} /> ခဏရပ်ပြီး ပြန်ဆက်နိုင်</span>
               <span className="inline-flex items-center gap-1.5"><LockKeyhole size={14} /> ဒီစက်ထဲမှာသာ သိမ်းဆည်း</span>
             </div>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <PrimaryButton onClick={() => scrollTo('assessment-dashboard')}>စတင်လေ့လာမယ်</PrimaryButton>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <PrimaryButton onClick={() => scrollTo('personality-levels')}>TraitLens ဖြင့် စတင်လေ့လာမယ်</PrimaryButton>
               {latestPersonalityDraft && (
                 <SecondaryButton onClick={() => onResume(Number(latestPersonalityDraft[0]))} icon={ArrowRight}>အရင်ဖြေထားတာ ဆက်မယ်</SecondaryButton>
               )}
             </div>
+            <p className="mt-3 text-xs leading-6 text-[#6b5e70]">ပထမဆုံးအကြိမ် စတင်သူများအတွက် အခြေခံ ၃၀ မေးခွန်း (~၅ မိနစ်) ဖြင့် စတင်ရန် အကြံပြုပါသည်။</p>
           </div>
-          <div className="relative mx-auto w-full max-w-sm">
+          <div className="relative mx-auto hidden w-full max-w-sm lg:block">
             <div className="absolute inset-4 rounded-[2rem] bg-[#d8c6df]/50 blur-2xl" />
             <div className="relative rounded-[2rem] border border-white/90 bg-white/80 p-5 shadow-[0_22px_70px_rgba(91,68,96,0.13)] backdrop-blur">
-              <div className="flex items-center justify-between"><span className="text-xs font-semibold text-[#6b5e70]">သင့်ရဲ့ ကိုယ်ပိုင်မြေပုံ</span><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-[11px] font-semibold text-[#80678f]">လေ့လာမှု ၄ ပိုင်း</span></div>
+              <div className="flex items-center justify-between"><span className="text-xs font-semibold text-[#6b5e70]">သင့်ရဲ့ ကိုယ်ပိုင်မြေပုံ</span><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-[11px] font-semibold text-[#6f587a]">လေ့လာမှု ၄ ပိုင်း</span></div>
               <div className="relative mt-5 grid aspect-square place-items-center rounded-[1.5rem] bg-gradient-to-br from-[#f8f3fa] to-[#fdf7f5]">
                 <div className="absolute h-[75%] w-[75%] rounded-full border border-[#e8dfea]" /><div className="absolute h-[55%] w-[55%] rounded-full border border-[#e8dfea]" /><div className="absolute h-[34%] w-[34%] rounded-full border border-[#e8dfea]" />
                 <div className="absolute h-px w-[78%] bg-[#e8dfea]" /><div className="absolute h-[78%] w-px bg-[#e8dfea]" />
@@ -218,13 +189,62 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
                 <span className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#865569] shadow-sm">ဘဝတန်ဖိုး</span>
               </div>
               <div className="mt-4 grid grid-cols-3 gap-2">
-                <div className="rounded-xl bg-[#f7f1f8] p-2.5 text-center"><span className="block text-lg font-bold text-[#80678f]">30</span><span className="text-[11px] text-[#6b5e70]">အခြေခံ</span></div>
-                <div className="rounded-xl bg-[#fbf1f3] p-2.5 text-center"><span className="block text-lg font-bold text-[#865569]">60</span><span className="text-[11px] text-[#6b5e70]">အသေးစိတ်</span></div>
-                <div className="rounded-xl bg-[#f4f3ed] p-2.5 text-center"><span className="block text-lg font-bold text-[#825824]">120</span><span className="text-[11px] text-[#6b5e70]">နက်ရှိုင်း</span></div>
+                <div className="rounded-xl bg-[#f7f1f8] p-2.5 text-center"><span className="block text-lg font-bold text-[#80678f]">30</span><span className="text-[11px] text-[#6b5e70]">~၅ မိနစ်</span></div>
+                <div className="rounded-xl bg-[#fbf1f3] p-2.5 text-center"><span className="block text-lg font-bold text-[#865569]">60</span><span className="text-[11px] text-[#6b5e70]">~၁၀ မိနစ်</span></div>
+                <div className="rounded-xl bg-[#f4f3ed] p-2.5 text-center"><span className="block text-lg font-bold text-[#825824]">120</span><span className="text-[11px] text-[#6b5e70]">~၂၀ မိနစ်</span></div>
               </div>
             </div>
           </div>
         </div>
+      </section>
+
+      <section aria-labelledby="beta-notice-title" className="mt-5 rounded-2xl border border-[#eadfc9] bg-[#fffaf1] px-4 py-3 shadow-sm sm:px-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f8edd8] text-[#825824]"><CircleHelp size={18} /></span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 id="beta-notice-title" className="text-xs font-bold text-[#715832] sm:text-sm">Beta စမ်းသပ်ဗားရှင်း · ကိုယ်တိုင်သုံးသပ်ရန်သာ</h2>
+                <span className="rounded-full bg-[#f8edd8] px-2 py-0.5 text-[11px] font-bold tracking-wide text-[#825824]">BETA</span>
+              </div>
+              <p className="mt-1 text-[11px] leading-6 text-[#6f5e47]">ရောဂါရှာဖွေခြင်းနှင့် ဆေးဘက်ဆိုင်ရာ ဆုံးဖြတ်ချက် မဟုတ်ပါ။ အဖြေများကို ဒီ Browser ထဲတွင်သာ သိမ်းဆည်းထားပါသည်။</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-expanded={betaDetailsOpen}
+            aria-controls="beta-notice-details"
+            onClick={() => setBetaDetailsOpen((open) => !open)}
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-[#e6d6b8] bg-white/85 px-3.5 py-2 text-xs font-semibold text-[#715832] transition hover:bg-white"
+          >
+            <span>{betaDetailsOpen ? 'အသေးစိတ်ပိတ်ရန်' : 'အသေးစိတ်ကြည့်ရန်'}</span>
+            <ChevronRight size={14} className={cn('transition-transform', betaDetailsOpen && 'rotate-90')} />
+          </button>
+        </div>
+        {betaDetailsOpen && (
+          <div id="beta-notice-details" className="mt-4 border-t border-[#efe4cf] pt-4">
+            <p className="text-xs leading-7 text-[#6f5e47]">ဤ App ကို အသုံးပြုသူများထံမှ အကြံပြုချက်ရယူပြီး ပိုမိုကောင်းမွန်လာစေရန် စမ်းသပ်ပြင်ဆင်နေဆဲ ဖြစ်ပါသည်။ ထို့ကြောင့် မေးခွန်း၊ မြန်မာစာအသုံးအနှုန်း၊ ရလဒ်ရှင်းလင်းချက်နှင့် လုပ်ဆောင်ချက်အချို့ ပြောင်းလဲနိုင်သလို မမျှော်လင့်ထားသော အမှားများလည်း ဖြစ်ပေါ်နိုင်ပါသည်။</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-[#f0e6d4] bg-white/80 p-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><BookOpen size={15} /> ရလဒ်များကို သတိထားဖတ်ပါ</div>
+                <p className="mt-1.5 text-[11px] leading-6 text-[#6f5e47]">ရလဒ်များသည် မိမိကိုယ်ကို ပြန်လည်သုံးသပ်ရန် အထောက်အကူပေးသည့် အညွှန်းများသာ ဖြစ်ပါသည်။ သင့်ကို အမျိုးအစားတစ်ခုတည်းဖြင့် အပြီးသတ်သတ်မှတ်ခြင်း သို့မဟုတ် အခြားသူများနှင့် အဆင့်ချင်းနှိုင်းယှဉ်ခြင်း မဟုတ်ပါ။ Career Interest ရလဒ်သည် အလုပ်ရရှိမှု သို့မဟုတ် အောင်မြင်မှုကို အာမမခံပါ။</p>
+              </div>
+              <div className="rounded-xl border border-[#f0e6d4] bg-white/80 p-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><ShieldCheck size={15} /> ပညာရှင်၏ ဆုံးဖြတ်ချက်အစား မသုံးပါနှင့်</div>
+                <p className="mt-1.5 text-[11px] leading-6 text-[#6f5e47]">ဤ App သည် စိတ်ကျန်းမာရေးဆိုင်ရာ ရောဂါရှာဖွေခြင်း၊ ကုသမှု၊ ဆေးဝါးသုံးစွဲမှု သို့မဟုတ် အရေးကြီးသော ဆုံးဖြတ်ချက်များအတွက် မဟုတ်ပါ။ လိုအပ်ပါက သက်ဆိုင်ရာ ပညာရှင်နှင့် တိုင်ပင်ပါ။</p>
+              </div>
+              <div className="rounded-xl border border-[#f0e6d4] bg-white/80 p-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><LockKeyhole size={15} /> အဖြေများကို ဒီ Browser ထဲတွင် သိမ်းထားပါသည်</div>
+                <p className="mt-1.5 text-[11px] leading-6 text-[#6f5e47]">အဖြေများ၊ Draft နှင့် မှတ်တမ်းများကို လက်ရှိ Browser/စက်၏ LocalStorage ထဲတွင်သာ သိမ်းဆည်းထားပြီး Cloud Sync မရှိသေးပါ။ Browser Data ရှင်းခြင်း၊ Private/Incognito အသုံးပြုခြင်း သို့မဟုတ် Browser/စက်ပြောင်းခြင်းကြောင့် Data ပျောက်နိုင်ပါသည်။</p>
+              </div>
+              <div className="rounded-xl border border-[#f0e6d4] bg-white/80 p-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#715832]"><FileJson size={15} /> Backup ကို လုံခြုံစွာ သိမ်းပါ</div>
+                <p className="mt-1.5 text-[11px] leading-6 text-[#6f5e47]">Browser Data မရှင်းမီ JSON Backup ထုတ်ယူထားပါ။ Backup ဖိုင်ထဲတွင် ကိုယ်ရေးကိုယ်တာ အဖြေများနှင့် ရလဒ်များ ပါဝင်နိုင်သောကြောင့် အခြားသူများထံ မမျှဝေပါနှင့်။</p>
+              </div>
+            </div>
+            <p className="mt-3 rounded-xl bg-[#f8f0e3] px-3 py-2 text-[11px] leading-6 text-[#6f5e47]">စမ်းသပ်ရာတွင် Error သို့မဟုတ် နားမလည်သောအချက်တွေ့ပါက အသုံးပြုနေသည့် ဖုန်း/ကွန်ပျူတာ၊ Browser အမျိုးအစားနှင့် ဖြစ်ပွားပုံကို မှတ်သားပြီး အကြံပြုချက်ပေးနိုင်ပါသည်။ မဖြေလိုသော မေးခွန်းရှိပါက ဆက်မဖြေဘဲ စမ်းသပ်မှုကို ရပ်နားနိုင်ပါသည်။</p>
+          </div>
+        )}
       </section>
 
       <section className="mt-6 grid grid-cols-3 gap-2 sm:gap-4" aria-label="လက်ရှိအသုံးပြုမှု အကျဉ်းချုပ်">
@@ -242,38 +262,64 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
         </article>
       </section>
 
-      <section className="mt-7 rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
-        <div className="flex items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#f3edf5] text-[#80678f]"><BookOpen size={22}/></span>
-          <div>
-            <div className="flex flex-wrap items-center gap-2"><h2 className="text-base font-bold text-[#514357]">Knowledge Center</h2><span className="rounded-full bg-[#fff5e6] px-2 py-0.5 text-[11px] font-bold text-[#825824]">မူကြမ်း 0.1.0</span></div>
-            <p className="mt-1 text-xs font-semibold text-[#80678f]">စိတ်ပညာနဲ့ လူ့အပြုအမူဆိုင်ရာ အသိပညာများ</p>
-            <p className="mt-2 max-w-2xl text-[11px] leading-6 text-[#6b5e70]">ခက်ခဲတဲ့ စိတ်ပညာဆိုင်ရာ စကားလုံးတွေကို မြန်မာလို အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာနဲ့ ကွာခြားချက်တွေကို ဖတ်ရှုနိုင်ပါတယ်။ လက်ရှိအကြောင်းအရာတွေဟာ ကျွမ်းကျင်သူစစ်ဆေးမှု မပြီးသေးတဲ့ မူကြမ်းများ ဖြစ်ပါတယ်။</p>
-            <p className="mt-2 text-[11px] text-[#6b5e70]">စကားလုံး ၃၀ · အုပ်စု ၆ ခု · ရောဂါရှာဖွေရေး မဟုတ်ပါ</p>
-          </div>
-        </div>
-        <button onClick={onOpenKnowledge} className="mt-4 inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d9cce0] bg-[#f7f2f8] px-4 py-2.5 text-xs font-semibold text-[#6f587a] transition hover:bg-[#eee6f1] sm:mt-0 sm:w-auto">စကားလုံးများ လေ့လာမယ် <ArrowRight size={15}/></button>
-      </section>
-
-      <section id="assessment-dashboard" className="mt-10 scroll-mt-24">
+      <section id="assessment-dashboard" className="mt-9 scroll-mt-24">
         <div className="mb-5">
-          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">PERSONALITY ASSESSMENT CENTER</p>
-          <h2 className="mt-1 text-xl font-bold text-[#514357]">ပင်ကိုစရိုက်နဲ့ အတွင်းစိတ်ကို လေ့လာပါ</h2>
+          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">CORE SELF-DISCOVERY MODULES</p>
+          <h2 className="mt-1 text-xl font-bold text-[#514357]">အဓိက ကိုယ့်ကိုယ်ကို လေ့လာရေး အပိုင်းများ</h2>
           <p className="mt-2 max-w-3xl text-xs leading-6 text-[#6b5e70]">ဆန်းစစ်မှုတစ်ခုချင်းစီမှာ ကိုယ်ပိုင်ရည်ရွယ်ချက်၊ မေးခွန်းနဲ့ ရလဒ်ရှိပါတယ်။ အဖြေတစ်ခုတည်းနဲ့ သင့်ကို အပြီးသတ်သတ်မှတ်မှာ မဟုတ်ဘဲ ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်နိုင်ဖို့ ကူညီပေးမှာပါ။</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <article className="flex flex-col rounded-2xl border border-[#d8c7df] bg-white p-5 shadow-sm ring-1 ring-[#eee5f0] sm:p-6">
-            <div className="flex items-start justify-between gap-3">
-              <span className="grid h-[76px] w-[76px] place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><TraitLensLogo size={58}/></span>
-              <span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-[11px] font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span>
-            </div>
-            <h3 className="mt-4 text-xl font-bold tracking-tight text-[#514357]">TraitLens</h3>
-            <p className="mt-1 text-sm font-semibold text-[#80678f]">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</p>
-            <p className="mt-3 flex-1 text-xs leading-7 text-[#6b5e70]">နေ့စဉ်ဘဝမှာ သင်တွေးခေါ်ပုံ၊ ပြုမူပုံ၊ လူမှုဆက်ဆံရေးနဲ့ စိတ်ခံစားမှုတုံ့ပြန်ပုံတွေကို အဓိက အချက် ၅ ချက်ကို အခြေခံပြီး လေ့လာနိုင်ပါတယ်။</p>
-            <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-[#80678f]"><span className="rounded-full bg-[#f5eff7] px-2.5 py-1">အချက် ၅ ချက်</span><span className="rounded-full bg-[#f5eff7] px-2.5 py-1">၃၀ မေးခွန်း</span><span className="rounded-full bg-[#f5eff7] px-2.5 py-1">၆၀ မေးခွန်း</span><span className="rounded-full bg-[#f5eff7] px-2.5 py-1">၁၂၀ မေးခွန်း</span></div>
-            <button onClick={() => scrollTo('personality-levels')} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">TraitLens ကို စတင်လေ့လာမယ် <ArrowRight size={15}/></button>
-          </article>
 
+        <section id="personality-levels" className="scroll-mt-24 rounded-2xl border border-[#d8c7df] bg-white p-5 shadow-sm ring-1 ring-[#eee5f0] sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4">
+              <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><TraitLensLogo size={54}/></span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-xl font-bold tracking-tight text-[#514357]">TraitLens</h3>
+                  <span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-[11px] font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span>
+                </div>
+                <p className="mt-1 text-sm font-semibold text-[#6f587a]">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</p>
+                <p className="mt-2 max-w-2xl text-xs leading-6 text-[#6b5e70]">နေ့စဉ်ဘဝမှာ သင်တွေးခေါ်ပုံ၊ ပြုမူပုံ၊ လူမှုဆက်ဆံရေးနဲ့ စိတ်ခံစားမှုတုံ့ပြန်ပုံတွေကို အဓိက အချက် ၅ ချက်ကို အခြေခံပြီး လေ့လာနိုင်ပါတယ်။ ပထမဆုံးအကြိမ် စတင်သူများအတွက် ၃၀ မေးခွန်း (~၅ မိနစ်) ဖြင့် စတင်ရန် အကြံပြုပါတယ်။</p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            {LEVELS.map((level) => {
+              const draft = drafts?.personality?.[String(level.value)] || null
+              const stats = draft ? getDraftStats(draft, level.value) : null
+              return (
+                <article key={level.value} className={cn('flex flex-col rounded-2xl border bg-[#fcfafc] p-4 sm:p-5', level.recommended ? 'border-[#ccb8d6] ring-1 ring-[#e8dcea]' : 'border-[#eee5ed]')}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="rounded-full bg-[#f3edf5] px-3 py-1 text-[11px] font-semibold text-[#6f587a]">{level.label}</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-[#5d5162] shadow-xs"><Clock3 size={12} /> {level.duration}</span>
+                  </div>
+                  {level.recommended && (
+                    <span className="mt-2.5 inline-flex w-fit rounded-full bg-[#eef5ed] px-2.5 py-0.5 text-[11px] font-semibold text-[#436b4f]">ပထမဆုံး စတင်သူများအတွက် အကြံပြု</span>
+                  )}
+                  <h4 className="mt-3 text-base font-bold text-[#514357]">{level.title}</h4>
+                  <p className="mt-1.5 min-h-11 text-xs leading-6 text-[#6b5e70]">{level.subtitle}</p>
+                  <div className="mt-3 flex items-end justify-between gap-2">
+                    <div className="flex items-end gap-2"><strong className="text-3xl text-[#80678f]">{level.value}</strong><span className="pb-1 text-xs text-[#6b5e70]">မေးခွန်း</span></div>
+                    <span className="text-[11px] text-[#6b5e70]">{level.time}</span>
+                  </div>
+                  {draft ? (
+                    <div className="mt-4 rounded-xl bg-white p-3 shadow-xs">
+                      <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#725f7a]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6b5e70]">{stats.progress}%</span></div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${stats.progress}%` }} /></div>
+                      <p className="mt-2 text-[11px] text-[#6b5e70]">ဖြေပြီး {stats.answered} ခု · ကျော်ထား {stats.skipped} ခု · နောက်ဆုံး {formatDate(draft.updatedAt)}</p>
+                      <div className="mt-3"><PrimaryButton onClick={() => onResume(level.value)} icon={ArrowRight}>ဆက်လက်ဖြေဆိုမယ်</PrimaryButton></div>
+                      <button onClick={() => onStart(level.value, true)} className="mt-2 w-full py-2 text-[11px] font-semibold text-[#865569] hover:text-[#8d5f72]">အစကနေ အသစ်ပြန်စမယ်</button>
+                    </div>
+                  ) : (
+                    <div className="mt-auto pt-4"><PrimaryButton onClick={() => onStart(level.value, false)}>စတင်ဖြေဆိုမယ်</PrimaryButton></div>
+                  )}
+                </article>
+              )
+            })}
+          </div>
+        </section>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
           <article className="flex flex-col rounded-2xl border border-[#d4e0ef] bg-white p-5 shadow-sm sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <span className="grid h-[76px] w-[76px] place-items-center rounded-2xl bg-[#eaf1fa] text-[#446c96]"><InnerCompassLogo size={58}/></span>
@@ -282,52 +328,47 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
             <h3 className="mt-4 text-xl font-bold tracking-tight text-[#3f5873]">InnerCompass</h3>
             <p className="mt-1 text-sm font-semibold text-[#3f648c]">စိတ်နေသဘောထားကို လေ့လာခြင်း</p>
             <p className="mt-3 flex-1 text-xs leading-7 text-[#596d83]">ကိုယ့်ရဲ့ ယုံကြည်စိတ်ချရမှု၊ စိတ်ခံစားချက်ကို သိမြင်ကိုင်တွယ်ပုံ၊ လူမှုဆက်ဆံရေး၊ အမြင်မတူမှုကို ကိုင်တွယ်ပုံ၊ ကိုယ်ပိုင်စီမံမှုနဲ့ စူးစမ်းတွေးခေါ်ပုံတွေကို ပြန်လည်သုံးသပ်နိုင်ပါတယ်။</p>
-            <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-[#3f648c]"><span className="rounded-full bg-[#eef3f9] px-2.5 py-1">မေးခွန်း ၃၀</span><span className="rounded-full bg-[#eef3f9] px-2.5 py-1">အဓိက အချက် ၆ ချက်</span><span className="rounded-full bg-[#fdf5e9] px-2.5 py-1 text-[#936e3c]">Pilot</span></div>
+            <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-[#3f648c]"><span className="rounded-full bg-[#eef3f9] px-2.5 py-1">မေးခွန်း ၃၀</span><span className="inline-flex items-center gap-1 rounded-full bg-[#eef3f9] px-2.5 py-1"><Clock3 size={12} /> ~၅ မိနစ်</span><span className="rounded-full bg-[#eef3f9] px-2.5 py-1">အဓိက အချက် ၆ ချက်</span><span className="rounded-full bg-[#fdf5e9] px-2.5 py-1 text-[#825824]">Pilot</span></div>
             {innerCompassDraft ? (
               <div className="mt-4 rounded-xl bg-[#f5f9fd] p-3">
                 <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#405f82]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#4e6379]">{innerCompassProgress}%</span></div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e1eaf3]"><div className="h-full rounded-full bg-[#527daa]" style={{ width: `${innerCompassProgress}%` }}/></div>
                 <p className="mt-2 text-[11px] text-[#4e6379]">ဖြေပြီး {innerCompassAnswered} ခု · ကျော်ထား {(innerCompassDraft.skippedQuestionIds || []).filter((id) => innerCompassDraft.answers?.[id] === undefined).length} ခု</p>
-                <button onClick={onOpenInnerCompass} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#527daa] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#456d97]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
+                <button onClick={onOpenInnerCompass} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#446c96] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#3a5d82]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
               </div>
             ) : (
               <button onClick={onOpenInnerCompass} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cbd9e9] bg-[#f6f9fd] px-4 py-2.5 text-xs font-semibold text-[#3f648c] transition hover:bg-[#edf3fa]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15}/></button>
             )}
             <p className="mt-2 text-[11px] leading-5 text-[#4e6379]">စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုသာ ဖြစ်ပြီး အတည်ပြုထားသော စိတ်ပညာစမ်းသပ်မှု မဟုတ်ပါ။</p>
           </article>
-        </div>
-      </section>
 
-      <section className="mt-10">
-        <div className="mb-4">
-          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">MORE SELF-REFLECTION AREAS</p>
-          <h2 className="mt-1 text-lg font-bold text-[#514357]">နောက်ထပ် လေ့လာနိုင်မယ့် အပိုင်းများ</h2>
-          <p className="mt-1 text-xs leading-6 text-[#6b5e70]">ဒီအပိုင်းတွေဟာ ပင်ကိုစရိုက်အဓိကဆန်းစစ်မှုတွေနဲ့ သီးခြားဖြစ်ပြီး နောက်ပိုင်းမှာ တဖြည်းဖြည်း ဖွင့်လှစ်သွားပါမယ်။</p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <article className="flex items-center gap-4 rounded-2xl border border-[#f0e1de] bg-white p-4">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#825824]"><BondSenseLogo size={44}/></span>
-            <div className="min-w-0 flex-1"><h3 className="text-sm font-bold text-[#71473d]">BondSense</h3><p className="mt-1 text-xs leading-6 text-[#825824]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p><span className="mt-1 inline-block text-[11px] font-semibold text-[#825824]">နောက်ပိုင်း ဖွင့်လှစ်မည်</span></div>
-          </article>
-          <article className="flex items-center gap-4 rounded-2xl border border-[#e3e9d9] bg-white p-4">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef1e7] text-[#436b4f]"><ValueMapLogo size={44}/></span>
-            <div className="min-w-0 flex-1"><h3 className="text-sm font-bold text-[#465333]">ValueMap</h3><p className="mt-1 text-xs leading-6 text-[#6b5e70]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p><span className="mt-1 inline-block text-[11px] font-semibold text-[#436b4f]">နောက်ပိုင်း ဖွင့်လှစ်မည်</span></div>
+          <article className="flex flex-col rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <span className="grid h-[76px] w-[76px] place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><BookOpen size={34}/></span>
+              <span className="rounded-full bg-[#fff5e6] px-2.5 py-1 text-[11px] font-bold text-[#825824]">မူကြမ်း 0.1.0</span>
+            </div>
+            <h3 className="mt-4 text-xl font-bold tracking-tight text-[#514357]">Knowledge Center</h3>
+            <p className="mt-1 text-sm font-semibold text-[#6f587a]">စိတ်ပညာနဲ့ လူ့အပြုအမူဆိုင်ရာ အသိပညာများ</p>
+            <p className="mt-3 flex-1 text-xs leading-7 text-[#6b5e70]">ခက်ခဲတဲ့ စိတ်ပညာဆိုင်ရာ စကားလုံးတွေကို မြန်မာလို အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာနဲ့ ကွာခြားချက်တွေကို ဖတ်ရှုနိုင်ပါတယ်။</p>
+            <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-[#6b5e70]"><span className="rounded-full bg-[#f5eff7] px-2.5 py-1 text-[#6f587a]">စကားလုံး ၃၀</span><span className="rounded-full bg-[#f5eff7] px-2.5 py-1 text-[#6f587a]">အုပ်စု ၆ ခု</span><span className="rounded-full bg-[#f8f5f6] px-2.5 py-1">ရောဂါရှာဖွေရေး မဟုတ်ပါ</span></div>
+            <button onClick={onOpenKnowledge} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#d9cce0] bg-[#f7f2f8] px-4 py-2.5 text-xs font-semibold text-[#6f587a] transition hover:bg-[#eee6f1]">စကားလုံးများ လေ့လာမယ် <ArrowRight size={15}/></button>
+            <p className="mt-2 text-[11px] leading-5 text-[#6b5e70]">လက်ရှိအကြောင်းအရာတွေဟာ ကျွမ်းကျင်သူစစ်ဆေးမှု မပြီးသေးတဲ့ မူကြမ်းများ ဖြစ်ပါတယ်။</p>
           </article>
         </div>
       </section>
 
       <section className="mt-10">
         <div className="mb-4">
-          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">OPTIONAL TOOLS</p>
-          <h2 className="mt-1 text-lg font-bold text-[#514357]">အခြား ကိုယ်ပိုင်လေ့လာရေးကိရိယာများ</h2>
-          <p className="mt-1 text-xs leading-6 text-[#6b5e70]">အလုပ်အကိုင်စိတ်ဝင်စားမှုနဲ့ ကျွမ်းကျင်မှုတွေကို ပင်ကိုစရိုက်ဆန်းစစ်မှုနဲ့ သီးခြားလေ့လာနိုင်ပါတယ်။</p>
+          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">OPTIONAL &amp; UPCOMING MODULES</p>
+          <h2 className="mt-1 text-lg font-bold text-[#514357]">အခြား ကိုယ်ပိုင်လေ့လာရေးကိရိယာများနှင့် နောက်ထပ်အပိုင်းများ</h2>
+          <p className="mt-1 text-xs leading-6 text-[#6b5e70]">အလုပ်အကိုင်စိတ်ဝင်စားမှုကို သီးခြားလေ့လာနိုင်သလို နောက်ထပ်အပိုင်းအသစ်တွေကိုလည်း တဖြည်းဖြည်း ဖွင့်လှစ်သွားပါမယ်။</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <article className="flex flex-col rounded-2xl border border-[#e9dce7] bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-2"><span className="grid h-11 w-11 place-items-center rounded-xl bg-[#f8edf1] text-[#865569]"><BriefcaseBusiness size={20}/></span><span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-[11px] font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span></div>
             <h3 className="mt-4 text-base font-bold text-[#514357]">Career Interest</h3>
             <p className="mt-2 flex-1 text-xs leading-6 text-[#6b5e70]">ဘယ်လိုလုပ်ဆောင်မှုတွေကို ပိုနှစ်သက်သလဲ၊ ဘယ်လိုအလုပ်ပတ်ဝန်းကျင်တွေကို စိတ်ဝင်စားသလဲဆိုတာ သီးခြားလေ့လာပါ။</p>
-            <p className="mt-4 text-[11px] font-semibold text-[#865569]">မေးခွန်း ၃၀ · စိတ်ဝင်စားမှု အမျိုးအစား ၆ မျိုး</p>
+            <p className="mt-4 inline-flex flex-wrap items-center gap-2 text-[11px] font-semibold text-[#865569]"><span>မေးခွန်း ၃၀ · စိတ်ဝင်စားမှု အမျိုးအစား ၆ မျိုး</span><span className="inline-flex items-center gap-1 rounded-full bg-[#f8edf1] px-2 py-0.5"><Clock3 size={11} /> ~၅ မိနစ်</span></p>
             {careerDraft ? (
               <div className="mt-3 rounded-xl bg-[#faf6fb] p-3">
                 <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#725f7a]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6b5e70]">{careerProgress}%</span></div>
@@ -347,34 +388,15 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
             <span className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e3e9d9] bg-[#f8faf5] px-4 py-2.5 text-xs font-semibold text-[#436b4f]">နောက်အဆင့်တွင် ဖွင့်လှစ်မည်</span>
           </article>
         </div>
-      </section>
-
-      <section id="personality-levels" className="mt-10 scroll-mt-24">
-        <div className="mb-4"><p className="text-xs font-semibold tracking-wide text-[#6b5e70]">TRAITLENS · PERSONALITY REFLECTION</p><h2 className="mt-1 text-xl font-bold text-[#514357]">TraitLens — ပင်ကိုစရိုက်ကို ဘယ်လောက်အထိ လေ့လာချင်ပါသလဲ။</h2><p className="mt-2 text-xs leading-6 text-[#6b5e70]">ကိုယ့်အချိန်နဲ့ ကိုက်ညီတဲ့ မေးခွန်းအရေအတွက်ကို ရွေးချယ်ပါ။ စတင်ပြီးနောက် ခဏရပ်ထားနိုင်ပြီး နောက်မှ ပြန်ဆက်ဖြေဆိုနိုင်ပါတယ်။</p></div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {LEVELS.map((level, index) => {
-            const draft = drafts?.personality?.[String(level.value)] || null
-            const stats = draft ? getDraftStats(draft, level.value) : null
-            return (
-              <article key={level.value} className={cn('flex flex-col rounded-2xl border bg-white p-5 shadow-sm', index === 1 ? 'border-[#d8c7df] ring-1 ring-[#e8dcea]' : 'border-[#eee5ed]')}>
-                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-[#f3edf5] px-3 py-1 text-[11px] font-semibold text-[#80678f]">{level.label}</span><span className="text-[11px] text-[#6b5e70]">{level.time}</span></div>
-                <h3 className="mt-4 text-base font-bold text-[#514357]">{level.title}</h3>
-                <p className="mt-2 min-h-12 text-xs leading-6 text-[#6b5e70]">{level.subtitle}</p>
-                <div className="mt-4 flex items-end gap-2"><strong className="text-3xl text-[#80678f]">{level.value}</strong><span className="pb-1 text-xs text-[#6b5e70]">မေးခွန်း</span></div>
-                {draft ? (
-                  <div className="mt-4 rounded-xl bg-[#faf6fb] p-3">
-                    <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#725f7a]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6b5e70]">{stats.progress}%</span></div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${stats.progress}%` }} /></div>
-                    <p className="mt-2 text-[11px] text-[#6b5e70]">ဖြေပြီး {stats.answered} ခု · ကျော်ထား {stats.skipped} ခု · နောက်ဆုံး {formatDate(draft.updatedAt)}</p>
-                    <PrimaryButton onClick={() => onResume(level.value)} icon={ArrowRight}>ဆက်လက်ဖြေဆိုမယ်</PrimaryButton>
-                    <button onClick={() => onStart(level.value, true)} className="mt-2 w-full py-2 text-[11px] font-semibold text-[#865569] hover:text-[#8d5f72]">အစကနေ အသစ်ပြန်စမယ်</button>
-                  </div>
-                ) : (
-                  <div className="mt-auto pt-5"><PrimaryButton onClick={() => onStart(level.value, false)}>စတင်ဖြေဆိုမယ်</PrimaryButton></div>
-                )}
-              </article>
-            )
-          })}
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <article className="flex items-center gap-4 rounded-2xl border border-[#f0e1de] bg-white p-4">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#825824]"><BondSenseLogo size={44}/></span>
+            <div className="min-w-0 flex-1"><h3 className="text-sm font-bold text-[#71473d]">BondSense</h3><p className="mt-1 text-xs leading-6 text-[#825824]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p><span className="mt-1 inline-block text-[11px] font-semibold text-[#825824]">နောက်ပိုင်း ဖွင့်လှစ်မည်</span></div>
+          </article>
+          <article className="flex items-center gap-4 rounded-2xl border border-[#e3e9d9] bg-white p-4">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef1e7] text-[#436b4f]"><ValueMapLogo size={44}/></span>
+            <div className="min-w-0 flex-1"><h3 className="text-sm font-bold text-[#465333]">ValueMap</h3><p className="mt-1 text-xs leading-6 text-[#6b5e70]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p><span className="mt-1 inline-block text-[11px] font-semibold text-[#436b4f]">နောက်ပိုင်း ဖွင့်လှစ်မည်</span></div>
+          </article>
         </div>
       </section>
 
@@ -759,10 +781,30 @@ function HistoryPage({ history, onOpen, onDelete, onClear, onStart }) {
 }
 
 function BackupRestoreDialog({ preview, mode, onModeChange, onCancel, onConfirm }) {
+  const dialogRef = useRef(null)
+  const previousFocusRef = useRef(null)
+
+  useEffect(() => {
+    if (!preview) return undefined
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const frame = window.requestAnimationFrame(() => {
+      dialogRef.current?.focus()
+    })
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onCancel()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('keydown', handleKeyDown)
+      previousFocusRef.current?.focus?.()
+    }
+  }, [preview, onCancel])
+
   if (!preview) return null
   return (
     <div className="no-print fixed inset-0 z-[60] flex items-center justify-center bg-[#302735]/40 p-4 backdrop-blur-sm" role="presentation">
-      <section role="dialog" aria-modal="true" aria-labelledby="backup-dialog-title" className="w-full max-w-lg rounded-[1.75rem] border border-[#eee5ed] bg-[#fffdfd] p-5 shadow-2xl sm:p-7">
+      <section ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="backup-dialog-title" className="w-full max-w-lg rounded-[1.75rem] border border-[#eee5ed] bg-[#fffdfd] p-5 shadow-2xl outline-none sm:p-7">
         <div className="flex items-start gap-3">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><FileJson size={20} /></span>
           <div className="min-w-0 flex-1">
