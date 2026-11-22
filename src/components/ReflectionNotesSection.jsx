@@ -51,6 +51,18 @@ const THEME = {
     secondaryBtn: 'border-[#cad9ce] text-[#33573d] hover:bg-[#eef5f0]',
     focusRing: 'focus:border-[#6a9174]',
   },
+  emotionLens: {
+    border: 'border-[#cce0e2]',
+    bg: 'bg-[#f4f9f9]',
+    badgeBg: 'bg-[#e4f1f2]',
+    badgeText: 'text-[#1e4a4f]',
+    heading: 'text-[#1e4a4f]',
+    body: 'text-[#3a5a5e]',
+    muted: 'text-[#3a5a5e]',
+    primaryBtn: 'bg-[#2f6d73] hover:bg-[#24565b] text-white',
+    secondaryBtn: 'border-[#bfd8da] text-[#1e4a4f] hover:bg-[#eaf4f4]',
+    focusRing: 'focus:border-[#639ca1]',
+  },
 }
 
 function formatNoteDate(value) {

@@ -5,6 +5,7 @@ const TONE_PALETTES = {
   blue: { active: 'border-[#b9cce0] bg-[#edf4fb] text-[#456d97]', idle: 'border-[#e5edf5] bg-white text-[#4e6379]' },
   terracotta: { active: 'border-[#e0bfb8] bg-[#fbf0ed] text-[#7c392b]', idle: 'border-[#f0e1de] bg-white text-[#6d4b44]' },
   sage: { active: 'border-[#bfd3c4] bg-[#eef5f0] text-[#33573d]', idle: 'border-[#dce6de] bg-white text-[#475e4d]' },
+  teal: { active: 'border-[#b5d2d5] bg-[#eaf4f4] text-[#1e4a4f]', idle: 'border-[#d8e8ea] bg-white text-[#3a5a5e]' },
 }
 
 export default function ReportSectionNavigation({ items, tone = 'plum' }) {

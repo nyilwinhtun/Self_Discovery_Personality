@@ -23,6 +23,14 @@ const TONES = {
     activeText: 'font-bold text-[#3f5873]',
     mutedText: 'text-[#4e6379]',
   },
+  teal: {
+    track: 'bg-[#e6f1f2]',
+    fill: 'bg-gradient-to-r from-[#2f6d73] to-[#68a3a8]',
+    dot: 'bg-[#24565b]',
+    center: 'bg-[#9fc4c7]',
+    activeText: 'font-bold text-[#1e4a4f]',
+    mutedText: 'text-[#3a5a5e]',
+  },
 }
 
 /**

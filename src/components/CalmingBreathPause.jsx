@@ -58,6 +58,18 @@ const THEME = {
     btnPrimary: 'bg-[#33573d] hover:bg-[#27452f] text-white',
     btnSecondary: 'border-[#cad9ce] text-[#2c4a34] hover:bg-[#eef4ef]',
   },
+  emotionLens: {
+    border: 'border-[#cce0e2]',
+    bg: 'bg-[#f4f9f9]',
+    badgeBg: 'bg-[#e4f1f2]',
+    badgeText: 'text-[#1e4a4f]',
+    heading: 'text-[#1e4a4f]',
+    body: 'text-[#3a5a5e]',
+    orbBg: 'bg-[#dceced]',
+    orbRing: 'border-[#96bfc3]',
+    btnPrimary: 'bg-[#2f6d73] hover:bg-[#24565b] text-white',
+    btnSecondary: 'border-[#bfd8da] text-[#1e4a4f] hover:bg-[#eaf4f4]',
+  },
 }
 
 function usePrefersReducedMotion() {

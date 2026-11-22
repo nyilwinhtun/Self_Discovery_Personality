@@ -25,6 +25,7 @@ function getRecordAssessmentType(record) {
   if (record?.assessmentType === 'innerCompass') return 'innerCompass'
   if (record?.assessmentType === 'bondSense') return 'bondSense'
   if (record?.assessmentType === 'valueMap') return 'valueMap'
+  if (record?.assessmentType === 'emotionLens') return 'emotionLens'
   return 'personality'
 }
 
@@ -67,6 +68,13 @@ const VALUEMAP_COMPARE_AREAS = [
   { id: 'connection-contribution', name: 'မေတ္တာနှင့် အကျိုးပြုမှု' },
 ]
 
+const EMOTIONLENS_COMPARE_AREAS = [
+  { id: 'emotional-awareness', name: 'စိတ်ခံစားချက် သိမှတ်နိုင်စွမ်း' },
+  { id: 'calm-regulation', name: 'စိတ်ဖိစီးမှု ကိုင်တွယ်တည်ငြိမ်မှု' },
+  { id: 'self-compassion', name: 'ကိုယ့်ကိုယ်ကို ကြင်နာနားလည်မှု' },
+  { id: 'overthinking-release', name: 'အတွေးလွန်ခြင်းမှ လွတ်မြောက်နိုင်မှု' },
+]
+
 function buildComparisonRows(earlier, later) {
   const type = getRecordAssessmentType(earlier)
   if (type === 'innerCompass') {
@@ -85,6 +93,13 @@ function buildComparisonRows(earlier, later) {
   }
   if (type === 'valueMap') {
     return VALUEMAP_COMPARE_AREAS.map((dim) => {
+      const before = earlier?.scores?.[dim.id]?.score ?? 0
+      const after = later?.scores?.[dim.id]?.score ?? 0
+      return { id: dim.id, label: dim.name, before, after, delta: after - before }
+    })
+  }
+  if (type === 'emotionLens') {
+    return EMOTIONLENS_COMPARE_AREAS.map((dim) => {
       const before = earlier?.scores?.[dim.id]?.score ?? 0
       const after = later?.scores?.[dim.id]?.score ?? 0
       return { id: dim.id, label: dim.name, before, after, delta: after - before }
@@ -110,6 +125,7 @@ const HISTORY_FILTERS = [
   { id: 'innerCompass', label: 'InnerCompass' },
   { id: 'bondSense', label: 'BondSense' },
   { id: 'valueMap', label: 'ValueMap' },
+  { id: 'emotionLens', label: 'EmotionLens' },
   { id: 'careerInterest', label: 'Career Interest' },
 ]
 
@@ -279,7 +295,8 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
                 const isInnerCompass = record.assessmentType === 'innerCompass'
                 const isBondSense = record.assessmentType === 'bondSense'
                 const isValueMap = record.assessmentType === 'valueMap'
-                const profile = !isCareer && !isInnerCompass && !isBondSense && !isValueMap && record.scores ? getPersonalityProfile(record.scores) : null
+                const isEmotionLens = record.assessmentType === 'emotionLens'
+                const profile = !isCareer && !isInnerCompass && !isBondSense && !isValueMap && !isEmotionLens && record.scores ? getPersonalityProfile(record.scores) : null
                 const isSelected = activeSelectedIds.includes(record.id)
                 const incompatible = Boolean(firstKey && !isSelected && getRecordComparisonKey(record) !== firstKey)
                 return (
@@ -287,9 +304,9 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
                     <button onClick={() => onOpen(record)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
                       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><Sparkles size={19} /></span>
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-bold text-[#594a5e]">{isCareer ? `Career Interest · ${record.careerCode || 'စိတ်ဝင်စားမှု'}` : isInnerCompass ? 'InnerCompass · စိတ်နေသဘောထားသုံးသပ်မှု' : isBondSense ? 'BondSense · ဆက်ဆံရေးသုံးသပ်မှု' : isValueMap ? 'ValueMap · ဘဝတန်ဖိုးသုံးသပ်မှု' : (profile?.title || 'TraitLens · ပင်ကိုစရိုက်ဆန်းစစ်မှု')}</span>
+                        <span className="block truncate text-sm font-bold text-[#594a5e]">{isCareer ? `Career Interest · ${record.careerCode || 'စိတ်ဝင်စားမှု'}` : isInnerCompass ? 'InnerCompass · စိတ်နေသဘောထားသုံးသပ်မှု' : isBondSense ? 'BondSense · ဆက်ဆံရေးသုံးသပ်မှု' : isValueMap ? 'ValueMap · ဘဝတန်ဖိုးသုံးသပ်မှု' : isEmotionLens ? 'EmotionLens · စိတ်ခံစားချက်သုံးသပ်မှု' : (profile?.title || 'TraitLens · ပင်ကိုစရိုက်ဆန်းစစ်မှု')}</span>
                         <span className="mt-1 block text-[11px] text-[#6b5e70]">{formatDate(record.createdAt)}</span>
-                        <span className="mt-1 block text-[11px] text-[#6b5e70]">{record.questionCount || record.level || 30} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : isBondSense ? 'ဆက်ဆံရေး Pilot' : isValueMap ? 'ဘဝတန်ဖိုး Pilot' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span>
+                        <span className="mt-1 block text-[11px] text-[#6b5e70]">{record.questionCount || record.level || 30} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : isBondSense ? 'ဆက်ဆံရေး Pilot' : isValueMap ? 'ဘဝတန်ဖိုး Pilot' : isEmotionLens ? 'စိတ်ခံစားချက် Pilot' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span>
                       </span>
                     </button>
                     <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">

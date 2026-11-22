@@ -6,6 +6,7 @@ const TONE_CLASSES = {
   blue: 'border-[#d4e0ef] text-[#446c96] hover:border-[#b7cde6] hover:bg-[#f4f8fc]',
   terracotta: 'border-[#ebd6d1] text-[#7c392b] hover:border-[#d9b4ab] hover:bg-[#fcf6f4]',
   sage: 'border-[#d4e1d7] text-[#33573d] hover:border-[#b4cbb9] hover:bg-[#f3f8f4]',
+  teal: 'border-[#cce0e2] text-[#1e4a4f] hover:border-[#9fc4c7] hover:bg-[#f4f9f9]',
 }
 
 /**

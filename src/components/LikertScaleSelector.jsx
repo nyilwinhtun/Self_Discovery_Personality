@@ -37,6 +37,15 @@ const ACCENT_THEMES = {
     ringAgree: 'border-[#abc4b1] bg-[#fffdf9] text-[#2c4a34] hover:border-[#3d6347] hover:bg-[#f1f6f2]',
     feedbackSelected: 'border-[#c4d9c9] bg-[#f1f6f2] text-[#2c4a34]',
   },
+  teal: {
+    selectedDisagree: 'border-[#9a5f72] bg-[#9a5f72] text-white shadow-[0_6px_16px_rgba(154,95,114,0.22)]',
+    ringDisagree: 'border-[#c8a9b3] bg-[#fffdf9] text-[#5c3e49] hover:border-[#9a5f72] hover:bg-[#faf3f5]',
+    selectedNeutral: 'border-[#6f675f] bg-[#6f675f] text-white shadow-[0_6px_16px_rgba(111,103,95,0.2)]',
+    ringNeutral: 'border-[#cfc7bc] bg-[#fffdf9] text-[#524b59] hover:border-[#8f867c] hover:bg-[#f6f3ee]',
+    selectedAgree: 'border-[#2f6d73] bg-[#2f6d73] text-white shadow-[0_6px_16px_rgba(47,109,115,0.24)]',
+    ringAgree: 'border-[#9fc4c7] bg-[#fffdf9] text-[#1e4a4f] hover:border-[#2f6d73] hover:bg-[#eef6f6]',
+    feedbackSelected: 'border-[#bfd8da] bg-[#eef6f6] text-[#1e4a4f]',
+  },
 }
 
 const CIRCLE_SIZES = {

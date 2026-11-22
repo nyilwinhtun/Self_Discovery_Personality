@@ -8,6 +8,7 @@ import {
   CircleHelp,
   ImageDown,
   Sparkles,
+  Wind,
 } from 'lucide-react'
 import { TRAITS } from '../data/questions.js'
 import { RIASEC_CATEGORIES } from '../data/careerQuestions.js'
@@ -43,6 +44,13 @@ const VALUEMAP_LABELS = {
   'connection-contribution': 'မေတ္တာနှင့် အကျိုးပြုမှု',
 }
 
+const EMOTIONLENS_LABELS = {
+  'emotional-awareness': 'စိတ်ခံစားချက် သိမှတ်နိုင်စွမ်း',
+  'calm-regulation': 'စိတ်ဖိစီးမှု ကိုင်တွယ်တည်ငြိမ်မှု',
+  'self-compassion': 'ကိုယ့်ကိုယ်ကို ကြင်နာနားလည်မှု',
+  'overthinking-release': 'အတွေးလွန်ခြင်းမှ လွတ်မြောက်နိုင်မှု',
+}
+
 function formatDate(value) {
   if (!value) return 'မသိရှိပါ'
   try {
@@ -60,6 +68,7 @@ function getRecordType(record) {
   if (record?.assessmentType === 'innerCompass') return 'innerCompass'
   if (record?.assessmentType === 'bondSense') return 'bondSense'
   if (record?.assessmentType === 'valueMap') return 'valueMap'
+  if (record?.assessmentType === 'emotionLens') return 'emotionLens'
   if (record?.assessmentType === 'careerInterest') return 'careerInterest'
   return 'personality'
 }
@@ -179,6 +188,26 @@ function extractModuleSummaries(history) {
     }
   }
 
+  if (latest.emotionLens) {
+    const top = getTopDimension(latest.emotionLens, EMOTIONLENS_LABELS)
+    if (top) {
+      summaries.push({
+        id: 'emotionLens',
+        title: 'EmotionLens · စိတ်ခံစားချက်',
+        subtitle: 'စိတ်ခံစားချက်သုံးသပ်မှု (Pilot)',
+        topLabel: top.name,
+        score: top.score,
+        date: latest.emotionLens.createdAt,
+        record: latest.emotionLens,
+        toneBg: 'bg-[#eaf4f4]',
+        toneText: 'text-[#1e4a4f]',
+        toneBorder: 'border-[#cce0e2]',
+        barColor: 'bg-[#2f6d73]',
+        prose: `စိတ်ခံစားချက်ပိုင်းတွင် “${top.name}” (${top.score}/100) သည် လတ်တလော အားသာနေသည့် အလေ့အကျင့်တစ်ခု ဖြစ်နေပါသည်။`,
+      })
+    }
+  }
+
   if (latest.careerInterest) {
     const careerScores = latest.careerInterest.careerScores || {}
     const ranked = [...RIASEC_CATEGORIES].sort(
@@ -230,6 +259,13 @@ function buildCrossModulePrompts(latest) {
       question: 'Career Interest တွင် စိတ်ဝင်စားမှုမြင့်နေသော လုပ်ဆောင်မှုများသည် သင့် ValueMap ထဲက အဓိကတန်ဖိုးများကို ဖြည့်ဆည်းပေးနိုင်မည်ဟု ခံစားရပါသလား။',
     })
   }
+  if (latest.emotionLens) {
+    prompts.push({
+      id: 'emotion-calm',
+      title: 'စိတ်ခံစားချက် နှင့် ကိုယ့်ကိုယ်ကို ဂရုစိုက်မှု',
+      question: 'EmotionLens ရလဒ်ကို ကြည့်ပြီး စိတ်ဖိစီးမှုများချိန် သို့မဟုတ် အတွေးလွန်ချိန်တွင် ကိုယ့်ကိုယ်ကို ပိုမိုနူးညံ့စွာ ပြန်ထိန်းညှိပေးနိုင်မည့် နည်းလမ်းတစ်ခုမှာ ဘာဖြစ်မလဲ။',
+    })
+  }
   if (prompts.length === 0) {
     prompts.push({
       id: 'starter-prompt',
@@ -254,6 +290,7 @@ export default function MyMindProfile({
   onStartInnerCompass,
   onStartBondSense,
   onStartValueMap,
+  onStartEmotionLens,
   onStartCareer,
 }) {
   const [busyPng, setBusyPng] = useState(false)
@@ -314,6 +351,17 @@ export default function MyMindProfile({
         onStart: onStartValueMap,
       })
     }
+    if (!latest.emotionLens && onStartEmotionLens) {
+      items.push({
+        id: 'emotionLens',
+        name: 'EmotionLens',
+        desc: 'စိတ်ခံစားချက် သိမှတ်မှုနှင့် စိတ်အေးချမ်းမှုကို လေ့လာရန် (~၄ မိနစ်)',
+        logo: <Wind size={22} />,
+        bg: 'bg-[#eaf4f4] text-[#2f6d73]',
+        btn: 'bg-[#2f6d73] hover:bg-[#24565b]',
+        onStart: onStartEmotionLens,
+      })
+    }
     if (!latest.careerInterest) {
       items.push({
         id: 'careerInterest',
@@ -332,6 +380,7 @@ export default function MyMindProfile({
     onStartInnerCompass,
     onStartBondSense,
     onStartValueMap,
+    onStartEmotionLens,
     onStartCareer,
   ])
 
@@ -345,7 +394,7 @@ export default function MyMindProfile({
         filename: `my-mind-profile-${new Date().toISOString().slice(0, 10)}.png`,
         subtitle: 'SELF DISCOVERY · MY MIND PROFILE',
         title: 'ကျွန်ုပ်၏ စိတ်ပုံရိပ် (My Mind Profile)',
-        metaLine: `ပြီးဆုံးထားသော အပိုင်း ${completedCount} / 5 · ${formatDate(new Date().toISOString())}`,
+        metaLine: `ပြီးဆုံးထားသော အပိုင်း ${completedCount} / 6 · ${formatDate(new Date().toISOString())}`,
         highlightLine: summaries.map((s) => `${s.title.split('·')[0].trim()}: ${s.topLabel}`).join(' · '),
         items: summaries.map((s) => ({
           label: `${s.title.split('·')[0].trim()} · ${s.topLabel}`,
@@ -418,12 +467,12 @@ export default function MyMindProfile({
         <div className="mt-6 rounded-2xl border border-[#ebe3ed] bg-white/85 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-[#514357]">
             <span>စုစည်းမှု ပြည့်စုံနှုန်း</span>
-            <span>ပြီးဆုံးထားသော အပိုင်း {completedCount} / 5 ခု</span>
+            <span>ပြီးဆုံးထားသော အပိုင်း {completedCount} / 6 ခု</span>
           </div>
           <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-[#efe8f1]">
             <div
               className="h-full rounded-full bg-[#80678f] transition-all duration-500"
-              style={{ width: `${(completedCount / 5) * 100}%` }}
+              style={{ width: `${(completedCount / 6) * 100}%` }}
             />
           </div>
         </div>

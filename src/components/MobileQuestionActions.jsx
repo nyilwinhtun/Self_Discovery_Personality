@@ -21,6 +21,11 @@ const accents = {
     soft: 'border-[#d4e1d7] text-[#35573e] hover:bg-[#f5f9f6]',
     link: 'text-[#3d6347]',
   },
+  teal: {
+    primary: 'bg-[#2f6d73] hover:bg-[#24565b] disabled:bg-[#b8d1d4]',
+    soft: 'border-[#cce0e2] text-[#1e4a4f] hover:bg-[#f4f9f9]',
+    link: 'text-[#2f6d73]',
+  },
 }
 
 export default function MobileQuestionActions({
