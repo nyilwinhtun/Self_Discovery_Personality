@@ -62,3 +62,66 @@ export function deleteReflectionNote(recordId) {
   const ok = safeWriteNotes(notes)
   return { ok }
 }
+
+function noteTimestampOf(value) {
+  const parsed = Date.parse(value || '')
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+export function normalizeReflectionNotes(rawNotes) {
+  if (!isPlainObject(rawNotes)) return {}
+  const normalized = {}
+  for (const [recordId, entry] of Object.entries(rawNotes)) {
+    if (!recordId || !isPlainObject(entry) || typeof entry.text !== 'string') continue
+    const trimmed = entry.text.trim()
+    if (!trimmed) continue
+    normalized[recordId] = {
+      text: trimmed,
+      updatedAt: typeof entry.updatedAt === 'string' && entry.updatedAt.trim() ? entry.updatedAt : '',
+    }
+  }
+  return normalized
+}
+
+export function loadAllReflectionNotes() {
+  return normalizeReflectionNotes(safeReadNotes())
+}
+
+export function validateReflectionNotes(rawNotes) {
+  if (rawNotes === undefined) return null
+  if (!isPlainObject(rawNotes)) return 'ကိုယ်ပိုင်မှတ်စု (reflectionNotes) အချက်အလက်ပုံစံ မမှန်ပါ။'
+  for (const [recordId, entry] of Object.entries(rawNotes)) {
+    if (!recordId || !isPlainObject(entry) || typeof entry.text !== 'string') {
+      return 'ကိုယ်ပိုင်မှတ်စုတစ်ခု၏ ပုံစံ မမှန်ပါ။'
+    }
+    if (entry.updatedAt !== undefined && typeof entry.updatedAt !== 'string') {
+      return 'ကိုယ်ပိုင်မှတ်စု၏ ရက်စွဲပုံစံ မမှန်ပါ။'
+    }
+  }
+  return null
+}
+
+export function restoreReflectionNotes(importedNotes, mode = 'merge') {
+  if (importedNotes === undefined) {
+    return { ok: true, notes: loadAllReflectionNotes() }
+  }
+  const validationError = validateReflectionNotes(importedNotes)
+  if (validationError) return { ok: false, error: validationError, notes: loadAllReflectionNotes() }
+
+  const incoming = normalizeReflectionNotes(importedNotes)
+  if (mode === 'replace') {
+    const ok = safeWriteNotes(incoming)
+    return { ok, notes: ok ? incoming : loadAllReflectionNotes() }
+  }
+
+  const current = loadAllReflectionNotes()
+  const merged = { ...current }
+  for (const [recordId, incomingNote] of Object.entries(incoming)) {
+    const currentNote = merged[recordId]
+    if (!currentNote || noteTimestampOf(incomingNote.updatedAt) > noteTimestampOf(currentNote.updatedAt)) {
+      merged[recordId] = incomingNote
+    }
+  }
+  const ok = safeWriteNotes(merged)
+  return { ok, notes: ok ? merged : current }
+}

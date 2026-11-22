@@ -1064,9 +1064,10 @@ function BackupRestoreDialog({ preview, mode, onModeChange, onCancel, onConfirm 
           </div>
           <button onClick={onCancel} aria-label="ပိတ်ရန်" className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-[#6b5e70] hover:bg-[#f5eff5]"><X size={18} /></button>
         </div>
-        <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="mt-5 grid grid-cols-3 gap-2.5 sm:gap-3">
           <div className="rounded-xl bg-[#f7f2f8] p-3"><p className="text-[11px] text-[#6b5e70]">မပြီးသေးသော Draft</p><p className="mt-1 text-2xl font-bold text-[#80678f]">{preview.summary.draftCount}</p></div>
           <div className="rounded-xl bg-[#fbf1f3] p-3"><p className="text-[11px] text-[#865569]">ပြီးဆုံးမှတ်တမ်း</p><p className="mt-1 text-2xl font-bold text-[#865569]">{preview.summary.historyCount}</p></div>
+          <div className="rounded-xl bg-[#f3f6fa] p-3"><p className="text-[11px] text-[#3d6087]">ကိုယ်ပိုင်မှတ်စု</p><p className="mt-1 text-2xl font-bold text-[#3d6087]">{preview.summary.noteCount ?? 0}</p></div>
         </div>
         <p className="mt-3 text-[11px] leading-6 text-[#6b5e70]">Backup ထုတ်ယူခဲ့သည့်အချိန် - {preview.exportedAt ? formatDate(preview.exportedAt) : 'မဖော်ပြထားပါ'}</p>
         <div className="mt-5 space-y-3">
@@ -1304,7 +1305,7 @@ export default function App() {
       anchor.click()
       anchor.remove()
       window.setTimeout(() => URL.revokeObjectURL(url), 1500)
-      setToast(`Backup ဖိုင် ထုတ်ယူရန် ပြင်ဆင်ပြီးပါပြီ။ Draft ${snapshot.summary.draftCount} ခု၊ History ${snapshot.summary.historyCount} ခု ပါဝင်ပါတယ်။`)
+      setToast(`Backup ဖိုင် ထုတ်ယူရန် ပြင်ဆင်ပြီးပါပြီ။ Draft ${snapshot.summary.draftCount} ခု၊ History ${snapshot.summary.historyCount} ခု၊ မှတ်စု ${snapshot.summary.noteCount} ခု ပါဝင်ပါတယ်။`)
     } catch (error) {
       console.error('Backup export failed:', error)
       setToast('Backup ထုတ်ယူရာမှာ ပြဿနာရှိနေပါတယ်။ ထပ်မံကြိုးစားပါ။')
@@ -1338,7 +1339,7 @@ export default function App() {
 
   const handleConfirmRestore = () => {
     if (!backupPreview?.data) return
-    const result = restoreBackupData(backupPreview.data, restoreMode)
+    const result = restoreBackupData(backupPreview.data, restoreMode, backupPreview.reflectionNotes)
     if (!result.success) {
       reportStorageWriteResult(false)
       setToast(result.error || 'Backup ပြန်ထည့်သွင်းရာမှာ မအောင်မြင်ပါ။')

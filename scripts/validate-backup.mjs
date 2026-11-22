@@ -14,6 +14,7 @@ import {
   saveAssessmentWithStatus,
   saveDraft,
 } from '../src/utils/storage.js'
+import { getReflectionNote, loadAllReflectionNotes, saveReflectionNote } from '../src/utils/reflectionNotes.js'
 
 const memory = new Map()
 globalThis.window = {
@@ -191,4 +192,83 @@ try {
   globalThis.window.setTimeout = originalSetTimeout
 }
 
-console.log('Backup validation passed: versioned export, file validation, invalid-answer rejection, safe merge, latest-draft conflict resolution, history de-duplication, 500-entry retention, write-failure detection, TXT download helper, and explicit replace mode.')
+// Reflection notes backup integration: export, preview, merge (newer wins), replace, and legacy compatibility.
+memory.clear()
+saveAssessment({
+  id: 'note-history-1',
+  assessmentType: 'personality',
+  level: 30,
+  createdAt: now,
+  answers: { 1: 4 },
+})
+assert.equal(saveReflectionNote('note-history-1', 'လက်ရှိမှတ်စု').ok, true)
+
+const withNotesSnapshot = createBackupSnapshot()
+assert.equal(withNotesSnapshot.summary.noteCount, 1)
+assert.equal(withNotesSnapshot.reflectionNotes['note-history-1'].text, 'လက်ရှိမှတ်စု')
+assert.ok(memory.has('self-discovery-personality-v1'))
+assert.ok(memory.has('self-discovery-reflection-notes-v1'))
+
+const inspectedWithNotes = inspectBackupSnapshot(JSON.parse(JSON.stringify(withNotesSnapshot)))
+assert.equal(inspectedWithNotes.valid, true)
+assert.equal(inspectedWithNotes.summary.noteCount, 1)
+assert.equal(inspectedWithNotes.reflectionNotes['note-history-1'].text, 'လက်ရှိမှတ်စု')
+
+// Invalid reflectionNotes in backup must be rejected.
+const invalidNotesBackup = structuredClone(withNotesSnapshot)
+invalidNotesBackup.reflectionNotes = 'not-an-object'
+assert.equal(inspectBackupSnapshot(invalidNotesBackup).valid, false)
+
+// Merge mode: newer incoming note wins, older incoming note does not overwrite newer local note, new IDs are added.
+const olderTimestamp = new Date(Date.now() - 120_000).toISOString()
+const newerTimestamp = new Date(Date.now() + 120_000).toISOString()
+const mergeNotesBackup = structuredClone(withNotesSnapshot)
+mergeNotesBackup.reflectionNotes = {
+  'note-history-1': { text: 'အဟောင်းမှတ်စု', updatedAt: olderTimestamp },
+  'note-history-2': { text: 'အသစ်ထည့်မှတ်စု', updatedAt: newerTimestamp },
+}
+const inspectedMergeNotes = inspectBackupSnapshot(mergeNotesBackup)
+assert.equal(inspectedMergeNotes.valid, true)
+assert.equal(inspectedMergeNotes.summary.noteCount, 2)
+const notesMergeResult = restoreBackupData(inspectedMergeNotes.data, 'merge', inspectedMergeNotes.reflectionNotes)
+assert.equal(notesMergeResult.success, true)
+assert.equal(getReflectionNote('note-history-1').text, 'လက်ရှိမှတ်စု')
+assert.equal(getReflectionNote('note-history-2').text, 'အသစ်ထည့်မှတ်စု')
+
+// Newer incoming note wins on merge.
+const newerOverwriteBackup = structuredClone(withNotesSnapshot)
+newerOverwriteBackup.reflectionNotes = {
+  'note-history-1': { text: 'ပိုသစ်သောမှတ်စု', updatedAt: newerTimestamp },
+}
+const inspectedNewerOverwrite = inspectBackupSnapshot(newerOverwriteBackup)
+assert.equal(restoreBackupData(inspectedNewerOverwrite.data, 'merge', inspectedNewerOverwrite.reflectionNotes).success, true)
+assert.equal(getReflectionNote('note-history-1').text, 'ပိုသစ်သောမှတ်စု')
+
+// Legacy backup without reflectionNotes must succeed and preserve existing notes in both merge and replace modes.
+const legacyBackup = {
+  format: 'self-discovery-backup',
+  version: 1,
+  app: 'Self Discovery',
+  exportedAt: now,
+  data: { drafts: {}, history: [{ id: 'legacy-history-1', assessmentType: 'personality', level: 30, createdAt: now }] },
+}
+const inspectedLegacy = inspectBackupSnapshot(legacyBackup)
+assert.equal(inspectedLegacy.valid, true)
+assert.equal(inspectedLegacy.summary.noteCount, 0)
+assert.equal(inspectedLegacy.reflectionNotes, undefined)
+assert.equal(restoreBackupData(inspectedLegacy.data, 'merge', inspectedLegacy.reflectionNotes).success, true)
+assert.equal(getReflectionNote('note-history-1').text, 'ပိုသစ်သောမှတ်စု')
+assert.equal(restoreBackupData(inspectedLegacy.data, 'replace', inspectedLegacy.reflectionNotes).success, true)
+assert.equal(getReflectionNote('note-history-1').text, 'ပိုသစ်သောမှတ်စု')
+
+// Replace mode with reflectionNotes present replaces stored reflection notes.
+const replaceNotesBackup = structuredClone(withNotesSnapshot)
+replaceNotesBackup.reflectionNotes = {
+  'note-replaced-1': { text: 'အစားထိုးမှတ်စု', updatedAt: newerTimestamp },
+}
+const inspectedReplaceNotes = inspectBackupSnapshot(replaceNotesBackup)
+assert.equal(restoreBackupData(inspectedReplaceNotes.data, 'replace', inspectedReplaceNotes.reflectionNotes).success, true)
+assert.deepEqual(Object.keys(loadAllReflectionNotes()), ['note-replaced-1'])
+assert.equal(getReflectionNote('note-replaced-1').text, 'အစားထိုးမှတ်စု')
+
+console.log('Backup validation passed: versioned export, file validation, invalid-answer rejection, safe merge, latest-draft conflict resolution, history de-duplication, 500-entry retention, write-failure detection, TXT download helper, reflection notes backup/restore, and explicit replace mode.')

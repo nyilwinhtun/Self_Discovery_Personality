@@ -1,3 +1,10 @@
+import {
+  loadAllReflectionNotes,
+  normalizeReflectionNotes,
+  restoreReflectionNotes,
+  validateReflectionNotes,
+} from './reflectionNotes.js'
+
 const STORAGE_KEY = 'self-discovery-personality-v1'
 const BACKUP_FORMAT = 'self-discovery-backup'
 const BACKUP_VERSION = 1
@@ -175,6 +182,7 @@ export function clearHistory() {
 /** Create a portable JSON backup. The envelope is versioned for future compatibility. */
 export function createBackupSnapshot() {
   const data = loadAppData()
+  const reflectionNotes = loadAllReflectionNotes()
   return {
     format: BACKUP_FORMAT,
     version: BACKUP_VERSION,
@@ -183,8 +191,10 @@ export function createBackupSnapshot() {
     summary: {
       draftCount: countDrafts(data),
       historyCount: data.history.length,
+      noteCount: Object.keys(reflectionNotes).length,
     },
     data,
+    reflectionNotes,
   }
 }
 
@@ -199,15 +209,22 @@ export function inspectBackupSnapshot(snapshot) {
   if (draftsError) return { valid: false, error: draftsError }
   const historyError = validateHistory(snapshot.data.history || [])
   if (historyError) return { valid: false, error: historyError }
+  const notesError = validateReflectionNotes(snapshot.reflectionNotes)
+  if (notesError) return { valid: false, error: notesError }
 
   const data = normalizeData(snapshot.data)
+  const reflectionNotes = snapshot.reflectionNotes !== undefined
+    ? normalizeReflectionNotes(snapshot.reflectionNotes)
+    : undefined
   return {
     valid: true,
     data,
+    reflectionNotes,
     exportedAt: snapshot.exportedAt || null,
     summary: {
       draftCount: countDrafts(data),
       historyCount: data.history.length,
+      noteCount: reflectionNotes ? Object.keys(reflectionNotes).length : 0,
     },
   }
 }
@@ -248,18 +265,29 @@ function mergeData(currentData, importedData) {
 }
 
 /** Restore validated backup data. Merge is the safe default; replace is explicit. */
-export function restoreBackupData(importedData, mode = 'merge') {
+export function restoreBackupData(importedData, mode = 'merge', importedReflectionNotes = undefined) {
   if (!isPlainObject(importedData)) return { success: false, error: 'ပြန်လည်သိမ်းဆည်းမည့် Data ပုံစံ မမှန်ပါ။' }
   const draftsError = validateDrafts(importedData.drafts || {})
   if (draftsError) return { success: false, error: draftsError }
   const historyError = validateHistory(importedData.history || [])
   if (historyError) return { success: false, error: historyError }
+  const notesError = validateReflectionNotes(importedReflectionNotes)
+  if (notesError) return { success: false, error: notesError }
 
   const nextData = mode === 'replace'
     ? normalizeData(importedData)
     : mergeData(loadAppData(), importedData)
   const success = safeWrite(nextData)
-  return success
-    ? { success: true, data: loadAppData() }
-    : { success: false, error: 'Browser Storage ပြည့်နေခြင်း သို့မဟုတ် သိမ်းဆည်းခွင့်မရှိခြင်းကြောင့် Restore မလုပ်နိုင်ပါ။' }
+  if (!success) {
+    return { success: false, error: 'Browser Storage ပြည့်နေခြင်း သို့မဟုတ် သိမ်းဆည်းခွင့်မရှိခြင်းကြောင့် Restore မလုပ်နိုင်ပါ။' }
+  }
+
+  if (importedReflectionNotes !== undefined) {
+    const notesResult = restoreReflectionNotes(importedReflectionNotes, mode)
+    if (!notesResult.ok) {
+      return { success: false, error: 'Browser Storage ပြည့်နေခြင်း သို့မဟုတ် သိမ်းဆည်းခွင့်မရှိခြင်းကြောင့် ကိုယ်ပိုင်မှတ်စုများကို Restore မလုပ်နိုင်ပါ။' }
+    }
+  }
+
+  return { success: true, data: loadAppData(), reflectionNotes: loadAllReflectionNotes() }
 }
