@@ -5,15 +5,21 @@ import {
   VALUEMAP_QUESTIONS_40_EXTRA,
   VALUEMAP_QUESTIONS_80,
   VALUEMAP_QUESTIONS_80_EXTRA,
+  VALUEMAP_QUESTIONS_120,
+  VALUEMAP_QUESTIONS_120_EXTRA,
   getValueMapQuestionsForLevel,
 } from '../data/valueMapPilot.js'
 
 function resolveQuestionSet(answers, level = null) {
   const normalizedLevel = Number(level)
+  if (normalizedLevel === 120) return VALUEMAP_QUESTIONS_120
   if (normalizedLevel === 80) return VALUEMAP_QUESTIONS_80
   if (normalizedLevel === 40) return VALUEMAP_QUESTIONS_40
   if (normalizedLevel === 20) return VALUEMAP_QUESTIONS_20
   const hasAnswers = answers && typeof answers === 'object' && !Array.isArray(answers)
+  if (hasAnswers && VALUEMAP_QUESTIONS_120_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
+    return VALUEMAP_QUESTIONS_120
+  }
   if (hasAnswers && VALUEMAP_QUESTIONS_80_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
     return VALUEMAP_QUESTIONS_80
   }
@@ -30,7 +36,9 @@ export function validateValueMapAnswers(answers, level = null) {
     ? VALUEMAP_QUESTIONS_20
     : normalizedLevel === 40
       ? VALUEMAP_QUESTIONS_40
-      : VALUEMAP_QUESTIONS_80
+      : normalizedLevel === 80
+        ? VALUEMAP_QUESTIONS_80
+        : VALUEMAP_QUESTIONS_120
   return Object.entries(answers).every(([id, value]) => {
     const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5

@@ -164,6 +164,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
   const valueMapDraft20 = drafts?.valueMap?.['20'] || null
   const valueMapDraft40 = drafts?.valueMap?.['40'] || null
   const valueMapDraft80 = drafts?.valueMap?.['80'] || null
+  const valueMapDraft120 = drafts?.valueMap?.['120'] || null
   const emotionLensDraft20 = drafts?.emotionLens?.['20'] || null
   const emotionLensDraft40 = drafts?.emotionLens?.['40'] || null
   const emotionLensDraft80 = drafts?.emotionLens?.['80'] || null
@@ -506,8 +507,8 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
               <p className="mt-1 text-xs font-semibold text-[#33573d]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p>
               <p className="mt-2 flex-1 text-xs leading-6 text-[#465e4c]">လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ထဲမှ ကိုယ်အလေးထားရာကို ပြန်လည်သုံးသပ်ပါ။</p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#33573d]">
-                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀ / ၈၀</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#eef5f0] px-2.5 py-1"><Clock3 size={11} /> ~၄–၁၅ မိနစ်</span>
+                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀ / ၈၀ / ၁၂၀</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#eef5f0] px-2.5 py-1"><Clock3 size={11} /> ~၄–၂၀ မိနစ်</span>
                 <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">အချက် ၄ ချက်</span>
               </div>
               <div className="mt-4 grid gap-2.5">
@@ -529,6 +530,12 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
                     title: 'အသေးစိတ် ၈၀ မေးခွန်း',
                     duration: '~၁၅ မိနစ်',
                     draft: valueMapDraft80,
+                  },
+                  {
+                    levelValue: 120,
+                    title: 'အနက်ရှိုင်းဆုံး ၁၂၀ မေးခွန်း',
+                    duration: '~၂၀ မိနစ်',
+                    draft: valueMapDraft120,
                   },
                 ].map((item) => {
                   const answered = Object.keys(item.draft?.answers || {}).length
@@ -1729,7 +1736,7 @@ export default function App() {
   return (
     <div className={cn('min-h-screen bg-[#faf8f5] text-[#242029]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 120 ? 120 : selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={(selectedLevel = 20) => { setActiveRecord(null); setBondSenseLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('bondSense') }} onOpenValueMap={(selectedLevel = 20) => { setActiveRecord(null); setValueMapLevel(selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 120 ? 120 : selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={(selectedLevel = 20) => { setActiveRecord(null); setBondSenseLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('bondSense') }} onOpenValueMap={(selectedLevel = 20) => { setActiveRecord(null); setValueMapLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'mindProfile' && (
         <Suspense fallback={<ModuleLoadingFallback />}>
           <MyMindProfile
