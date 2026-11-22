@@ -16,8 +16,9 @@ import StorageWriteAlert from './StorageWriteAlert.jsx'
 import {
   INNERCOMPASS_V02_ANSWER_OPTIONS,
   INNERCOMPASS_V02_DIMENSIONS,
-  INNERCOMPASS_V02_QUESTIONS_30,
+  INNERCOMPASS_V02_LEVELS,
   INNERCOMPASS_V02_VERSION,
+  getInnerCompassQuestionsForLevel,
 } from '../data/innerCompassDraftV02.js'
 import { downloadTextFile } from '../utils/download.js'
 import { scoreInnerCompassV02 } from '../utils/innerCompassV02Scoring.js'
@@ -25,7 +26,6 @@ import { getInnerCompassLifeDomainSummary, getInnerCompassReportInsight, REPORT_
 import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
 
 const ASSESSMENT_TYPE = 'innerCompass'
-const ASSESSMENT_LEVEL = 30
 const ACCENT = '#446c96'
 
 function cn(...classes) {
@@ -59,11 +59,11 @@ function SecondaryButton({ children, onClick, icon: Icon, disabled = false, clas
   )
 }
 
-function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVisible, onExportBackup, onDismissStorageError }) {
+function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin, onResume, onRestart, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [acknowledged, setAcknowledged] = useState(false)
   const answeredCount = Object.keys(draft?.answers || {}).length
   const skippedCount = (draft?.skippedQuestionIds || []).filter((id) => draft?.answers?.[id] === undefined).length
-  const progress = Math.round((answeredCount / INNERCOMPASS_V02_QUESTIONS_30.length) * 100)
+  const progress = questionCount ? Math.round((answeredCount / questionCount) * 100) : 0
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
@@ -77,7 +77,7 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#4e6379]">INNERCOMPASS</p>
                 <h1 className="mt-1 text-xl font-bold text-[#3f5873] sm:text-2xl">စိတ်နေသဘောထားကို လေ့လာခြင်း</h1>
-                <p className="mt-1 text-xs text-[#4e6379]">မေးခွန်း ၃၀ · အချက် ၆ ချက်</p>
+                <p className="mt-1 text-xs text-[#4e6379]">မေးခွန်း {level === 60 ? '၆၀' : '၃၀'} · အချက် ၆ ချက်</p>
               </div>
             </div>
             <span className="rounded-full border border-[#cbd9e9] bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-[#456d97]">Pilot · စမ်းသပ်အသုံးပြုမှု</span>
@@ -85,6 +85,39 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
           <p className="mt-6 text-sm leading-8 text-[#596d83]">ဒီမေးခွန်းတွေက သင့်ရဲ့ နေ့စဉ်အပြုအမူ၊ စိတ်ခံစားမှုကို ကိုင်တွယ်ပုံ၊ အခြားသူတွေနဲ့ ဆက်ဆံပုံနဲ့ ကိုယ်ပိုင်စီမံပုံတွေကို ပြန်လည်စဉ်းစားနိုင်ဖို့ ရေးဆွဲထားတဲ့ မေးခွန်းမူကြမ်းဖြစ်ပါတယ်။</p>
         </div>
         <div className="p-6 sm:p-9">
+          <div className="mb-6">
+            <h2 className="text-base font-bold text-[#435a72]">ဖြေဆိုမည့် မေးခွန်းအဆင့် ရွေးချယ်ပါ</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="InnerCompass မေးခွန်းအဆင့် ရွေးချယ်မှု">
+              {INNERCOMPASS_V02_LEVELS.map((option) => {
+                const selected = level === option.value
+                const levelDraft = loadDraft(option.value, ASSESSMENT_TYPE)
+                const levelAnswered = Object.keys(levelDraft?.answers || {}).length
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => onSelectLevel(option.value)}
+                    className={cn(
+                      'flex flex-col rounded-2xl border p-4 text-left transition',
+                      selected ? 'border-[#446c96] bg-[#f4f8fd] ring-1 ring-[#446c96]/30' : 'border-[#dce6f0] bg-white hover:border-[#b8cadd] hover:bg-[#f9fbfe]',
+                    )}
+                  >
+                    <div className="flex w-full items-center justify-between gap-2">
+                      <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-semibold', selected ? 'bg-[#446c96] text-white' : 'bg-[#eef3f9] text-[#3f648c]')}>{option.label}</span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#4e6379]"><Clock3 size={12}/> {option.duration}</span>
+                    </div>
+                    <p className="mt-3 text-sm font-bold text-[#3f5873]">{option.title}</p>
+                    <p className="mt-1 text-xs leading-6 text-[#596d83]">{option.subtitle}</p>
+                    {levelDraft && (
+                      <p className="mt-2 text-[11px] font-semibold text-[#446c96]">မပြီးသေးသော Draft ({levelAnswered}/{option.value})</p>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
           <h2 className="text-base font-bold text-[#435a72]">ဒီဆန်းစစ်မှုမှာ လေ့လာမယ့် အဓိက အချက် ၆ ချက်</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {INNERCOMPASS_V02_DIMENSIONS.map((dimension, index) => (
@@ -139,12 +172,13 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
   )
 }
 
-function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError, onOpenKnowledgeTerm }) {
-  const question = INNERCOMPASS_V02_QUESTIONS_30[questionIndex]
+function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError, onOpenKnowledgeTerm }) {
+  const question = activeQuestions[questionIndex]
+  const totalQuestions = activeQuestions.length
   const answeredCount = Object.keys(answers).length
   const skippedCount = skippedQuestionIds.filter((id) => answers[id] === undefined).length
-  const progress = Math.round((answeredCount / INNERCOMPASS_V02_QUESTIONS_30.length) * 100)
-  const isLast = questionIndex === INNERCOMPASS_V02_QUESTIONS_30.length - 1
+  const progress = Math.round((answeredCount / totalQuestions) * 100)
+  const isLast = questionIndex === totalQuestions - 1
   const selectedAnswer = answers[question.id]
 
   return (
@@ -160,8 +194,8 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-[2rem] border border-[#d4e0ef] bg-white p-5 card-shadow sm:p-9">
         <div className="flex items-end justify-between gap-3">
-          <div><p className="text-xs font-semibold tracking-wide text-[#4e6379]">INNERCOMPASS · 30 QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#3f5873] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
-          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#446c96]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#4e6379]"> / 30</span></div><p className="text-[11px] text-[#4e6379]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
+          <div><p className="text-xs font-semibold tracking-wide text-[#4e6379]">INNERCOMPASS · {totalQuestions} QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#3f5873] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
+          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#446c96]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#4e6379]"> / {totalQuestions}</span></div><p className="text-[11px] text-[#4e6379]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
         </div>
         <div className="mt-5 flex items-center justify-between text-[11px] text-[#4e6379]"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#edf2f7]"><div className="h-full rounded-full bg-gradient-to-r from-[#6b91ba] to-[#9cb8d4] transition-all" style={{ width: `${progress}%` }}/></div>
@@ -200,11 +234,11 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
   )
 }
 
-function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack, storageAlertVisible, onExportBackup, onDismissStorageError }) {
+function ReviewView({ activeQuestions, answers, skippedQuestionIds, onGoTo, onFinish, onBack, storageAlertVisible, onExportBackup, onDismissStorageError }) {
   const [filter, setFilter] = useState('incomplete')
-  const answered = INNERCOMPASS_V02_QUESTIONS_30.filter((question) => answers[question.id] !== undefined)
-  const skipped = INNERCOMPASS_V02_QUESTIONS_30.filter((question) => answers[question.id] === undefined && skippedQuestionIds.includes(question.id))
-  const unanswered = INNERCOMPASS_V02_QUESTIONS_30.filter((question) => answers[question.id] === undefined && !skippedQuestionIds.includes(question.id))
+  const answered = activeQuestions.filter((question) => answers[question.id] !== undefined)
+  const skipped = activeQuestions.filter((question) => answers[question.id] === undefined && skippedQuestionIds.includes(question.id))
+  const unanswered = activeQuestions.filter((question) => answers[question.id] === undefined && !skippedQuestionIds.includes(question.id))
   const incomplete = [...skipped, ...unanswered]
   const visible = filter === 'answered' ? answered : filter === 'skipped' ? skipped : filter === 'unanswered' ? unanswered : incomplete
   const statusOf = (question) => answers[question.id] !== undefined ? 'ဖြေပြီး · ပြန်ပြင်နိုင်သည်' : skippedQuestionIds.includes(question.id) ? 'ကျော်ထား · ပြန်ဖြေနိုင်သည်' : 'မဖြေရသေး'
@@ -225,7 +259,7 @@ function ReviewView({ answers, skippedQuestionIds, onGoTo, onFinish, onBack, sto
         <div className="mt-6 flex flex-wrap gap-2">{[['incomplete', `ပြန်ဖြေရန် (${incomplete.length})`], ['skipped', `ကျော်ထား (${skipped.length})`], ['unanswered', `မဖြေရသေး (${unanswered.length})`], ['answered', `ဖြေပြီး (${answered.length})`]].map(([value, label]) => <button key={value} onClick={() => setFilter(value)} className={cn('rounded-full px-3 py-2 text-[11px] font-semibold transition', filter === value ? 'bg-[#446c96] text-white' : 'bg-[#eef3f8] text-[#4e6379] hover:bg-[#e4edf6]')}>{label}</button>)}</div>
         <div className="mt-4 rounded-2xl border border-[#edf2f7] p-3 sm:p-4">
           {visible.length === 0 ? <div className="py-8 text-center"><CheckCircle2 className="mx-auto text-[#436b4f]" size={30}/><p className="mt-2 text-sm font-semibold text-[#5e7d66]">ဒီအမျိုးအစားမှာ မေးခွန်းမရှိပါ။</p></div> : <div className="grid gap-2 sm:grid-cols-2">{visible.map((question) => {
-            const originalIndex = INNERCOMPASS_V02_QUESTIONS_30.findIndex((item) => item.id === question.id)
+            const originalIndex = activeQuestions.findIndex((item) => item.id === question.id)
             return <button key={question.id} onClick={() => onGoTo(originalIndex)} className="flex min-w-0 items-start gap-3 rounded-xl border border-[#edf2f7] bg-white p-3 text-left transition hover:border-[#c5d6e7] hover:bg-[#f9fbfe]"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#f0f4f8] text-xs font-bold text-[#4e6379]">{originalIndex + 1}</span><span className="min-w-0 flex-1"><span className="block text-[11px] font-semibold leading-5 text-[#536b84]">{question.text}</span><span className="mt-1 block text-[11px] text-[#4e6379]">{statusOf(question)}</span></span><ChevronRight size={15} className="mt-1 shrink-0 text-[#4e6379]"/></button>
           })}</div>}
         </div>
@@ -262,7 +296,8 @@ function InnerCompassPolarTick({ payload, x, y, textAnchor }) {
 }
 
 function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
-  const result = useMemo(() => scoreInnerCompassV02(record?.answers || {}), [record])
+  const recordQuestionCount = Number(record?.questionCount || record?.level) === 60 ? 60 : 30
+  const result = useMemo(() => scoreInnerCompassV02(record?.answers || {}, record?.questionCount || record?.level || null), [record])
   if (!record || !result.complete) return null
   const chartData = result.dimensions.map((item) => ({ area: item.shortName, score: item.index }))
   const ordered = [...result.dimensions].sort((a, b) => b.index - a.index)
@@ -277,6 +312,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
     const lines = [
       'Self Discovery — InnerCompass ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုအစီရင်ခံစာ',
       `မေးခွန်းဗားရှင်း: ${record.questionBankVersion || INNERCOMPASS_V02_VERSION}`,
+      `မေးခွန်းအရေအတွက်: ${recordQuestionCount}`,
       `ဖြေဆိုသည့်နေ့: ${formatDate(record.createdAt)}`,
       'ဤရလဒ်သည် မူကြမ်းအဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု အညွှန်းသာဖြစ်သည်။',
       '',
@@ -315,7 +351,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
         { id: 'inner-report-notes', label: 'ရလဒ်ဖတ်ရှုရန်' },
       ]} />
       <section id="inner-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#d4e0ef] bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 card-shadow sm:p-10">
-        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#446c96]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#446c96] shadow-sm"><InnerCompassLogo size={50}/></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#4e6379]">INNERCOMPASS · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#3f5873] sm:text-3xl">သင့်ရဲ့ ဖြေဆိုမှုအကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#4e6379]">မေးခွန်း ၃၀ · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#5f748b]">အောက်ပါရလဒ်တွေက ဒီမေးခွန်းမူကြမ်းအတွင်း သင်ရွေးချယ်ထားတဲ့ အဖြေတွေကို အချက် ၆ ချက်အလိုက် စုစည်းပြသထားပါတယ်။ ဒါတွေက သင့်ပင်ကိုစရိုက်ကို အပြီးသတ်သတ်မှတ်ပေးတာ မဟုတ်ပါ။</p></div>
+        <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#446c96]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#446c96] shadow-sm"><InnerCompassLogo size={50}/></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#4e6379]">INNERCOMPASS · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#3f5873] sm:text-3xl">သင့်ရဲ့ ဖြေဆိုမှုအကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#4e6379]">မေးခွန်း {recordQuestionCount === 60 ? '၆၀' : '၃၀'} · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#5f748b]">အောက်ပါရလဒ်တွေက ဒီမေးခွန်းမူကြမ်းအတွင်း သင်ရွေးချယ်ထားတဲ့ အဖြေတွေကို အချက် ၆ ချက်အလိုက် စုစည်းပြသထားပါတယ်။ ဒါတွေက သင့်ပင်ကိုစရိုက်ကို အပြီးသတ်သတ်မှတ်ပေးတာ မဟုတ်ပါ။</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
           <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#4f6680]">အဓိက အချက် ၆ ချက်၏ ရမှတ်</h2><span className="text-[11px] text-[#4e6379]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="54%" margin={{ top: 22, right: 42, bottom: 22, left: 42 }}><PolarGrid stroke="#e1eaf3"/><PolarAngleAxis dataKey="area" tick={<InnerCompassPolarTick />}/><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#4e6379', fontSize: 11 }} axisLine={false}/><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#9db9d5" fillOpacity={0.55} strokeWidth={2}/><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#dce6f0', fontSize: 12 }}/></RadarChart></ResponsiveContainer></div><p className="text-center text-[11px] leading-5 text-[#4e6379]">ဒီအညွှန်းဟာ ဖြေဆိုထားတဲ့အဖြေတွေကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါတယ်။</p></div>
           <div className="flex flex-col gap-3">
@@ -373,6 +409,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
 
 export default function InnerCompassModule({
   initialRecord = null,
+  initialLevel = 30,
   onHome,
   onDataChange,
   persistRef,
@@ -383,12 +420,17 @@ export default function InnerCompassModule({
   onDismissStorageError,
   onOpenKnowledgeTerm,
 }) {
-  const initialDraft = initialRecord ? null : loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+  const resolvedInitialLevel = initialRecord
+    ? (Number(initialRecord.questionCount || initialRecord.level) === 60 ? 60 : 30)
+    : (Number(initialLevel) === 60 ? 60 : 30)
+  const [level, setLevel] = useState(resolvedInitialLevel)
+  const activeQuestions = useMemo(() => getInnerCompassQuestionsForLevel(level), [level])
+  const initialDraft = initialRecord ? null : loadDraft(resolvedInitialLevel, ASSESSMENT_TYPE)
   const [view, setView] = useState(initialRecord ? 'result' : 'guide')
   const [draft, setDraft] = useState(initialDraft)
   const [answers, setAnswers] = useState(initialRecord?.answers || initialDraft?.answers || {})
   const [skippedQuestionIds, setSkippedQuestionIds] = useState(initialRecord ? [] : (initialDraft?.skippedQuestionIds || []))
-  const [questionIndex, setQuestionIndex] = useState(initialRecord ? 0 : Math.max(0, Math.min(Number(initialDraft?.currentIndex) || 0, INNERCOMPASS_V02_QUESTIONS_30.length - 1)))
+  const [questionIndex, setQuestionIndex] = useState(initialRecord ? 0 : Math.max(0, Math.min(Number(initialDraft?.currentIndex) || 0, getInnerCompassQuestionsForLevel(resolvedInitialLevel).length - 1)))
   const [startedAt, setStartedAt] = useState(initialRecord?.startedAt || initialDraft?.startedAt || null)
   const [record, setRecord] = useState(initialRecord)
   const [toast, setToast] = useState('')
@@ -396,6 +438,18 @@ export default function InnerCompassModule({
   const [localAlertDismissed, setLocalAlertDismissed] = useState(false)
   const storageError = sharedStorageError ?? localStorageError
   const storageAlertVisible = sharedStorageAlertVisible ?? (storageError && !localAlertDismissed)
+
+  const handleSelectLevel = (nextLevel) => {
+    const normalized = Number(nextLevel) === 60 ? 60 : 30
+    const nextQuestions = getInnerCompassQuestionsForLevel(normalized)
+    const nextDraft = loadDraft(normalized, ASSESSMENT_TYPE)
+    setLevel(normalized)
+    setDraft(nextDraft)
+    setAnswers(nextDraft?.answers || {})
+    setSkippedQuestionIds(nextDraft?.skippedQuestionIds || [])
+    setQuestionIndex(Math.max(0, Math.min(Number(nextDraft?.currentIndex) || 0, nextQuestions.length - 1)))
+    setStartedAt(nextDraft?.startedAt || null)
+  }
 
   const reportStorageWrite = (ok) => {
     if (onStorageWriteResult) {
@@ -425,7 +479,7 @@ export default function InnerCompassModule({
     const payload = {
       assessmentType: ASSESSMENT_TYPE,
       questionBankVersion: INNERCOMPASS_V02_VERSION,
-      level: ASSESSMENT_LEVEL,
+      level,
       answers,
       skippedQuestionIds,
       currentIndex: questionIndex,
@@ -436,7 +490,7 @@ export default function InnerCompassModule({
     }
     const success = saveDraft(payload)
     reportStorageWrite(success)
-    setDraft(loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE))
+    setDraft(loadDraft(level, ASSESSMENT_TYPE))
     onDataChange?.(loadAppData())
     return success
   }
@@ -466,7 +520,7 @@ export default function InnerCompassModule({
 
   const startFresh = () => {
     if (draft && !window.confirm('မပြီးသေးတဲ့ InnerCompass အဖြေဟောင်းရှိပါတယ်။ အသစ်ပြန်စရင် အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။')) return
-    if (draft && !clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)) reportStorageWrite(false)
+    if (draft && !clearDraft(level, ASSESSMENT_TYPE)) reportStorageWrite(false)
     const now = new Date().toISOString()
     setAnswers({})
     setSkippedQuestionIds([])
@@ -476,7 +530,7 @@ export default function InnerCompassModule({
     const emptyDraft = {
       assessmentType: ASSESSMENT_TYPE,
       questionBankVersion: INNERCOMPASS_V02_VERSION,
-      level: ASSESSMENT_LEVEL,
+      level,
       answers: {}, skippedQuestionIds: [], currentIndex: 0,
       startedAt: now, updatedAt: now, status: 'in-progress',
     }
@@ -489,14 +543,14 @@ export default function InnerCompassModule({
   }
 
   const resume = () => {
-    const saved = loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const saved = loadDraft(level, ASSESSMENT_TYPE)
     if (!saved) {
       setToast('ဆက်လက်ဖြေဆိုရန် သိမ်းထားတဲ့အဖြေ မတွေ့ပါ။')
       return
     }
     setAnswers(saved.answers || {})
     setSkippedQuestionIds(saved.skippedQuestionIds || [])
-    setQuestionIndex(Math.max(0, Math.min(Number(saved.currentIndex) || 0, INNERCOMPASS_V02_QUESTIONS_30.length - 1)))
+    setQuestionIndex(Math.max(0, Math.min(Number(saved.currentIndex) || 0, activeQuestions.length - 1)))
     setStartedAt(saved.startedAt || saved.updatedAt || new Date().toISOString())
     setDraft(saved)
     setRecord(null)
@@ -517,7 +571,7 @@ export default function InnerCompassModule({
     setSkippedQuestionIds(nextSkipped)
     const payload = {
       assessmentType: ASSESSMENT_TYPE, questionBankVersion: INNERCOMPASS_V02_VERSION,
-      level: ASSESSMENT_LEVEL, answers: nextAnswers, skippedQuestionIds: nextSkipped,
+      level, answers: nextAnswers, skippedQuestionIds: nextSkipped,
       currentIndex: questionIndex, startedAt: startedAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(), status: 'in-progress',
     }
@@ -533,26 +587,26 @@ export default function InnerCompassModule({
   }
 
   const goNext = () => {
-    const currentQuestion = INNERCOMPASS_V02_QUESTIONS_30[questionIndex]
+    const currentQuestion = activeQuestions[questionIndex]
     if (answers[currentQuestion.id] === undefined) {
       setToast('အဖြေရွေးချယ်ပါ၊ ဒါမှမဟုတ် ဒီမေးခွန်းကို ကျော်ထားနိုင်ပါတယ်။')
       return
     }
-    if (questionIndex < INNERCOMPASS_V02_QUESTIONS_30.length - 1) setQuestionIndex((current) => current + 1)
+    if (questionIndex < activeQuestions.length - 1) setQuestionIndex((current) => current + 1)
     else setView('review')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const skipQuestion = () => {
-    const currentQuestion = INNERCOMPASS_V02_QUESTIONS_30[questionIndex]
+    const currentQuestion = activeQuestions[questionIndex]
     if (answers[currentQuestion.id] !== undefined) return
     const nextSkipped = [...new Set([...skippedQuestionIds, currentQuestion.id])]
-    const nextIndex = Math.min(questionIndex + 1, INNERCOMPASS_V02_QUESTIONS_30.length - 1)
+    const nextIndex = Math.min(questionIndex + 1, activeQuestions.length - 1)
     setSkippedQuestionIds(nextSkipped)
     setQuestionIndex(nextIndex)
     const payload = {
       assessmentType: ASSESSMENT_TYPE, questionBankVersion: INNERCOMPASS_V02_VERSION,
-      level: ASSESSMENT_LEVEL, answers, skippedQuestionIds: nextSkipped,
+      level, answers, skippedQuestionIds: nextSkipped,
       currentIndex: nextIndex, startedAt: startedAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(), status: 'in-progress',
     }
@@ -560,24 +614,24 @@ export default function InnerCompassModule({
     reportStorageWrite(saved)
     setDraft(payload)
     onDataChange?.(loadAppData())
-    if (questionIndex === INNERCOMPASS_V02_QUESTIONS_30.length - 1) setView('review')
+    if (questionIndex === activeQuestions.length - 1) setView('review')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const goToQuestion = (index) => {
-    setQuestionIndex(Math.max(0, Math.min(index, INNERCOMPASS_V02_QUESTIONS_30.length - 1)))
+    setQuestionIndex(Math.max(0, Math.min(index, activeQuestions.length - 1)))
     setView('question')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const finish = () => {
-    const missing = INNERCOMPASS_V02_QUESTIONS_30.filter((question) => answers[question.id] === undefined)
+    const missing = activeQuestions.filter((question) => answers[question.id] === undefined)
     if (missing.length) {
       setToast(`မဖြေရသေးတဲ့ မေးခွန်း ${missing.length} ခု ကျန်နေပါသေးတယ်။`)
       setView('review')
       return
     }
-    const result = scoreInnerCompassV02(answers)
+    const result = scoreInnerCompassV02(answers, level)
     if (!result.complete) {
       setToast('အဖြေတချို့ မမှန်ကန်ပါ။ မေးခွန်းစာရင်းကို ပြန်စစ်ပါ။')
       setView('review')
@@ -593,8 +647,8 @@ export default function InnerCompassModule({
       assessmentType: ASSESSMENT_TYPE,
       assessmentName: 'InnerCompass',
       questionBankVersion: INNERCOMPASS_V02_VERSION,
-      level: ASSESSMENT_LEVEL,
-      questionCount: INNERCOMPASS_V02_QUESTIONS_30.length,
+      level,
+      questionCount: activeQuestions.length,
       startedAt: startedAt || new Date().toISOString(),
       createdAt: new Date().toISOString(),
       answers: { ...answers },
@@ -607,7 +661,7 @@ export default function InnerCompassModule({
     if (!ok) {
       setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
     }
-    const cleared = clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const cleared = clearDraft(level, ASSESSMENT_TYPE)
     if (!cleared) reportStorageWrite(false)
     setRecord(completed)
     setDraft(null)
@@ -617,12 +671,12 @@ export default function InnerCompassModule({
   }
 
   const retake = () => {
-    const existingDraft = loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const existingDraft = loadDraft(level, ASSESSMENT_TYPE)
     const warning = existingDraft
       ? 'အရင်ရလဒ်ကို History ထဲမှာ ထိန်းထားပါမယ်။ မပြီးသေးတဲ့ InnerCompass Draft ရှိနေတဲ့အတွက် အသစ်စတင်ပါက အဲဒီ Draft ကို အစားထိုးပါမယ်။ ဆက်လုပ်မှာ သေချာပါသလား။'
-      : 'အရင်ရလဒ်ကို History ထဲမှာ ထိန်းထားပြီး စမ်းသပ်မှုအသစ် စတင်မှာဖြစ်ပါတယ်။ ဆက်လုပ်မှာ သေချာပါသလား။'
+      : 'အရင်ရလဒ်ကို History ထိန်းထားပြီး စမ်းသပ်မှုအသစ် စတင်မှာဖြစ်ပါတယ်။ ဆက်လုပ်မှာ သေချာပါသလား။'
     if (!window.confirm(warning)) return
-    const cleared = clearDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
+    const cleared = clearDraft(level, ASSESSMENT_TYPE)
     if (!cleared) reportStorageWrite(false)
     const now = new Date().toISOString()
     setAnswers({})
@@ -632,7 +686,7 @@ export default function InnerCompassModule({
     setRecord(null)
     const emptyDraft = {
       assessmentType: ASSESSMENT_TYPE, questionBankVersion: INNERCOMPASS_V02_VERSION,
-      level: ASSESSMENT_LEVEL, answers: {}, skippedQuestionIds: [], currentIndex: 0,
+      level, answers: {}, skippedQuestionIds: [], currentIndex: 0,
       startedAt: now, updatedAt: now, status: 'in-progress',
     }
     const saved = saveDraft(emptyDraft)
@@ -642,8 +696,8 @@ export default function InnerCompassModule({
     setView('question')
   }
 
-  if (view === 'question') return <><QuestionView answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} onOpenKnowledgeTerm={onOpenKnowledgeTerm}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
-  if (view === 'review') return <><ReviewView answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
+  if (view === 'question') return <><QuestionView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} onOpenKnowledgeTerm={onOpenKnowledgeTerm}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
+  if (view === 'review') return <><ReviewView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
   if (view === 'result') return <ResultView record={record || initialRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>
-  return <GuideView draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>
+  return <GuideView level={level} onSelectLevel={handleSelectLevel} questionCount={activeQuestions.length} draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>
 }

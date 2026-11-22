@@ -145,9 +145,8 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
   const careerDraft = drafts?.careerInterest?.['30'] || null
   const careerAnswered = Object.keys(careerDraft?.answers || {}).length
   const careerProgress = Math.round((careerAnswered / 30) * 100)
-  const innerCompassDraft = drafts?.innerCompass?.['30'] || null
-  const innerCompassAnswered = Object.keys(innerCompassDraft?.answers || {}).length
-  const innerCompassProgress = Math.round((innerCompassAnswered / 30) * 100)
+  const innerCompassDraft30 = drafts?.innerCompass?.['30'] || null
+  const innerCompassDraft60 = drafts?.innerCompass?.['60'] || null
   const bondSenseDraft = drafts?.bondSense?.['20'] || null
   const bondSenseAnswered = Object.keys(bondSenseDraft?.answers || {}).length
   const bondSenseProgress = Math.round((bondSenseAnswered / 20) * 100)
@@ -330,49 +329,155 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
           </div>
         </section>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <article className="flex flex-col rounded-2xl border border-[#d4e0ef] bg-white p-5 shadow-sm sm:p-6">
-            <div className="flex items-start justify-between gap-3">
-              <span className="grid h-[76px] w-[76px] place-items-center rounded-2xl bg-[#eaf1fa] text-[#446c96]"><InnerCompassLogo size={58}/></span>
-              <span className="rounded-full bg-[#eef3f9] px-2.5 py-1 text-[11px] font-semibold text-[#3f648c]">စမ်းသပ်အသုံးပြုရန်</span>
-            </div>
-            <h3 className="mt-4 text-xl font-bold tracking-tight text-[#3f5873]">InnerCompass</h3>
-            <p className="mt-1 text-sm font-semibold text-[#3f648c]">စိတ်နေသဘောထားကို လေ့လာခြင်း</p>
-            <p className="mt-3 flex-1 text-xs leading-7 text-[#596d83]">ကိုယ့်ရဲ့ ယုံကြည်စိတ်ချရမှု၊ စိတ်ခံစားချက်ကို သိမြင်ကိုင်တွယ်ပုံ၊ လူမှုဆက်ဆံရေး၊ အမြင်မတူမှုကို ကိုင်တွယ်ပုံ၊ ကိုယ်ပိုင်စီမံမှုနဲ့ စူးစမ်းတွေးခေါ်ပုံတွေကို ပြန်လည်သုံးသပ်နိုင်ပါတယ်။</p>
-            <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-[#3f648c]"><span className="rounded-full bg-[#eef3f9] px-2.5 py-1">မေးခွန်း ၃၀</span><span className="inline-flex items-center gap-1 rounded-full bg-[#eef3f9] px-2.5 py-1"><Clock3 size={12} /> ~၅ မိနစ်</span><span className="rounded-full bg-[#eef3f9] px-2.5 py-1">အဓိက အချက် ၆ ချက်</span><span className="rounded-full bg-[#fdf5e9] px-2.5 py-1 text-[#825824]">Pilot</span></div>
-            {innerCompassDraft ? (
-              <div className="mt-4 rounded-xl bg-[#f5f9fd] p-3">
-                <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#405f82]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#4e6379]">{innerCompassProgress}%</span></div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e1eaf3]"><div className="h-full rounded-full bg-[#527daa]" style={{ width: `${innerCompassProgress}%` }}/></div>
-                <p className="mt-2 text-[11px] text-[#4e6379]">ဖြေပြီး {innerCompassAnswered} ခု · ကျော်ထား {(innerCompassDraft.skippedQuestionIds || []).filter((id) => innerCompassDraft.answers?.[id] === undefined).length} ခု</p>
-                <button onClick={onOpenInnerCompass} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#446c96] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#3a5d82]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
+        <section className="mt-5 rounded-2xl border border-[#d4e0ef] bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4">
+              <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl bg-[#eaf1fa] text-[#446c96]"><InnerCompassLogo size={54}/></span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-xl font-bold tracking-tight text-[#3f5873]">InnerCompass</h3>
+                  <span className="rounded-full bg-[#eef3f9] px-2.5 py-1 text-[11px] font-semibold text-[#3f648c]">စမ်းသပ်အသုံးပြုရန် (Pilot)</span>
+                </div>
+                <p className="mt-1 text-sm font-semibold text-[#3f648c]">အတွင်းစိတ်နှင့် စိတ်နေသဘောထားကို လေ့လာခြင်း</p>
+                <p className="mt-2 max-w-2xl text-xs leading-6 text-[#596d83]">ကိုယ့်ရဲ့ ယုံကြည်စိတ်ချရမှု၊ စိတ်ခံစားချက်ကို သိမြင်ကိုင်တွယ်ပုံ၊ လူမှုဆက်ဆံရေး၊ အမြင်မတူမှုကို ကိုင်တွယ်ပုံ၊ ကိုယ်ပိုင်စီမံမှုနဲ့ စူးစမ်းတွေးခေါ်ပုံတွေကို အဓိက အချက် ၆ ချက်ဖြင့် ပြန်လည်သုံးသပ်နိုင်ပါတယ်။</p>
               </div>
-            ) : (
-              <button onClick={onOpenInnerCompass} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cbd9e9] bg-[#f6f9fd] px-4 py-2.5 text-xs font-semibold text-[#3f648c] transition hover:bg-[#edf3fa]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15}/></button>
-            )}
-            <p className="mt-2 text-[11px] leading-5 text-[#4e6379]">စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုသာ ဖြစ်ပြီး အတည်ပြုထားသော စိတ်ပညာစမ်းသပ်မှု မဟုတ်ပါ။</p>
-          </article>
-
-          <article className="flex flex-col rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:p-6">
-            <div className="flex items-start justify-between gap-3">
-              <span className="grid h-[76px] w-[76px] place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><BookOpen size={34}/></span>
-              <span className="rounded-full bg-[#fff5e6] px-2.5 py-1 text-[11px] font-bold text-[#825824]">မူကြမ်း 0.1.0</span>
             </div>
-            <h3 className="mt-4 text-xl font-bold tracking-tight text-[#514357]">Knowledge Center</h3>
-            <p className="mt-1 text-sm font-semibold text-[#6f587a]">စိတ်ပညာနဲ့ လူ့အပြုအမူဆိုင်ရာ အသိပညာများ</p>
-            <p className="mt-3 flex-1 text-xs leading-7 text-[#6b5e70]">ခက်ခဲတဲ့ စိတ်ပညာဆိုင်ရာ စကားလုံးတွေကို မြန်မာလို အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာနဲ့ ကွာခြားချက်တွေကို ဖတ်ရှုနိုင်ပါတယ်။</p>
-            <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-[#6b5e70]"><span className="rounded-full bg-[#f5eff7] px-2.5 py-1 text-[#6f587a]">စကားလုံး ၃၀</span><span className="rounded-full bg-[#f5eff7] px-2.5 py-1 text-[#6f587a]">အုပ်စု ၆ ခု</span><span className="rounded-full bg-[#f8f5f6] px-2.5 py-1">ရောဂါရှာဖွေရေး မဟုတ်ပါ</span></div>
-            <button onClick={onOpenKnowledge} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#d9cce0] bg-[#f7f2f8] px-4 py-2.5 text-xs font-semibold text-[#6f587a] transition hover:bg-[#eee6f1]">စကားလုံးများ လေ့လာမယ် <ArrowRight size={15}/></button>
-            <p className="mt-2 text-[11px] leading-5 text-[#6b5e70]">လက်ရှိအကြောင်းအရာတွေဟာ ကျွမ်းကျင်သူစစ်ဆေးမှု မပြီးသေးတဲ့ မူကြမ်းများ ဖြစ်ပါတယ်။</p>
-          </article>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {[
+              {
+                levelValue: 30,
+                badge: 'အခြေခံ',
+                duration: '~၅ မိနစ်',
+                title: 'အခြေခံ ၃၀ မေးခွန်း',
+                subtitle: 'အဓိက အချက် ၆ ချက်ကို အကျဉ်းချုပ် ပြန်လည်သုံးသပ်ရန်',
+                recommended: true,
+                draft: innerCompassDraft30,
+              },
+              {
+                levelValue: 60,
+                badge: 'အသေးစိတ်',
+                duration: '~၁၀ မိနစ်',
+                title: 'အသေးစိတ် ၆၀ မေးခွန်း',
+                subtitle: 'အချက် ၆ ချက်ကို မေးခွန်းပိုများဖြင့် ပိုမိုစုံလင်စွာ သုံးသပ်ရန်',
+                recommended: false,
+                draft: innerCompassDraft60,
+              },
+            ].map((item) => {
+              const answered = Object.keys(item.draft?.answers || {}).length
+              const skipped = (item.draft?.skippedQuestionIds || []).filter((id) => item.draft?.answers?.[id] === undefined).length
+              const progress = Math.round((answered / item.levelValue) * 100)
+              return (
+                <article key={item.levelValue} className={cn('flex flex-col rounded-2xl border bg-[#f9fbfe] p-4 sm:p-5', item.recommended ? 'border-[#b9cde2] ring-1 ring-[#e2ecf6]' : 'border-[#dce6f0]')}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="rounded-full bg-[#eaf1fa] px-3 py-1 text-[11px] font-semibold text-[#3f648c]">{item.badge}</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-[#4e6379] shadow-xs"><Clock3 size={12} /> {item.duration}</span>
+                  </div>
+                  {item.recommended && (
+                    <span className="mt-2.5 inline-flex w-fit rounded-full bg-[#eef5ed] px-2.5 py-0.5 text-[11px] font-semibold text-[#436b4f]">ပထမဆုံး စတင်သူများအတွက် အကြံပြု</span>
+                  )}
+                  <h4 className="mt-3 text-base font-bold text-[#3f5873]">{item.title}</h4>
+                  <p className="mt-1.5 min-h-10 text-xs leading-6 text-[#596d83]">{item.subtitle}</p>
+                  <div className="mt-3 flex items-end justify-between gap-2">
+                    <div className="flex items-end gap-2"><strong className="text-3xl text-[#446c96]">{item.levelValue}</strong><span className="pb-1 text-xs text-[#4e6379]">မေးခွန်း</span></div>
+                    <span className="text-[11px] text-[#4e6379]">အချက် ၆ ချက်</span>
+                  </div>
+                  {item.draft ? (
+                    <div className="mt-4 rounded-xl bg-white p-3 shadow-xs">
+                      <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#405f82]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#4e6379]">{progress}%</span></div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e1eaf3]"><div className="h-full rounded-full bg-[#527daa]" style={{ width: `${progress}%` }}/></div>
+                      <p className="mt-2 text-[11px] text-[#4e6379]">ဖြေပြီး {answered} ခု · ကျော်ထား {skipped} ခု</p>
+                      <button onClick={() => onOpenInnerCompass(item.levelValue)} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#446c96] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#3a5d82]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
+                    </div>
+                  ) : (
+                    <button onClick={() => onOpenInnerCompass(item.levelValue)} className="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cbd9e9] bg-white px-4 py-2.5 text-xs font-semibold text-[#3f648c] transition hover:bg-[#edf3fa]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15}/></button>
+                  )}
+                </article>
+              )
+            })}
+          </div>
+          <p className="mt-3 text-[11px] leading-5 text-[#4e6379]">စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုသာ ဖြစ်ပြီး အတည်ပြုထားသော စိတ်ပညာစမ်းသပ်မှု မဟုတ်ပါ။</p>
+        </section>
+
+        <div className="mt-6">
+          <div className="mb-3">
+            <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">MIND &amp; LIFE REFLECTION PILOTS</p>
+            <h3 className="mt-1 text-lg font-bold text-[#514357]">ဆက်ဆံရေးနှင့် ဘဝတန်ဖိုး ဆိုင်ရာ လေ့လာမှုများ</h3>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <article className="flex flex-col rounded-2xl border border-[#ebd6d1] bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#924433]"><BondSenseLogo size={44} /></span>
+                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1 text-[11px] font-semibold text-[#7c392b]">စမ်းသပ်မူကြမ်း (Pilot)</span>
+              </div>
+              <h3 className="mt-4 text-base font-bold text-[#662f23]">BondSense</h3>
+              <p className="mt-1 text-xs font-semibold text-[#7c392b]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p>
+              <p className="mt-2 flex-1 text-xs leading-6 text-[#6a4840]">ယုံကြည်မှု၊ ကိုယ်ပိုင်နယ်နိမိတ်၊ စာနာနားထောင်ပေးမှုနှင့် သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံတို့ကို ပြန်လည်သုံးသပ်ပါ။</p>
+              <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#7c392b]">
+                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">မေးခွန်း ၂၀</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#fdf3f0] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
+                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">အချက် ၄ ချက်</span>
+              </div>
+              {bondSenseDraft ? (
+                <div className="mt-4 rounded-xl bg-[#fdf7f5] p-3">
+                  <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#7c392b]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6d4b44]">{bondSenseProgress}%</span></div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#f0dfdb]"><div className="h-full rounded-full bg-[#924433]" style={{ width: `${bondSenseProgress}%` }} /></div>
+                  <p className="mt-2 text-[11px] text-[#6d4b44]">ဖြေပြီး {bondSenseAnswered} ခု · ကျော်ထား {(bondSenseDraft.skippedQuestionIds || []).filter((id) => bondSenseDraft.answers?.[id] === undefined).length} ခု</p>
+                  <button onClick={onOpenBondSense} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#924433] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#7d3829]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
+                </div>
+              ) : (
+                <button onClick={onOpenBondSense} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#e5cbc5] bg-[#fdf7f5] px-4 py-2.5 text-xs font-semibold text-[#7c392b] transition hover:bg-[#faeae5]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
+              )}
+            </article>
+
+            <article className="flex flex-col rounded-2xl border border-[#d4e1d7] bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef4ef] text-[#3d6347]"><ValueMapLogo size={44} /></span>
+                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1 text-[11px] font-semibold text-[#33573d]">စမ်းသပ်မူကြမ်း (Pilot)</span>
+              </div>
+              <h3 className="mt-4 text-base font-bold text-[#2c4a34]">ValueMap</h3>
+              <p className="mt-1 text-xs font-semibold text-[#33573d]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p>
+              <p className="mt-2 flex-1 text-xs leading-6 text-[#465e4c]">လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ထဲမှ ကိုယ်အလေးထားရာကို ပြန်လည်သုံးသပ်ပါ။</p>
+              <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#33573d]">
+                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">မေးခွန်း ၂၀</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#eef5f0] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
+                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">အချက် ၄ ချက်</span>
+              </div>
+              {valueMapDraft ? (
+                <div className="mt-4 rounded-xl bg-[#f5f9f6] p-3">
+                  <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#33573d]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#475e4d]">{valueMapProgress}%</span></div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#dce7df]"><div className="h-full rounded-full bg-[#3d6347]" style={{ width: `${valueMapProgress}%` }} /></div>
+                  <p className="mt-2 text-[11px] text-[#475e4d]">ဖြေပြီး {valueMapAnswered} ခု · ကျော်ထား {(valueMapDraft.skippedQuestionIds || []).filter((id) => valueMapDraft.answers?.[id] === undefined).length} ခု</p>
+                  <button onClick={onOpenValueMap} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#3d6347] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#31523a]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
+                </div>
+              ) : (
+                <button onClick={onOpenValueMap} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cad9ce] bg-[#f5f9f6] px-4 py-2.5 text-xs font-semibold text-[#33573d] transition hover:bg-[#e8f2eb]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
+              )}
+            </article>
+          </div>
         </div>
+
+        <article className="mt-5 flex flex-col justify-between gap-4 rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6">
+          <div className="flex items-start gap-4">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><BookOpen size={26}/></span>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-lg font-bold tracking-tight text-[#514357]">Knowledge Center</h3>
+                <span className="rounded-full bg-[#fff5e6] px-2.5 py-0.5 text-[11px] font-bold text-[#825824]">မူကြမ်း 0.1.0</span>
+              </div>
+              <p className="mt-1 text-xs font-semibold text-[#6f587a]">စိတ်ပညာနဲ့ လူ့အပြုအမူဆိုင်ရာ အသိပညာများ · စကားလုံး ၃၀</p>
+              <p className="mt-1 text-xs leading-6 text-[#6b5e70]">ခက်ခဲတဲ့ စိတ်ပညာဆိုင်ရာ စကားလုံးတွေကို မြန်မာလို အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာနဲ့ ကွာခြားချက်တွေကို ဖတ်ရှုနိုင်ပါတယ်။</p>
+            </div>
+          </div>
+          <button onClick={onOpenKnowledge} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d9cce0] bg-[#f7f2f8] px-5 py-2.5 text-xs font-semibold text-[#6f587a] transition hover:bg-[#eee6f1]">စကားလုံးများ လေ့လာမယ် <ArrowRight size={15}/></button>
+        </article>
       </section>
 
-      <section className="mt-10">
+      <section className="mt-10 rounded-2xl border border-[#eee5ed] bg-[#fcfafd] p-5 sm:p-6">
         <div className="mb-4">
-          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">OPTIONAL &amp; UPCOMING MODULES</p>
-          <h2 className="mt-1 text-lg font-bold text-[#514357]">အခြား ကိုယ်ပိုင်လေ့လာရေးကိရိယာများနှင့် နောက်ထပ်အပိုင်းများ</h2>
-          <p className="mt-1 text-xs leading-6 text-[#6b5e70]">အလုပ်အကိုင်စိတ်ဝင်စားမှုကို သီးခြားလေ့လာနိုင်သလို နောက်ထပ်အပိုင်းအသစ်တွေကိုလည်း တဖြည်းဖြည်း ဖွင့်လှစ်သွားပါမယ်။</p>
+          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">SECONDARY TOOLS</p>
+          <h2 className="mt-1 text-lg font-bold text-[#514357]">အခြား လေ့လာရေး ကိရိယာများ (Secondary Tools)</h2>
+          <p className="mt-1 text-xs leading-6 text-[#6b5e70]">အလုပ်အကိုင် စိတ်ဝင်စားမှုနှင့် အနာဂတ်တွင် ထပ်မံထည့်သွင်းမည့် ကိရိယာများကို သီးခြားစုစည်းထားပါသည်။</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <article className="flex flex-col rounded-2xl border border-[#e9dce7] bg-white p-5 shadow-sm">
@@ -397,57 +502,6 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
             <p className="mt-2 flex-1 text-xs leading-6 text-[#6b5e70]">ကိုယ်တိုင်အကဲဖြတ်တဲ့ မေးခွန်းတွေနဲ့ လက်တွေ့လေ့ကျင့်ခန်းတွေကို ပေါင်းစပ်ပြီး ကိုယ့်ကျွမ်းကျင်မှုကို သီးခြားလေ့လာနိုင်ဖို့ ပြင်ဆင်နေပါတယ်။</p>
             <p className="mt-4 text-[11px] font-semibold text-[#436b4f]">မေးခွန်း + လက်တွေ့စမ်းသပ်မှု</p>
             <span className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e3e9d9] bg-[#f8faf5] px-4 py-2.5 text-xs font-semibold text-[#436b4f]">နောက်အဆင့်တွင် ဖွင့်လှစ်မည်</span>
-          </article>
-        </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <article className="flex flex-col rounded-2xl border border-[#ebd6d1] bg-white p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#924433]"><BondSenseLogo size={44} /></span>
-              <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1 text-[11px] font-semibold text-[#7c392b]">စမ်းသပ်မူကြမ်း (Pilot)</span>
-            </div>
-            <h3 className="mt-4 text-base font-bold text-[#662f23]">BondSense</h3>
-            <p className="mt-1 text-xs font-semibold text-[#7c392b]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p>
-            <p className="mt-2 flex-1 text-xs leading-6 text-[#6a4840]">ယုံကြည်မှု၊ ကိုယ်ပိုင်နယ်နိမိတ်၊ စာနာနားထောင်ပေးမှုနှင့် သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံတို့ကို ပြန်လည်သုံးသပ်ပါ။</p>
-            <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#7c392b]">
-              <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">မေးခွန်း ၂၀</span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#fdf3f0] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
-              <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">အချက် ၄ ချက်</span>
-            </div>
-            {bondSenseDraft ? (
-              <div className="mt-4 rounded-xl bg-[#fdf7f5] p-3">
-                <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#7c392b]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6d4b44]">{bondSenseProgress}%</span></div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#f0dfdb]"><div className="h-full rounded-full bg-[#924433]" style={{ width: `${bondSenseProgress}%` }} /></div>
-                <p className="mt-2 text-[11px] text-[#6d4b44]">ဖြေပြီး {bondSenseAnswered} ခု · ကျော်ထား {(bondSenseDraft.skippedQuestionIds || []).filter((id) => bondSenseDraft.answers?.[id] === undefined).length} ခု</p>
-                <button onClick={onOpenBondSense} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#924433] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#7d3829]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
-              </div>
-            ) : (
-              <button onClick={onOpenBondSense} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#e5cbc5] bg-[#fdf7f5] px-4 py-2.5 text-xs font-semibold text-[#7c392b] transition hover:bg-[#faeae5]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
-            )}
-          </article>
-
-          <article className="flex flex-col rounded-2xl border border-[#d4e1d7] bg-white p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef4ef] text-[#3d6347]"><ValueMapLogo size={44} /></span>
-              <span className="rounded-full bg-[#eef5f0] px-2.5 py-1 text-[11px] font-semibold text-[#33573d]">စမ်းသပ်မူကြမ်း (Pilot)</span>
-            </div>
-            <h3 className="mt-4 text-base font-bold text-[#2c4a34]">ValueMap</h3>
-            <p className="mt-1 text-xs font-semibold text-[#33573d]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p>
-            <p className="mt-2 flex-1 text-xs leading-6 text-[#465e4c]">လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ထဲမှ ကိုယ်အလေးထားရာကို ပြန်လည်သုံးသပ်ပါ။</p>
-            <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#33573d]">
-              <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">မေးခွန်း ၂၀</span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#eef5f0] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
-              <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">အချက် ၄ ချက်</span>
-            </div>
-            {valueMapDraft ? (
-              <div className="mt-4 rounded-xl bg-[#f5f9f6] p-3">
-                <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#33573d]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#475e4d]">{valueMapProgress}%</span></div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#dce7df]"><div className="h-full rounded-full bg-[#3d6347]" style={{ width: `${valueMapProgress}%` }} /></div>
-                <p className="mt-2 text-[11px] text-[#475e4d]">ဖြေပြီး {valueMapAnswered} ခု · ကျော်ထား {(valueMapDraft.skippedQuestionIds || []).filter((id) => valueMapDraft.answers?.[id] === undefined).length} ခု</p>
-                <button onClick={onOpenValueMap} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#3d6347] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#31523a]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
-              </div>
-            ) : (
-              <button onClick={onOpenValueMap} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cad9ce] bg-[#f5f9f6] px-4 py-2.5 text-xs font-semibold text-[#33573d] transition hover:bg-[#e8f2eb]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
-            )}
           </article>
         </div>
       </section>
@@ -869,6 +923,7 @@ function getRecordAssessmentType(record) {
 function getRecordComparisonKey(record) {
   const type = getRecordAssessmentType(record)
   if (type === 'personality') return `personality:${record?.level || record?.questionCount || 30}`
+  if (type === 'innerCompass') return `innerCompass:${record?.questionCount || record?.level || 30}`
   return type
 }
 
@@ -1260,6 +1315,7 @@ export default function App() {
   const innerCompassPersistRef = useRef(null)
   const bondSensePersistRef = useRef(null)
   const valueMapPersistRef = useRef(null)
+  const [innerCompassLevel, setInnerCompassLevel] = useState(30)
   const questions = useMemo(() => getQuestionsForLevel(level), [level])
   const currentDraft = appData.drafts?.personality?.[String(level)] || null
 
@@ -1709,11 +1765,11 @@ export default function App() {
   return (
     <div className={cn('min-h-screen bg-[#f8f5f6] text-[#403747]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenKnowledge={handleNavigateKnowledge} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenKnowledge={handleNavigateKnowledge} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'knowledge' && <Suspense fallback={<ModuleLoadingFallback />}><KnowledgeCenter onBack={handleKnowledgeBack} initialTermId={knowledgeTermId} returnLabel={knowledgeReturnPage ? 'မေးခွန်းသို့ ပြန်သွားမယ်' : null} /></Suspense>}
       {page === 'careerInterest' && <Suspense fallback={<ModuleLoadingFallback />}><CareerInterestModule key={activeRecord?.id || 'career-new'} record={activeRecord?.assessmentType === 'careerInterest' ? activeRecord : null} onHome={handleNavigateHome} onDataChange={setAppData} persistRef={careerPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
       {page === 'instructions' && <InstructionsPage level={level} onBack={() => setPage('home')} onBegin={handleBegin} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
-      {page === 'innerCompass' && <Suspense fallback={<ModuleLoadingFallback />}><InnerCompassModule key={activeRecord?.id || 'inner-compass-active'} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
+      {page === 'innerCompass' && <Suspense fallback={<ModuleLoadingFallback />}><InnerCompassModule key={activeRecord?.id || `inner-compass-${innerCompassLevel}`} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} initialLevel={innerCompassLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
       {page === 'bondSense' && <Suspense fallback={<ModuleLoadingFallback />}><BondSenseModule key={activeRecord?.id || 'bondsense-active'} initialRecord={activeRecord?.assessmentType === 'bondSense' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={bondSensePersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'valueMap' && <Suspense fallback={<ModuleLoadingFallback />}><ValueMapModule key={activeRecord?.id || 'valuemap-active'} initialRecord={activeRecord?.assessmentType === 'valueMap' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={valueMapPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} />}
