@@ -29,6 +29,13 @@ import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft
 const ASSESSMENT_TYPE = 'emotionLens'
 const ACCENT = '#2f6d73'
 
+function normalizeEmotionLensLevel(value) {
+  const numeric = Number(value)
+  if (numeric === 80) return 80
+  if (numeric === 40) return 40
+  return 20
+}
+
 function cn(...classes) {
   return classes.filter(Boolean).join(' ')
 }
@@ -89,7 +96,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#3a5a5e]">EMOTIONLENS</p>
                 <h1 className="mt-1 text-xl font-bold text-[#1e4a4f] sm:text-2xl">စိတ်ခံစားချက် သိမှတ်မှုနှင့် စိတ်အေးချမ်းမှုကို လေ့လာခြင်း</h1>
-                <p className="mt-1 text-xs text-[#3a5a5e]">မေးခွန်း {level === 40 ? '၄၀' : '၂၀'} · အချက် ၄ ချက် · {level === 40 ? '~၈ မိနစ်' : '~၄ မိနစ်'}</p>
+                <p className="mt-1 text-xs text-[#3a5a5e]">မေးခွန်း {level === 80 ? '၈၀' : level === 40 ? '၄၀' : '၂၀'} · အချက် ၄ ချက် · {level === 80 ? '~၁၅ မိနစ်' : level === 40 ? '~၈ မိနစ်' : '~၄ မိနစ်'}</p>
               </div>
             </div>
             <span className="rounded-full border border-[#bfd8da] bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-[#1e4a4f]">Pilot Reflection · စမ်းသပ်မူကြမ်း</span>
@@ -100,7 +107,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
         <div className="p-6 sm:p-9">
           <div className="mb-6">
             <h2 className="text-base font-bold text-[#1e4a4f]">ဖြေဆိုမည့် မေးခွန်းအဆင့် ရွေးချယ်ပါ</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="EmotionLens မေးခွန်းအဆင့် ရွေးချယ်မှု">
+            <div className="mt-3 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="EmotionLens မေးခွန်းအဆင့် ရွေးချယ်မှု">
               {EMOTIONLENS_LEVELS.map((option) => {
                 const selected = level === option.value
                 const levelDraft = loadDraft(option.value, ASSESSMENT_TYPE)
@@ -342,8 +349,9 @@ function EmotionLensPolarTick({ payload, x, y, textAnchor }) {
 }
 
 function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBackup, onDismissStorageError }) {
-  const questionCount = record?.questionCount || record?.level || (Object.keys(record?.answers || {}).length > 20 ? 40 : 20)
-  const questionCountLabel = questionCount === 40 ? '၄၀' : '၂၀'
+  const answerCount = Object.keys(record?.answers || {}).length
+  const questionCount = record?.questionCount || record?.level || (answerCount > 40 ? 80 : answerCount > 20 ? 40 : 20)
+  const questionCountLabel = questionCount === 80 ? '၈၀' : questionCount === 40 ? '၄၀' : '၂၀'
   const result = useMemo(() => scoreEmotionLens(record?.answers || {}, questionCount), [record, questionCount])
   if (!record || !result.complete) return null
   const chartData = result.dimensions.map((item) => ({ area: item.shortName, score: item.index }))
@@ -505,8 +513,8 @@ export default function EmotionLensModule({
   onDismissStorageError,
 }) {
   const resolvedInitialLevel = initialRecord
-    ? (Number(initialRecord.questionCount || initialRecord.level) === 40 ? 40 : 20)
-    : (Number(initialLevel) === 40 ? 40 : 20)
+    ? normalizeEmotionLensLevel(initialRecord.questionCount || initialRecord.level)
+    : normalizeEmotionLensLevel(initialLevel)
   const [level, setLevel] = useState(resolvedInitialLevel)
   const activeQuestions = useMemo(() => getEmotionLensQuestionsForLevel(level), [level])
   const initialDraft = initialRecord ? null : loadDraft(resolvedInitialLevel, ASSESSMENT_TYPE)
@@ -524,7 +532,7 @@ export default function EmotionLensModule({
   const storageAlertVisible = sharedStorageAlertVisible ?? (storageError && !localAlertDismissed)
 
   const handleSelectLevel = (nextLevel) => {
-    const normalized = Number(nextLevel) === 40 ? 40 : 20
+    const normalized = normalizeEmotionLensLevel(nextLevel)
     const nextQuestions = getEmotionLensQuestionsForLevel(normalized)
     const nextDraft = loadDraft(normalized, ASSESSMENT_TYPE)
     setLevel(normalized)
