@@ -23,6 +23,7 @@ import {
 
 const BalancedSpectrumBar = lazy(() => import('./components/BalancedSpectrumBar.jsx'))
 const BondSenseModule = lazy(() => import('./components/BondSenseModule.jsx'))
+const CalmingBreathPause = lazy(() => import('./components/CalmingBreathPause.jsx'))
 const CareerInterestModule = lazy(() => import('./components/CareerInterestModule.jsx'))
 const DailyMindPromptCard = lazy(() => import('./components/DailyMindPromptCard.jsx'))
 const HistoryPage = lazy(() => import('./components/HistoryPage.jsx'))
@@ -31,6 +32,7 @@ const KnowledgeCenter = lazy(() => import('./components/KnowledgeCenter.jsx'))
 const KnowledgeInlineHelp = lazy(() => import('./components/KnowledgeInlineHelp.jsx'))
 const LikertScaleSelector = lazy(() => import('./components/LikertScaleSelector.jsx'))
 const MyMindProfile = lazy(() => import('./components/MyMindProfile.jsx'))
+const ReflectionJournalPage = lazy(() => import('./components/ReflectionJournalPage.jsx'))
 const ReflectionNotesSection = lazy(() => import('./components/ReflectionNotesSection.jsx'))
 const ResultShareCardButton = lazy(() => import('./components/ResultShareCardButton.jsx'))
 const TraitRadarChart = lazy(() => import('./components/TraitRadarChart.jsx'))
@@ -138,7 +140,7 @@ function getDraftStats(draft, level) {
   return { total, answered, skipped, remaining: Math.max(0, total - answered), progress: total ? Math.round((answered / total) * 100) : 0 }
 }
 
-function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenBondSense, onOpenValueMap, onOpenKnowledge, onOpenMindProfile, storageAlertVisible, onDismissStorageError }) {
+function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenBondSense, onOpenValueMap, onOpenKnowledge, onOpenMindProfile, onOpenJournal, storageAlertVisible, onDismissStorageError }) {
   const [betaDetailsOpen, setBetaDetailsOpen] = useState(false)
   const completedCount = history.length
   const draftCount = Object.values(drafts || {}).reduce((sum, group) => {
@@ -467,7 +469,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
 
         <div className="md:col-span-7">
           <Suspense fallback={<div className="h-full min-h-48 rounded-2xl border border-[#e7dce9] bg-[#fcf9fc] p-5 text-xs text-[#6b5e70]">နေ့စဉ်မေးခွန်းကို ဖွင့်နေပါသည်...</div>}>
-            <DailyMindPromptCard />
+            <DailyMindPromptCard onOpenJournal={onOpenJournal} />
           </Suspense>
         </div>
 
@@ -632,6 +634,9 @@ function InstructionsPage({ level, onBack, onBegin, storageAlertVisible, onExpor
             </ul>
           </div>
           <div className="flex gap-3 rounded-2xl border border-[#e7e0e9] bg-[#f8f5f8] p-4"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-[#6b5e70]"/><div><p className="text-xs font-bold text-[#66576b]">ကိုယ်ရေးအချက်အလက်နဲ့ သိမ်းဆည်းမှု</p><p className="mt-1 text-xs leading-6 text-[#716679]">{STORAGE_HINT} အရေးကြီးတဲ့အဖြေတွေ မပျောက်စေဖို့ JSON Backup ကို ပုံမှန်ထုတ်ထားပါ။ ဒီဆန်းစစ်မှုကို အချိန်မရွေး ရပ်နိုင်ပါတယ်။</p></div></div>
+          <Suspense fallback={null}>
+            <CalmingBreathPause theme="trait" />
+          </Suspense>
           <div className="rounded-2xl border border-[#eadfe9] bg-[#fbf7fb] p-4">
             <label className="flex cursor-pointer items-start gap-3">
               <input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-[#80678f]" />
@@ -1005,6 +1010,7 @@ const PAGE_TO_HASH = {
   knowledge: '#knowledge',
   history: '#history',
   mindProfile: '#mind-profile',
+  journal: '#journal',
   instructions: '#instructions',
   assessment: '#assessment',
   review: '#review',
@@ -1022,6 +1028,7 @@ const HASH_TO_PAGE = {
   '#knowledge': 'knowledge',
   '#history': 'history',
   '#mind-profile': 'mindProfile',
+  '#journal': 'journal',
   '#instructions': 'instructions',
   '#assessment': 'assessment',
   '#review': 'review',
@@ -1498,6 +1505,14 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleNavigateJournal = () => {
+    flushActiveModuleDraft()
+    setActiveRecord(null)
+    setAppData(loadAppData())
+    setPage('journal')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const handleOpenKnowledgeTerm = (termId) => {
     if (page === 'assessment' || page === 'review') {
       persistDraft()
@@ -1539,23 +1554,33 @@ export default function App() {
     setPage('home')
   }
 
-  const showMobileNavigation = ['home', 'history', 'knowledge', 'mindProfile'].includes(page)
+  const showMobileNavigation = ['home', 'history', 'knowledge', 'mindProfile', 'journal'].includes(page)
 
   return (
     <div className={cn('min-h-screen bg-[#faf8f5] text-[#242029]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'mindProfile' && (
         <Suspense fallback={<ModuleLoadingFallback />}>
           <MyMindProfile
             history={appData.history}
             onBack={handleNavigateHome}
             onOpenRecord={openHistoryRecord}
+            onOpenJournal={handleNavigateJournal}
             onStartTraitLens={() => handleStart(30, false)}
             onStartInnerCompass={() => { setActiveRecord(null); setInnerCompassLevel(30); setPage('innerCompass') }}
             onStartBondSense={() => { setActiveRecord(null); setPage('bondSense') }}
             onStartValueMap={() => { setActiveRecord(null); setPage('valueMap') }}
             onStartCareer={handleStartCareer}
+          />
+        </Suspense>
+      )}
+      {page === 'journal' && (
+        <Suspense fallback={<ModuleLoadingFallback />}>
+          <ReflectionJournalPage
+            history={appData.history}
+            onBack={handleNavigateHome}
+            onOpenRecord={openHistoryRecord}
           />
         </Suspense>
       )}

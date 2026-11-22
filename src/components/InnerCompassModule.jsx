@@ -9,6 +9,7 @@ import {
 } from 'recharts'
 import { InnerCompassLogo } from './AssessmentLogos.jsx'
 import BalancedSpectrumBar from './BalancedSpectrumBar.jsx'
+import CalmingBreathPause from './CalmingBreathPause.jsx'
 import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
 import LikertScaleSelector from './LikertScaleSelector.jsx'
 import ReflectionNotesSection from './ReflectionNotesSection.jsx'
@@ -156,6 +157,10 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
           <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#e2eaf3] bg-[#f7fafd] p-4">
             <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#446c96]"/>
             <div><p className="text-xs font-bold text-[#405f82]">ကိုယ်ရေးအချက်အလက်နှင့် သိမ်းဆည်းမှု</p><p className="mt-1 text-xs leading-6 text-[#596d83]">သင့်အဖြေတွေကို ဒီ Browser နဲ့ ဒီစက်ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser Data ရှင်းလိုက်ရင် ပျောက်နိုင်တာကြောင့် JSON Backup ကို ပုံမှန်ထုတ်ထားပါ။</p></div>
+          </div>
+
+          <div className="mt-5">
+            <CalmingBreathPause theme="innerCompass" />
           </div>
 
           {draft ? (

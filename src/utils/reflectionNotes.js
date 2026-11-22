@@ -205,17 +205,85 @@ export function getDailyReflectionRecordId(date = new Date()) {
   return `${DAILY_REFLECTION_PREFIX}${getLocalDateKey(date)}`
 }
 
-export function getDailyMindPrompt(date = new Date()) {
-  const dayNumber = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000)
+export function getDailyPromptByDateKey(dateKey) {
+  if (typeof dateKey !== 'string') return null
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey.trim())
+  if (!match) return null
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const dayNumber = Math.floor(Date.UTC(year, month - 1, day) / 86400000)
   const index = ((dayNumber % DAILY_MIND_PROMPTS.length) + DAILY_MIND_PROMPTS.length) % DAILY_MIND_PROMPTS.length
-  const prompt = DAILY_MIND_PROMPTS[index]
+  return DAILY_MIND_PROMPTS[index]
+}
+
+export function getDailyMindPrompt(date = new Date()) {
+  const dateKey = getLocalDateKey(date)
+  const prompt = getDailyPromptByDateKey(dateKey) || DAILY_MIND_PROMPTS[0]
+  const index = DAILY_MIND_PROMPTS.findIndex((item) => item.id === prompt.id)
   return {
     ...prompt,
     index,
     total: DAILY_MIND_PROMPTS.length,
-    dateKey: getLocalDateKey(date),
+    dateKey,
     recordId: getDailyReflectionRecordId(date),
   }
+}
+
+const ASSESSMENT_TYPE_LABELS = {
+  personality: 'TraitLens · ပင်ကိုစရိုက်',
+  innerCompass: 'InnerCompass · စိတ်နေသဘောထား',
+  bondSense: 'BondSense · ဆက်ဆံရေးပုံစံ',
+  valueMap: 'ValueMap · ဘဝတန်ဖိုး',
+  careerInterest: 'Career Interest · စိတ်ဝင်စားမှု',
+}
+
+export function listReflectionJournalEntries(history = []) {
+  const allNotes = loadAllReflectionNotes()
+  const historyById = new Map()
+  for (const record of Array.isArray(history) ? history : []) {
+    if (record?.id) historyById.set(record.id, record)
+  }
+
+  const dailyEntries = []
+  const assessmentEntries = []
+
+  for (const [recordId, entry] of Object.entries(allNotes)) {
+    if (recordId.startsWith(DAILY_REFLECTION_PREFIX)) {
+      const dateKey = recordId.slice(DAILY_REFLECTION_PREFIX.length)
+      const prompt = getDailyPromptByDateKey(dateKey)
+      const sortTs = noteTimestampOf(entry.updatedAt) || (Date.parse(`${dateKey}T00:00:00`) || 0)
+      dailyEntries.push({
+        recordId,
+        kind: 'daily',
+        dateKey,
+        prompt,
+        text: entry.text,
+        updatedAt: entry.updatedAt || '',
+        sortTs,
+      })
+    } else {
+      const record = historyById.get(recordId) || null
+      const assessmentType = record?.assessmentType || (record ? 'personality' : null)
+      const moduleLabel = assessmentType ? (ASSESSMENT_TYPE_LABELS[assessmentType] || assessmentType) : 'စမ်းသပ်မှု မှတ်စု'
+      const sortTs = noteTimestampOf(entry.updatedAt) || noteTimestampOf(record?.createdAt)
+      assessmentEntries.push({
+        recordId,
+        kind: 'assessment',
+        record,
+        assessmentType,
+        moduleLabel,
+        text: entry.text,
+        updatedAt: entry.updatedAt || record?.createdAt || '',
+        sortTs,
+      })
+    }
+  }
+
+  dailyEntries.sort((a, b) => b.sortTs - a.sortTs)
+  assessmentEntries.sort((a, b) => b.sortTs - a.sortTs)
+
+  return { dailyEntries, assessmentEntries }
 }
 
 export function countDailyReflectionNotes() {

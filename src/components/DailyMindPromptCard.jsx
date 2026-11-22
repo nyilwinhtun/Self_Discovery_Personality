@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle2, Edit3, LockKeyhole, Save, Sparkles, Trash2 } from 'lucide-react'
+import { ArrowRight, BookOpen, CheckCircle2, Edit3, LockKeyhole, Save, Sparkles, Trash2 } from 'lucide-react'
 import {
   countDailyReflectionNotes,
   deleteReflectionNote,
@@ -32,7 +32,7 @@ function formatSavedTime(value) {
   }
 }
 
-export default function DailyMindPromptCard() {
+export default function DailyMindPromptCard({ onOpenJournal }) {
   const todayPrompt = getDailyMindPrompt()
   const { recordId } = todayPrompt
   const [savedNote, setSavedNote] = useState(() => getReflectionNote(recordId))
@@ -180,11 +180,22 @@ export default function DailyMindPromptCard() {
           <p className="mt-2.5 text-xs font-semibold text-[#8b3a4b]">{errorMessage}</p>
         )}
 
-        <p className="mt-3 text-[11px] leading-5 text-[#6b5e70]">
-          {dailyCount > 0
-            ? `သိမ်းဆည်းထားသော နေ့စဉ်မှတ်စု ${dailyCount} ခုရှိပြီး JSON Backup ထဲတွင် အလိုအလျောက် ပါဝင်ပါမည်။`
-            : 'ဒီစက်ထဲရှိ Browser Storage ထဲတွင်သာ သီးသန့်သိမ်းဆည်းပြီး JSON Backup ထဲတွင် ပါဝင်ပါမည်။'}
-        </p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#efe7f2] pt-3">
+          <p className="text-[11px] leading-5 text-[#6b5e70]">
+            {dailyCount > 0
+              ? `သိမ်းဆည်းထားသော နေ့စဉ်မှတ်စု ${dailyCount} ခုရှိပြီး JSON Backup ထဲတွင် အလိုအလျောက် ပါဝင်ပါမည်။`
+              : 'ဒီစက်ထဲရှိ Browser Storage ထဲတွင်သာ သီးသန့်သိမ်းဆည်းပြီး JSON Backup ထဲတွင် ပါဝင်ပါမည်။'}
+          </p>
+          {onOpenJournal && (
+            <button
+              type="button"
+              onClick={onOpenJournal}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-[#e3d7e6] bg-white px-3 py-1.5 text-xs font-semibold text-[#614b6b] transition hover:bg-[#f6f0f8]"
+            >
+              <BookOpen size={14} /> ကိုယ်ပိုင် စိတ်မှတ်တမ်းစာအုပ် <ArrowRight size={13} />
+            </button>
+          )}
+        </div>
       </div>
     </article>
   )

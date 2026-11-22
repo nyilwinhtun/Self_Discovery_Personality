@@ -8,6 +8,7 @@ import {
   ResponsiveContainer, Tooltip,
 } from 'recharts'
 import { ValueMapLogo } from './AssessmentLogos.jsx'
+import CalmingBreathPause from './CalmingBreathPause.jsx'
 import LikertScaleSelector from './LikertScaleSelector.jsx'
 import ReflectionNotesSection from './ReflectionNotesSection.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
@@ -112,6 +113,10 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
           <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#dce6de] bg-[#f7faf8] p-4">
             <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#3d6347]" />
             <div><p className="text-xs font-bold text-[#2c4a34]">ကိုယ်ရေးအချက်အလက်နှင့် သိမ်းဆည်းမှု</p><p className="mt-1 text-xs leading-6 text-[#465e4c]">သင့်အဖြေများကို ဒီ Browser နှင့် ဒီစက်ထဲတွင်သာ သိမ်းဆည်းထားပါသည်။ Browser Data မရှင်းမီ JSON Backup ထုတ်ယူထားပါ။</p></div>
+          </div>
+
+          <div className="mt-5">
+            <CalmingBreathPause theme="valueMap" />
           </div>
 
           {draft ? (

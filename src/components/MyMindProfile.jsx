@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
+  BookOpen,
   BriefcaseBusiness,
   CheckCircle2,
   CircleHelp,
@@ -248,6 +249,7 @@ export default function MyMindProfile({
   history: propHistory,
   onBack,
   onOpenRecord,
+  onOpenJournal,
   onStartTraitLens,
   onStartInnerCompass,
   onStartBondSense,
@@ -384,15 +386,27 @@ export default function MyMindProfile({
           </div>
 
           <div className="flex flex-col items-start gap-2 sm:items-end">
-            <button
-              type="button"
-              onClick={handleSavePng}
-              disabled={busyPng || completedCount === 0}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#d8c7df] bg-white px-5 py-2.5 text-sm font-semibold text-[#614b6b] shadow-xs transition hover:bg-[#faf7fb] disabled:cursor-not-allowed disabled:opacity-45"
-            >
-              <ImageDown size={16} />
-              {busyPng ? 'ပုံထုတ်နေသည်...' : 'စုစည်းမှု ပုံသိမ်းမယ် (PNG)'}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              {onOpenJournal && (
+                <button
+                  type="button"
+                  onClick={onOpenJournal}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#d8c7df] bg-white px-4 py-2.5 text-xs font-semibold text-[#614b6b] shadow-xs transition hover:bg-[#faf7fb] sm:text-sm"
+                >
+                  <BookOpen size={16} />
+                  ကိုယ်ပိုင် စိတ်မှတ်တမ်းစာအုပ်
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleSavePng}
+                disabled={busyPng || completedCount === 0}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#d8c7df] bg-white px-5 py-2.5 text-sm font-semibold text-[#614b6b] shadow-xs transition hover:bg-[#faf7fb] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                <ImageDown size={16} />
+                {busyPng ? 'ပုံထုတ်နေသည်...' : 'စုစည်းမှု ပုံသိမ်းမယ် (PNG)'}
+              </button>
+            </div>
             {pngError && (
               <p role="status" className="text-[11px] font-medium text-[#8b3a2b]">
                 {pngError}
