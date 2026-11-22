@@ -513,7 +513,6 @@ function InstructionsPage({ level, onBack, onBegin, storageAlertVisible, onExpor
 
 function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError, onOpenKnowledgeTerm }) {
   const question = questions[questionIndex]
-  const trait = TRAITS.find((item) => item.id === question.trait)
   const selectedAnswer = answers[question.id]
   const answeredCount = questions.filter((item) => answers[item.id] !== undefined).length
   const skippedCount = skippedQuestionIds.filter((id) => answers[id] === undefined).length
@@ -538,7 +537,6 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
         </div>
         <div className="mt-5 flex items-center justify-between text-[11px] text-[#6b5e70]"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#f1ebf2]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }} /></div>
-        <div className="mt-7 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f4eef6] text-[#80678f]"><TraitIcon id={trait.id} size={17} /></span><div><p className="text-xs font-bold text-[#725f7a]">{trait.name}</p><p className="text-[11px] text-[#6b5e70]">ပင်ကိုစရိုက် အချက် {TRAITS.findIndex((item) => item.id === trait.id) + 1} / ၅</p></div></div>
         <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#faf6fb] to-[#fcf7f6] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#6b5e70]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#493b4d] sm:text-[1.35rem]">{question.text}</h2><Suspense fallback={null}><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></Suspense></div>
         <div className="space-y-2.5" role="radiogroup" aria-label="အဖြေရွေးချယ်မှု">
           {ANSWER_OPTIONS.map((option) => {
@@ -1092,9 +1090,54 @@ function BackupRestoreDialog({ preview, mode, onModeChange, onCancel, onConfirm 
   )
 }
 
+const PAGE_TO_HASH = {
+  home: '#home',
+  knowledge: '#knowledge',
+  history: '#history',
+  instructions: '#instructions',
+  assessment: '#assessment',
+  review: '#review',
+  result: '#results',
+  innerCompass: '#innercompass',
+  careerInterest: '#career',
+}
+
+const HASH_TO_PAGE = {
+  '': 'home',
+  '#': 'home',
+  '#home': 'home',
+  '#knowledge': 'knowledge',
+  '#history': 'history',
+  '#instructions': 'instructions',
+  '#assessment': 'assessment',
+  '#review': 'review',
+  '#results': 'result',
+  '#innercompass': 'innerCompass',
+  '#career': 'careerInterest',
+}
+
+const HOME_ANCHOR_HASHES = new Set(['#assessment-dashboard', '#personality-levels'])
+
+function getInitialPageFromHash() {
+  if (typeof window === 'undefined') return 'home'
+  const rawHash = window.location.hash || ''
+  if (HOME_ANCHOR_HASHES.has(rawHash)) return 'home'
+  const mapped = HASH_TO_PAGE[rawHash]
+  if (!mapped || mapped === 'assessment' || mapped === 'review' || mapped === 'instructions' || mapped === 'result') {
+    return 'home'
+  }
+  return mapped
+}
+
+function getInitialHomeSectionFromHash() {
+  if (typeof window === 'undefined') return null
+  const rawHash = window.location.hash || ''
+  return HOME_ANCHOR_HASHES.has(rawHash) ? rawHash.slice(1) : null
+}
+
 export default function App() {
   const [appData, setAppData] = useState(() => loadAppData())
-  const [page, setPage] = useState('home')
+  const [page, setPage] = useState(getInitialPageFromHash)
   const [level, setLevel] = useState(30)
   const [answers, setAnswers] = useState({})
   const [skippedQuestionIds, setSkippedQuestionIds] = useState([])
@@ -1104,11 +1147,13 @@ export default function App() {
   const [toast, setToast] = useState('')
   const [backupPreview, setBackupPreview] = useState(null)
   const [restoreMode, setRestoreMode] = useState('merge')
-  const [pendingHomeSection, setPendingHomeSection] = useState(null)
+  const [pendingHomeSection, setPendingHomeSection] = useState(getInitialHomeSectionFromHash)
   const [knowledgeTermId, setKnowledgeTermId] = useState(null)
   const [knowledgeReturnPage, setKnowledgeReturnPage] = useState(null)
   const [storageError, setStorageError] = useState(false)
   const [storageAlertDismissed, setStorageAlertDismissed] = useState(false)
+  const isHashNavigationRef = useRef(false)
+  const latestNavRef = useRef({ page: 'home', persistDraft: null, activeRecord: null })
   const isStorageAlertVisible = storageError && !storageAlertDismissed
   const reportStorageWriteResult = (ok) => {
     if (ok) {
@@ -1153,6 +1198,78 @@ export default function App() {
     setAppData(loadAppData())
     return success
   }
+
+  latestNavRef.current = { page, persistDraft, activeRecord }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const targetHash = PAGE_TO_HASH[page]
+    if (!targetHash) return
+    if (isHashNavigationRef.current) {
+      isHashNavigationRef.current = false
+      return
+    }
+    const currentHash = window.location.hash
+    if (page === 'home' && (currentHash === '' || currentHash === '#home' || HOME_ANCHOR_HASHES.has(currentHash))) {
+      return
+    }
+    if ((page === 'result' || page === 'innerCompass' || page === 'careerInterest') && currentHash && !HASH_TO_PAGE[currentHash]) {
+      return
+    }
+    if (currentHash !== targetHash) {
+      window.history.pushState(null, '', targetHash)
+    }
+  }, [page])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const syncFromLocation = () => {
+      const rawHash = window.location.hash || ''
+      const { page: currentPage, persistDraft: flushTraitDraft, activeRecord: currentRecord } = latestNavRef.current
+
+      if (HOME_ANCHOR_HASHES.has(rawHash)) {
+        if (currentPage !== 'home') {
+          if (currentPage === 'assessment' || currentPage === 'review') flushTraitDraft?.()
+          if (currentPage === 'careerInterest') careerPersistRef.current?.()
+          if (currentPage === 'innerCompass') innerCompassPersistRef.current?.()
+          setAppData(loadAppData())
+          isHashNavigationRef.current = true
+          setPendingHomeSection(rawHash.slice(1))
+          setPage('home')
+        }
+        return
+      }
+
+      const nextPage = HASH_TO_PAGE[rawHash]
+      if (!nextPage || nextPage === currentPage) return
+
+      if (currentPage === 'assessment' || currentPage === 'review') flushTraitDraft?.()
+      if (currentPage === 'careerInterest') careerPersistRef.current?.()
+      if (currentPage === 'innerCompass') innerCompassPersistRef.current?.()
+
+      if (nextPage === 'result' && !currentRecord) {
+        isHashNavigationRef.current = true
+        setAppData(loadAppData())
+        setPage('home')
+        window.history.replaceState(null, '', '#home')
+        return
+      }
+
+      if (nextPage === 'home') {
+        setActiveRecord(null)
+      }
+      setAppData(loadAppData())
+      isHashNavigationRef.current = true
+      setPage(nextPage)
+    }
+
+    window.addEventListener('hashchange', syncFromLocation)
+    window.addEventListener('popstate', syncFromLocation)
+    return () => {
+      window.removeEventListener('hashchange', syncFromLocation)
+      window.removeEventListener('popstate', syncFromLocation)
+    }
+  }, [])
 
   useEffect(() => {
     if (page !== 'assessment' && page !== 'review') return

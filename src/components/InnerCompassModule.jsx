@@ -141,7 +141,6 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
 
 function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError, onOpenKnowledgeTerm }) {
   const question = INNERCOMPASS_V02_QUESTIONS_30[questionIndex]
-  const dimension = INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === question.dimensionId)
   const answeredCount = Object.keys(answers).length
   const skippedCount = skippedQuestionIds.filter((id) => answers[id] === undefined).length
   const progress = Math.round((answeredCount / INNERCOMPASS_V02_QUESTIONS_30.length) * 100)
@@ -166,7 +165,6 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
         </div>
         <div className="mt-5 flex items-center justify-between text-[11px] text-[#4e6379]"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#edf2f7]"><div className="h-full rounded-full bg-gradient-to-r from-[#6b91ba] to-[#9cb8d4] transition-all" style={{ width: `${progress}%` }}/></div>
-        <div className="mt-7 flex items-start gap-3 rounded-2xl bg-[#f3f7fb] p-4"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-xs font-bold text-[#446c96]">{dimension.code}</span><div><p className="text-xs font-bold text-[#405f82]">{dimension.name}</p><p className="mt-1 text-[11px] leading-5 text-[#4e6379]">{dimension.description}</p></div></div>
         <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#f5f8fc] to-[#f8fbff] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#4e6379]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#3d536c] sm:text-[1.35rem]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="innerCompass" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></div>
         <div className="space-y-2.5" role="radiogroup" aria-label="အဖြေရွေးချယ်မှု">
           {INNERCOMPASS_V02_ANSWER_OPTIONS.map((option) => {
