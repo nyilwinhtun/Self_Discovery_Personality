@@ -5,15 +5,21 @@ import {
   EMOTIONLENS_QUESTIONS_40_EXTRA,
   EMOTIONLENS_QUESTIONS_80,
   EMOTIONLENS_QUESTIONS_80_EXTRA,
+  EMOTIONLENS_QUESTIONS_120,
+  EMOTIONLENS_QUESTIONS_120_EXTRA,
   getEmotionLensQuestionsForLevel,
 } from '../data/emotionLensPilot.js'
 
 function resolveQuestionSet(answers, level = null) {
   const normalizedLevel = Number(level)
+  if (normalizedLevel === 120) return EMOTIONLENS_QUESTIONS_120
   if (normalizedLevel === 80) return EMOTIONLENS_QUESTIONS_80
   if (normalizedLevel === 40) return EMOTIONLENS_QUESTIONS_40
   if (normalizedLevel === 20) return EMOTIONLENS_QUESTIONS_20
   const hasAnswers = answers && typeof answers === 'object' && !Array.isArray(answers)
+  if (hasAnswers && EMOTIONLENS_QUESTIONS_120_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
+    return EMOTIONLENS_QUESTIONS_120
+  }
   if (hasAnswers && EMOTIONLENS_QUESTIONS_80_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
     return EMOTIONLENS_QUESTIONS_80
   }
@@ -30,7 +36,9 @@ export function validateEmotionLensAnswers(answers, level = null) {
     ? EMOTIONLENS_QUESTIONS_20
     : normalizedLevel === 40
       ? EMOTIONLENS_QUESTIONS_40
-      : EMOTIONLENS_QUESTIONS_80
+      : normalizedLevel === 80
+        ? EMOTIONLENS_QUESTIONS_80
+        : EMOTIONLENS_QUESTIONS_120
   return Object.entries(answers).every(([id, value]) => {
     const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5

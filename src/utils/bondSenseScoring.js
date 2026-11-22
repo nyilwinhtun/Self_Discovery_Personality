@@ -3,23 +3,34 @@ import {
   BONDSENSE_QUESTIONS_20,
   BONDSENSE_QUESTIONS_40,
   BONDSENSE_QUESTIONS_40_EXTRA,
+  BONDSENSE_QUESTIONS_80,
+  BONDSENSE_QUESTIONS_80_EXTRA,
   getBondSenseQuestionsForLevel,
 } from '../data/bondSensePilot.js'
 
 function resolveQuestionSet(answers, level = null) {
-  if (Number(level) === 40) return BONDSENSE_QUESTIONS_40
-  if (Number(level) === 20) return BONDSENSE_QUESTIONS_20
-  const hasExtendedItem = answers && typeof answers === 'object' && !Array.isArray(answers)
-    ? BONDSENSE_QUESTIONS_40_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))
-    : false
-  return hasExtendedItem ? BONDSENSE_QUESTIONS_40 : BONDSENSE_QUESTIONS_20
+  const normalizedLevel = Number(level)
+  if (normalizedLevel === 80) return BONDSENSE_QUESTIONS_80
+  if (normalizedLevel === 40) return BONDSENSE_QUESTIONS_40
+  if (normalizedLevel === 20) return BONDSENSE_QUESTIONS_20
+  const hasAnswers = answers && typeof answers === 'object' && !Array.isArray(answers)
+  if (hasAnswers && BONDSENSE_QUESTIONS_80_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
+    return BONDSENSE_QUESTIONS_80
+  }
+  if (hasAnswers && BONDSENSE_QUESTIONS_40_EXTRA.some((question) => Object.prototype.hasOwnProperty.call(answers, question.id))) {
+    return BONDSENSE_QUESTIONS_40
+  }
+  return BONDSENSE_QUESTIONS_20
 }
 
 export function validateBondSenseAnswers(answers, level = null) {
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return false
-  const allowedQuestions = Number(level) === 20
+  const normalizedLevel = Number(level)
+  const allowedQuestions = normalizedLevel === 20
     ? BONDSENSE_QUESTIONS_20
-    : BONDSENSE_QUESTIONS_40
+    : normalizedLevel === 40
+      ? BONDSENSE_QUESTIONS_40
+      : BONDSENSE_QUESTIONS_80
   return Object.entries(answers).every(([id, value]) => {
     const knownQuestion = allowedQuestions.some((question) => question.id === id)
     return knownQuestion && Number.isInteger(value) && value >= 1 && value <= 5
