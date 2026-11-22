@@ -26,6 +26,7 @@ const CareerInterestModule = lazy(() => import('./components/CareerInterestModul
 const InnerCompassModule = lazy(() => import('./components/InnerCompassModule.jsx'))
 const KnowledgeCenter = lazy(() => import('./components/KnowledgeCenter.jsx'))
 const KnowledgeInlineHelp = lazy(() => import('./components/KnowledgeInlineHelp.jsx'))
+const LikertScaleSelector = lazy(() => import('./components/LikertScaleSelector.jsx'))
 const ReflectionNotesSection = lazy(() => import('./components/ReflectionNotesSection.jsx'))
 const TraitRadarChart = lazy(() => import('./components/TraitRadarChart.jsx'))
 const ValueMapModule = lazy(() => import('./components/ValueMapModule.jsx'))
@@ -33,7 +34,7 @@ const ValueMapModule = lazy(() => import('./components/ValueMapModule.jsx'))
 function ModuleLoadingFallback() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-16 text-center">
-      <div className="rounded-[2rem] border border-[#eee4ed] bg-white/90 p-8 shadow-sm">
+      <div className="rounded-[2rem] border border-[#ebe5dc] bg-[#fffdf9]/95 p-8 shadow-sm">
         <p className="text-sm font-semibold text-[#5b4b60]">စာမျက်နှာကို ဖွင့်နေပါသည်...</p>
         <p className="mt-2 text-xs text-[#6b5e70]">ခဏစောင့်ပေးပါ။</p>
       </div>
@@ -89,7 +90,7 @@ function Brand({ onClick }) {
 
 function Header({ onHome, onHistory, onKnowledge, active }) {
   return (
-    <header className="no-print sticky top-0 z-30 border-b border-[#eee5ed] bg-[#fbf9fa]/90 backdrop-blur-xl">
+    <header className="no-print sticky top-0 z-30 border-b border-[#ebe5dc] bg-[#faf8f5]/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Brand onClick={onHome} />
         <nav className="hidden items-center gap-1 rounded-full bg-[#f2edf2] p-1 sm:flex">
@@ -635,24 +636,23 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
         )}
       </div>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-9">
+      <section className="rounded-[2rem] border border-[#ebe5dc] bg-[#fffdf9] p-5 card-shadow sm:p-9">
         <div className="flex items-end justify-between gap-3">
-          <div><p className="text-xs font-semibold tracking-wide text-[#6b5e70]">PERSONALITY ASSESSMENT · {questions.length} QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#4b3d50] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
-          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#6b5e70]"> / {questions.length}</span></div><p className="text-[11px] text-[#6b5e70]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
+          <div><p className="text-xs font-semibold tracking-wide text-[#524b59]">PERSONALITY ASSESSMENT · {questions.length} QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
+          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / {questions.length}</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
         </div>
-        <div className="mt-5 flex items-center justify-between text-[11px] text-[#6b5e70]"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#f1ebf2]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }} /></div>
-        <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#faf6fb] to-[#fcf7f6] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#6b5e70]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#493b4d] sm:text-[1.35rem]">{question.text}</h2><Suspense fallback={null}><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></Suspense></div>
-        <div className="space-y-2.5" role="radiogroup" aria-label="အဖြေရွေးချယ်မှု">
-          {ANSWER_OPTIONS.map((option) => {
-            const isSelected = Number(selectedAnswer) === option.value
-            return (
-              <button key={option.value} type="button" role="radio" aria-checked={isSelected} onClick={() => onAnswer(question.id, option.value)} className={cn('answer-option flex min-h-[56px] w-full items-center justify-between rounded-2xl border px-4 py-3 text-left', isSelected ? 'border-[#9c82aa] bg-[#f6f0f8] shadow-[0_4px_14px_rgba(128,103,143,0.09)]' : 'border-[#eee8ef] bg-white hover:border-[#d9cadf] hover:bg-[#fcf9fc]')}>
-                <span className="flex items-center gap-3"><span className={cn('grid h-8 w-8 place-items-center rounded-xl text-xs font-bold', isSelected ? 'bg-[#80678f] text-white' : 'bg-[#f5f1f5] text-[#6b5e70]')}>{option.value}</span><span className={cn('text-sm font-medium', isSelected ? 'text-[#634c6e]' : 'text-[#746879]')}>{option.label}</span></span>
-                <span className={cn('grid h-5 w-5 place-items-center rounded-full border', isSelected ? 'border-[#80678f] bg-[#80678f] text-white' : 'border-[#d9d0dc] text-transparent')}><Check size={12} strokeWidth={3} /></span>
-              </button>
-            )
-          })}
+        <div className="mt-5 flex items-center justify-between text-[11px] text-[#524b59]"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#efe9df]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }} /></div>
+        <div key={question.id} className="question-card-enter">
+          <div className="my-7 min-h-32 rounded-[1.5rem] border border-[#ebe5dc] bg-gradient-to-br from-[#faf6f1] to-[#fcf9f5] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#242029] sm:text-[1.35rem]">{question.text}</h2><Suspense fallback={null}><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></Suspense></div>
+          <Suspense fallback={<div className="h-36 rounded-[1.5rem] border border-[#ebe5dc] bg-[#faf8f5]" />}>
+            <LikertScaleSelector
+              options={ANSWER_OPTIONS}
+              value={selectedAnswer}
+              onChange={(val) => onAnswer(question.id, val)}
+              accent="plum"
+            />
+          </Suspense>
         </div>
         <div className="no-print mt-8 hidden flex-wrap items-center justify-between gap-3 border-t border-[#f0eaf0] pt-5 sm:flex">
           <SecondaryButton onClick={onPrevious} icon={ArrowLeft} disabled={questionIndex === 0}>ယခင်</SecondaryButton>
@@ -1763,7 +1763,7 @@ export default function App() {
   const showMobileNavigation = ['home', 'history', 'knowledge'].includes(page)
 
   return (
-    <div className={cn('min-h-screen bg-[#f8f5f6] text-[#403747]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
+    <div className={cn('min-h-screen bg-[#faf8f5] text-[#242029]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
       {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenKnowledge={handleNavigateKnowledge} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'knowledge' && <Suspense fallback={<ModuleLoadingFallback />}><KnowledgeCenter onBack={handleKnowledgeBack} initialTermId={knowledgeTermId} returnLabel={knowledgeReturnPage ? 'မေးခွန်းသို့ ပြန်သွားမယ်' : null} /></Suspense>}
@@ -1783,7 +1783,7 @@ export default function App() {
           <HistoryPage history={appData.history} onOpen={openHistoryRecord} onDelete={handleDeleteRecord} onClear={handleClearHistory} onStart={handleStart} />
         </>
       )}
-      <footer className="no-print border-t border-[#eee5ed] bg-[#fbf9fa] px-4 py-6 text-center"><p className="text-[11px] font-semibold text-[#6b5e70]">Self Discovery · ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း</p><p className="mt-1 text-[11px] text-[#6b5e70]">ပိုမိုနားလည်လာခြင်းက ကိုယ့်ကိုယ်ကို ဂရုစိုက်ခြင်းရဲ့ အစဖြစ်ပါတယ်။</p></footer>
+      <footer className="no-print border-t border-[#ebe5dc] bg-[#faf8f5] px-4 py-6 text-center"><p className="text-[11px] font-semibold text-[#524b59]">Self Discovery · ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း</p><p className="mt-1 text-[11px] text-[#524b59]">ပိုမိုနားလည်လာခြင်းက ကိုယ့်ကိုယ်ကို ဂရုစိုက်ခြင်းရဲ့ အစဖြစ်ပါတယ်။</p></footer>
       {showMobileNavigation && <MobileBottomNavigation active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} onHome={handleNavigateHome} onAssessment={handleNavigateAssessment} onKnowledge={handleNavigateKnowledge} onHistory={handleNavigateHistory} />}
       <input ref={fileInputRef} type="file" accept=".json,application/json" className="hidden" onChange={handleBackupFileSelected} />
       <BackupRestoreDialog preview={backupPreview} mode={restoreMode} onModeChange={setRestoreMode} onCancel={() => setBackupPreview(null)} onConfirm={handleConfirmRestore} />

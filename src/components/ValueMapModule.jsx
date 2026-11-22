@@ -8,6 +8,7 @@ import {
   ResponsiveContainer, Tooltip,
 } from 'recharts'
 import { ValueMapLogo } from './AssessmentLogos.jsx'
+import LikertScaleSelector from './LikertScaleSelector.jsx'
 import ReflectionNotesSection from './ReflectionNotesSection.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
@@ -156,27 +157,24 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
         )}
       </div>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <section className="rounded-[2rem] border border-[#d4e1d7] bg-white p-5 card-shadow sm:p-9">
+      <section className="rounded-[2rem] border border-[#ebe5dc] bg-[#fffdf9] p-5 card-shadow sm:p-9">
         <div className="flex items-end justify-between gap-3">
-          <div><p className="text-xs font-semibold tracking-wide text-[#475e4d]">VALUEMAP · PILOT 20</p><h1 className="mt-2 text-xl font-bold text-[#2c4a34] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
-          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#3d6347]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#475e4d]"> / 20</span></div><p className="text-[11px] text-[#475e4d]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
+          <div><p className="text-xs font-semibold tracking-wide text-[#524b59]">VALUEMAP · PILOT 20</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
+          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#3d6347]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / 20</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
         </div>
-        <div className="mt-5 flex items-center justify-between text-[11px] text-[#475e4d]"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e8f0ea]"><div className="h-full rounded-full bg-gradient-to-r from-[#3d6347] to-[#74a07f] transition-all" style={{ width: `${progress}%` }} /></div>
-        <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#f3f8f4] to-[#f9fcf9] px-5 py-7 sm:px-7 sm:py-8">
-          <p className="text-[11px] font-semibold tracking-wide text-[#475e4d]">မေးခွန်း {questionIndex + 1}</p>
-          <h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#27422e] sm:text-[1.35rem]">{question.text}</h2>
-        </div>
-        <div className="space-y-2.5" role="radiogroup" aria-label="အဖြေရွေးချယ်မှု">
-          {VALUEMAP_ANSWER_OPTIONS.map((option) => {
-            const selected = Number(selectedAnswer) === option.value
-            return (
-              <button key={option.value} type="button" role="radio" aria-checked={selected} onClick={() => onAnswer(question.id, option.value)} className={cn('answer-option flex min-h-[56px] w-full items-center justify-between rounded-2xl border px-4 py-3 text-left', selected ? 'border-[#6d9577] bg-[#eef5f0] shadow-[0_4px_14px_rgba(61,99,71,0.09)]' : 'border-[#dce6de] bg-white hover:border-[#b5cbb9] hover:bg-[#f7faf8]')}>
-                <span className="flex items-center gap-3"><span className={cn('grid h-8 w-8 place-items-center rounded-xl text-xs font-bold', selected ? 'bg-[#3d6347] text-white' : 'bg-[#edf3ee] text-[#475e4d]')}>{option.value}</span><span className={cn('text-sm font-medium', selected ? 'text-[#2c4a34]' : 'text-[#465e4c]')}>{option.label}</span></span>
-                <span className={cn('grid h-5 w-5 place-items-center rounded-full border', selected ? 'border-[#3d6347] bg-[#3d6347] text-white' : 'border-[#c5d4c8] text-transparent')}><Check size={12} strokeWidth={3} /></span>
-              </button>
-            )
-          })}
+        <div className="mt-5 flex items-center justify-between text-[11px] text-[#524b59]"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e8ede7]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#3d6347] to-[#74a07f]" style={{ width: `${progress}%` }} /></div>
+        <div key={question.id} className="question-card-enter">
+          <div className="my-7 min-h-32 rounded-[1.5rem] border border-[#ebe5dc] bg-gradient-to-br from-[#f3f8f4] to-[#faf8f5] px-5 py-7 sm:px-7 sm:py-8">
+            <p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p>
+            <h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#242029] sm:text-[1.35rem]">{question.text}</h2>
+          </div>
+          <LikertScaleSelector
+            options={VALUEMAP_ANSWER_OPTIONS}
+            value={selectedAnswer}
+            onChange={(val) => onAnswer(question.id, val)}
+            accent="sage"
+          />
         </div>
         <div className="no-print mt-8 hidden flex-wrap items-center justify-between gap-3 border-t border-[#e8f0ea] pt-5 sm:flex">
           <SecondaryButton onClick={onPrevious} icon={ArrowLeft} disabled={questionIndex === 0}>ယခင်</SecondaryButton>
