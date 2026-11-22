@@ -21,12 +21,14 @@ import {
   loadAppData, loadDraft, restoreBackupData, saveAssessmentWithStatus, saveDraft,
 } from './utils/storage.js'
 
+const BondSenseModule = lazy(() => import('./components/BondSenseModule.jsx'))
 const CareerInterestModule = lazy(() => import('./components/CareerInterestModule.jsx'))
 const InnerCompassModule = lazy(() => import('./components/InnerCompassModule.jsx'))
 const KnowledgeCenter = lazy(() => import('./components/KnowledgeCenter.jsx'))
 const KnowledgeInlineHelp = lazy(() => import('./components/KnowledgeInlineHelp.jsx'))
 const ReflectionNotesSection = lazy(() => import('./components/ReflectionNotesSection.jsx'))
 const TraitRadarChart = lazy(() => import('./components/TraitRadarChart.jsx'))
+const ValueMapModule = lazy(() => import('./components/ValueMapModule.jsx'))
 
 function ModuleLoadingFallback() {
   return (
@@ -130,7 +132,7 @@ function getDraftStats(draft, level) {
   return { total, answered, skipped, remaining: Math.max(0, total - answered), progress: total ? Math.round((answered / total) * 100) : 0 }
 }
 
-function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenKnowledge, storageAlertVisible, onDismissStorageError }) {
+function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenBondSense, onOpenValueMap, onOpenKnowledge, storageAlertVisible, onDismissStorageError }) {
   const [betaDetailsOpen, setBetaDetailsOpen] = useState(false)
   const completedCount = history.length
   const draftCount = Object.values(drafts || {}).reduce((sum, group) => {
@@ -146,6 +148,12 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
   const innerCompassDraft = drafts?.innerCompass?.['30'] || null
   const innerCompassAnswered = Object.keys(innerCompassDraft?.answers || {}).length
   const innerCompassProgress = Math.round((innerCompassAnswered / 30) * 100)
+  const bondSenseDraft = drafts?.bondSense?.['20'] || null
+  const bondSenseAnswered = Object.keys(bondSenseDraft?.answers || {}).length
+  const bondSenseProgress = Math.round((bondSenseAnswered / 20) * 100)
+  const valueMapDraft = drafts?.valueMap?.['20'] || null
+  const valueMapAnswered = Object.keys(valueMapDraft?.answers || {}).length
+  const valueMapProgress = Math.round((valueMapAnswered / 20) * 100)
   const recentPersonalityHistory = history.slice(0, 3)
 
   const scrollTo = (id) => {
@@ -261,7 +269,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
         </article>
         <article className="rounded-2xl border border-[#eee5ed] bg-white p-3 shadow-sm sm:p-4">
           <span className="text-[11px] font-medium text-[#6b5e70] sm:text-xs">ယခုအသုံးပြုနိုင်သော စမ်းသပ်မှု</span>
-          <p className="mt-1 text-xl font-bold tabular-nums text-[#825824] sm:text-2xl">၃ မျိုး</p>
+          <p className="mt-1 text-xl font-bold tabular-nums text-[#825824] sm:text-2xl">၅ မျိုး</p>
         </article>
       </section>
 
@@ -391,14 +399,55 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
             <span className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e3e9d9] bg-[#f8faf5] px-4 py-2.5 text-xs font-semibold text-[#436b4f]">နောက်အဆင့်တွင် ဖွင့်လှစ်မည်</span>
           </article>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <article className="flex items-center gap-4 rounded-2xl border border-[#f0e1de] bg-white p-4">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#825824]"><BondSenseLogo size={44}/></span>
-            <div className="min-w-0 flex-1"><h3 className="text-sm font-bold text-[#71473d]">BondSense</h3><p className="mt-1 text-xs leading-6 text-[#825824]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p><span className="mt-1 inline-block text-[11px] font-semibold text-[#825824]">နောက်ပိုင်း ဖွင့်လှစ်မည်</span></div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <article className="flex flex-col rounded-2xl border border-[#ebd6d1] bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#924433]"><BondSenseLogo size={44} /></span>
+              <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1 text-[11px] font-semibold text-[#7c392b]">စမ်းသပ်မူကြမ်း (Pilot)</span>
+            </div>
+            <h3 className="mt-4 text-base font-bold text-[#662f23]">BondSense</h3>
+            <p className="mt-1 text-xs font-semibold text-[#7c392b]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p>
+            <p className="mt-2 flex-1 text-xs leading-6 text-[#6a4840]">ယုံကြည်မှု၊ ကိုယ်ပိုင်နယ်နိမိတ်၊ စာနာနားထောင်ပေးမှုနှင့် သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံတို့ကို ပြန်လည်သုံးသပ်ပါ။</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#7c392b]">
+              <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">မေးခွန်း ၂၀</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#fdf3f0] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
+              <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">အချက် ၄ ချက်</span>
+            </div>
+            {bondSenseDraft ? (
+              <div className="mt-4 rounded-xl bg-[#fdf7f5] p-3">
+                <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#7c392b]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6d4b44]">{bondSenseProgress}%</span></div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#f0dfdb]"><div className="h-full rounded-full bg-[#924433]" style={{ width: `${bondSenseProgress}%` }} /></div>
+                <p className="mt-2 text-[11px] text-[#6d4b44]">ဖြေပြီး {bondSenseAnswered} ခု · ကျော်ထား {(bondSenseDraft.skippedQuestionIds || []).filter((id) => bondSenseDraft.answers?.[id] === undefined).length} ခု</p>
+                <button onClick={onOpenBondSense} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#924433] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#7d3829]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
+              </div>
+            ) : (
+              <button onClick={onOpenBondSense} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#e5cbc5] bg-[#fdf7f5] px-4 py-2.5 text-xs font-semibold text-[#7c392b] transition hover:bg-[#faeae5]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
+            )}
           </article>
-          <article className="flex items-center gap-4 rounded-2xl border border-[#e3e9d9] bg-white p-4">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef1e7] text-[#436b4f]"><ValueMapLogo size={44}/></span>
-            <div className="min-w-0 flex-1"><h3 className="text-sm font-bold text-[#465333]">ValueMap</h3><p className="mt-1 text-xs leading-6 text-[#6b5e70]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p><span className="mt-1 inline-block text-[11px] font-semibold text-[#436b4f]">နောက်ပိုင်း ဖွင့်လှစ်မည်</span></div>
+
+          <article className="flex flex-col rounded-2xl border border-[#d4e1d7] bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef4ef] text-[#3d6347]"><ValueMapLogo size={44} /></span>
+              <span className="rounded-full bg-[#eef5f0] px-2.5 py-1 text-[11px] font-semibold text-[#33573d]">စမ်းသပ်မူကြမ်း (Pilot)</span>
+            </div>
+            <h3 className="mt-4 text-base font-bold text-[#2c4a34]">ValueMap</h3>
+            <p className="mt-1 text-xs font-semibold text-[#33573d]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p>
+            <p className="mt-2 flex-1 text-xs leading-6 text-[#465e4c]">လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ထဲမှ ကိုယ်အလေးထားရာကို ပြန်လည်သုံးသပ်ပါ။</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#33573d]">
+              <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">မေးခွန်း ၂၀</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#eef5f0] px-2.5 py-1"><Clock3 size={11} /> ~၄ မိနစ်</span>
+              <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">အချက် ၄ ချက်</span>
+            </div>
+            {valueMapDraft ? (
+              <div className="mt-4 rounded-xl bg-[#f5f9f6] p-3">
+                <div className="flex items-center justify-between text-[11px]"><span className="font-semibold text-[#33573d]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#475e4d]">{valueMapProgress}%</span></div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#dce7df]"><div className="h-full rounded-full bg-[#3d6347]" style={{ width: `${valueMapProgress}%` }} /></div>
+                <p className="mt-2 text-[11px] text-[#475e4d]">ဖြေပြီး {valueMapAnswered} ခု · ကျော်ထား {(valueMapDraft.skippedQuestionIds || []).filter((id) => valueMapDraft.answers?.[id] === undefined).length} ခု</p>
+                <button onClick={onOpenValueMap} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#3d6347] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#31523a]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
+              </div>
+            ) : (
+              <button onClick={onOpenValueMap} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cad9ce] bg-[#f5f9f6] px-4 py-2.5 text-xs font-semibold text-[#33573d] transition hover:bg-[#e8f2eb]">လမ်းညွှန်ဖတ်ပြီး စတင်မယ် <ArrowRight size={15} /></button>
+            )}
           </article>
         </div>
       </section>
@@ -413,11 +462,13 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
             {recentPersonalityHistory.map((record) => {
               const isCareer = record.assessmentType === 'careerInterest'
               const isInnerCompass = record.assessmentType === 'innerCompass'
-              const profile = !isCareer && !isInnerCompass && record.scores ? getPersonalityProfile(record.scores) : null
+              const isBondSense = record.assessmentType === 'bondSense'
+              const isValueMap = record.assessmentType === 'valueMap'
+              const profile = !isCareer && !isInnerCompass && !isBondSense && !isValueMap && record.scores ? getPersonalityProfile(record.scores) : null
               return (
                 <button key={record.id} onClick={() => onOpenRecord(record)} className="rounded-xl border border-[#eee5ed] bg-[#fcfafc] p-4 text-left transition hover:border-[#d8c7df] hover:bg-[#faf6fb]">
-                  <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-[11px] font-semibold text-[#80678f]">{isCareer ? 'Career Interest' : isInnerCompass ? 'InnerCompass' : `${record.level || record.questionCount || 30} မေးခွန်း`}</span><ArrowRight size={14} className="text-[#6b5e70]" /></div>
-                  <p className="mt-3 text-sm font-bold text-[#5b4b60]">{isCareer ? `စိတ်ဝင်စားမှုအတိုကောက် ${record.careerCode || ''}` : isInnerCompass ? 'InnerCompass · ကိုယ်တိုင်သုံးသပ်မှု' : (profile?.title || 'TraitLens')}</p>
+                  <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-[11px] font-semibold text-[#80678f]">{isCareer ? 'Career Interest' : isInnerCompass ? 'InnerCompass' : isBondSense ? 'BondSense' : isValueMap ? 'ValueMap' : `${record.level || record.questionCount || 30} မေးခွန်း`}</span><ArrowRight size={14} className="text-[#6b5e70]" /></div>
+                  <p className="mt-3 text-sm font-bold text-[#5b4b60]">{isCareer ? `စိတ်ဝင်စားမှုအတိုကောက် ${record.careerCode || ''}` : isInnerCompass ? 'InnerCompass · ကိုယ်တိုင်သုံးသပ်မှု' : isBondSense ? 'BondSense · ဆက်ဆံရေးသုံးသပ်မှု' : isValueMap ? 'ValueMap · ဘဝတန်ဖိုးသုံးသပ်မှု' : (profile?.title || 'TraitLens')}</p>
                   <p className="mt-1 text-[11px] text-[#6b5e70]">{formatDate(record.createdAt)}</p>
                   <p className="mt-3 text-[11px] font-semibold text-[#80678f]">ရလဒ်ကြည့်မယ်</p>
                 </button>
@@ -810,6 +861,8 @@ function ResultsPage({ record, onHome, onRetake, storageAlertVisible, onExportBa
 function getRecordAssessmentType(record) {
   if (record?.assessmentType === 'careerInterest') return 'careerInterest'
   if (record?.assessmentType === 'innerCompass') return 'innerCompass'
+  if (record?.assessmentType === 'bondSense') return 'bondSense'
+  if (record?.assessmentType === 'valueMap') return 'valueMap'
   return 'personality'
 }
 
@@ -837,10 +890,38 @@ const CAREER_COMPARE_AREAS = [
   { id: 'C', name: 'C · စနစ်တကျစီမံမှု (Conventional)' },
 ]
 
+const BONDSENSE_COMPARE_AREAS = [
+  { id: 'trust-openness', name: 'ယုံကြည်မှုနှင့် ဖွင့်ဟပြောဆိုမှု' },
+  { id: 'healthy-boundaries', name: 'ကိုယ်ပိုင်နယ်နိမိတ် ထိန်းသိမ်းမှု' },
+  { id: 'empathy-listening', name: 'စာနာနားလည်မှုနှင့် နားထောင်ပေးမှု' },
+  { id: 'conflict-navigation', name: 'သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံ' },
+]
+
+const VALUEMAP_COMPARE_AREAS = [
+  { id: 'autonomy-freedom', name: 'လွတ်လပ်မှုနှင့် ကိုယ်ပိုင်ဆုံးဖြတ်ခွင့်' },
+  { id: 'stability-security', name: 'တည်ငြိမ်မှုနှင့် လုံခြုံမှု' },
+  { id: 'growth-curiosity', name: 'တိုးတက်သင်ယူမှုနှင့် ဖန်တီးနိုင်စွမ်း' },
+  { id: 'connection-contribution', name: 'မေတ္တာနှင့် အကျိုးပြုမှု' },
+]
+
 function buildComparisonRows(earlier, later) {
   const type = getRecordAssessmentType(earlier)
   if (type === 'innerCompass') {
     return INNERCOMPASS_COMPARE_AREAS.map((dim) => {
+      const before = earlier?.scores?.[dim.id]?.score ?? 0
+      const after = later?.scores?.[dim.id]?.score ?? 0
+      return { id: dim.id, label: dim.name, before, after, delta: after - before }
+    })
+  }
+  if (type === 'bondSense') {
+    return BONDSENSE_COMPARE_AREAS.map((dim) => {
+      const before = earlier?.scores?.[dim.id]?.score ?? 0
+      const after = later?.scores?.[dim.id]?.score ?? 0
+      return { id: dim.id, label: dim.name, before, after, delta: after - before }
+    })
+  }
+  if (type === 'valueMap') {
+    return VALUEMAP_COMPARE_AREAS.map((dim) => {
       const before = earlier?.scores?.[dim.id]?.score ?? 0
       const after = later?.scores?.[dim.id]?.score ?? 0
       return { id: dim.id, label: dim.name, before, after, delta: after - before }
@@ -864,6 +945,8 @@ const HISTORY_FILTERS = [
   { id: 'all', label: 'အားလုံး' },
   { id: 'personality', label: 'TraitLens' },
   { id: 'innerCompass', label: 'InnerCompass' },
+  { id: 'bondSense', label: 'BondSense' },
+  { id: 'valueMap', label: 'ValueMap' },
   { id: 'careerInterest', label: 'Career Interest' },
 ]
 
@@ -998,12 +1081,14 @@ function HistoryPage({ history, onOpen, onDelete, onClear, onStart }) {
             <div className="space-y-3">{filteredHistory.map((record) => {
               const isCareer = record.assessmentType === 'careerInterest'
               const isInnerCompass = record.assessmentType === 'innerCompass'
-              const profile = !isCareer && !isInnerCompass && record.scores ? getPersonalityProfile(record.scores) : null
+              const isBondSense = record.assessmentType === 'bondSense'
+              const isValueMap = record.assessmentType === 'valueMap'
+              const profile = !isCareer && !isInnerCompass && !isBondSense && !isValueMap && record.scores ? getPersonalityProfile(record.scores) : null
               const isSelected = activeSelectedIds.includes(record.id)
               const incompatible = Boolean(firstKey && !isSelected && getRecordComparisonKey(record) !== firstKey)
               return (
                 <article key={record.id} className={cn('flex flex-col gap-4 rounded-2xl border bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5', isSelected ? 'border-[#80678f] ring-1 ring-[#80678f]/30' : 'border-[#eee5ed]')}>
-                  <button onClick={() => onOpen(record)} className="flex min-w-0 flex-1 items-center gap-3 text-left"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><Sparkles size={19} /></span><span className="min-w-0"><span className="block truncate text-sm font-bold text-[#594a5e]">{isCareer ? `Career Interest · ${record.careerCode || 'စိတ်ဝင်စားမှု'}` : isInnerCompass ? 'InnerCompass · စိတ်နေသဘောထားသုံးသပ်မှု' : (profile?.title || 'TraitLens · ပင်ကိုစရိုက်ဆန်းစစ်မှု')}</span><span className="mt-1 block text-[11px] text-[#6b5e70]">{formatDate(record.createdAt)}</span><span className="mt-1 block text-[11px] text-[#6b5e70]">{record.questionCount || record.level || 30} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span></span></button>
+                  <button onClick={() => onOpen(record)} className="flex min-w-0 flex-1 items-center gap-3 text-left"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><Sparkles size={19} /></span><span className="min-w-0"><span className="block truncate text-sm font-bold text-[#594a5e]">{isCareer ? `Career Interest · ${record.careerCode || 'စိတ်ဝင်စားမှု'}` : isInnerCompass ? 'InnerCompass · စိတ်နေသဘောထားသုံးသပ်မှု' : isBondSense ? 'BondSense · ဆက်ဆံရေးသုံးသပ်မှု' : isValueMap ? 'ValueMap · ဘဝတန်ဖိုးသုံးသပ်မှု' : (profile?.title || 'TraitLens · ပင်ကိုစရိုက်ဆန်းစစ်မှု')}</span><span className="mt-1 block text-[11px] text-[#6b5e70]">{formatDate(record.createdAt)}</span><span className="mt-1 block text-[11px] text-[#6b5e70]">{record.questionCount || record.level || 30} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : isBondSense ? 'ဆက်ဆံရေး Pilot' : isValueMap ? 'ဘဝတန်ဖိုး Pilot' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span></span></button>
                   <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
                     {history.length >= 2 && (
                       <button
@@ -1100,6 +1185,8 @@ const PAGE_TO_HASH = {
   review: '#review',
   result: '#results',
   innerCompass: '#innercompass',
+  bondSense: '#bondsense',
+  valueMap: '#valuemap',
   careerInterest: '#career',
 }
 
@@ -1114,6 +1201,8 @@ const HASH_TO_PAGE = {
   '#review': 'review',
   '#results': 'result',
   '#innercompass': 'innerCompass',
+  '#bondsense': 'bondSense',
+  '#valuemap': 'valueMap',
   '#career': 'careerInterest',
 }
 
@@ -1169,6 +1258,8 @@ export default function App() {
   const fileInputRef = useRef(null)
   const careerPersistRef = useRef(null)
   const innerCompassPersistRef = useRef(null)
+  const bondSensePersistRef = useRef(null)
+  const valueMapPersistRef = useRef(null)
   const questions = useMemo(() => getQuestionsForLevel(level), [level])
   const currentDraft = appData.drafts?.personality?.[String(level)] || null
 
@@ -1214,7 +1305,7 @@ export default function App() {
     if (page === 'home' && (currentHash === '' || currentHash === '#home' || HOME_ANCHOR_HASHES.has(currentHash))) {
       return
     }
-    if ((page === 'result' || page === 'innerCompass' || page === 'careerInterest') && currentHash && !HASH_TO_PAGE[currentHash]) {
+    if ((page === 'result' || page === 'innerCompass' || page === 'bondSense' || page === 'valueMap' || page === 'careerInterest') && currentHash && !HASH_TO_PAGE[currentHash]) {
       return
     }
     if (currentHash !== targetHash) {
@@ -1233,6 +1324,8 @@ export default function App() {
           if (currentPage === 'assessment' || currentPage === 'review') flushTraitDraft?.()
           if (currentPage === 'careerInterest') careerPersistRef.current?.()
           if (currentPage === 'innerCompass') innerCompassPersistRef.current?.()
+          if (currentPage === 'bondSense') bondSensePersistRef.current?.()
+          if (currentPage === 'valueMap') valueMapPersistRef.current?.()
           setAppData(loadAppData())
           isHashNavigationRef.current = true
           setPendingHomeSection(rawHash.slice(1))
@@ -1247,6 +1340,8 @@ export default function App() {
       if (currentPage === 'assessment' || currentPage === 'review') flushTraitDraft?.()
       if (currentPage === 'careerInterest') careerPersistRef.current?.()
       if (currentPage === 'innerCompass') innerCompassPersistRef.current?.()
+      if (currentPage === 'bondSense') bondSensePersistRef.current?.()
+      if (currentPage === 'valueMap') valueMapPersistRef.current?.()
 
       if (nextPage === 'result' && !currentRecord) {
         isHashNavigationRef.current = true
@@ -1515,7 +1610,17 @@ export default function App() {
 
   const openHistoryRecord = (record) => {
     setActiveRecord(record)
-    setPage(record.assessmentType === 'careerInterest' ? 'careerInterest' : record.assessmentType === 'innerCompass' ? 'innerCompass' : 'result')
+    setPage(
+      record.assessmentType === 'careerInterest'
+        ? 'careerInterest'
+        : record.assessmentType === 'innerCompass'
+          ? 'innerCompass'
+          : record.assessmentType === 'bondSense'
+            ? 'bondSense'
+            : record.assessmentType === 'valueMap'
+              ? 'valueMap'
+              : 'result',
+    )
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -1526,10 +1631,16 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleNavigateHome = () => {
+  const flushActiveModuleDraft = () => {
     if (page === 'assessment' || page === 'review') persistDraft()
     if (page === 'careerInterest') careerPersistRef.current?.()
     if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    if (page === 'bondSense') bondSensePersistRef.current?.()
+    if (page === 'valueMap') valueMapPersistRef.current?.()
+  }
+
+  const handleNavigateHome = () => {
+    flushActiveModuleDraft()
     setActiveRecord(null)
     setAppData(loadAppData())
     setPage('home')
@@ -1537,18 +1648,14 @@ export default function App() {
   }
 
   const handleNavigateHistory = () => {
-    if (page === 'assessment' || page === 'review') persistDraft()
-    if (page === 'careerInterest') careerPersistRef.current?.()
-    if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    flushActiveModuleDraft()
     setAppData(loadAppData())
     setPage('history')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleNavigateKnowledge = () => {
-    if (page === 'assessment' || page === 'review') persistDraft()
-    if (page === 'careerInterest') careerPersistRef.current?.()
-    if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    flushActiveModuleDraft()
     setKnowledgeTermId(null)
     setKnowledgeReturnPage(null)
     setAppData(loadAppData())
@@ -1590,9 +1697,7 @@ export default function App() {
       document.getElementById('assessment-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
     }
-    if (page === 'assessment' || page === 'review') persistDraft()
-    if (page === 'careerInterest') careerPersistRef.current?.()
-    if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    flushActiveModuleDraft()
     setActiveRecord(null)
     setAppData(loadAppData())
     setPendingHomeSection('assessment-dashboard')
@@ -1604,11 +1709,13 @@ export default function App() {
   return (
     <div className={cn('min-h-screen bg-[#f8f5f6] text-[#403747]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenKnowledge={handleNavigateKnowledge} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenBondSense={() => { setActiveRecord(null); setPage('bondSense') }} onOpenValueMap={() => { setActiveRecord(null); setPage('valueMap') }} onOpenKnowledge={handleNavigateKnowledge} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'knowledge' && <Suspense fallback={<ModuleLoadingFallback />}><KnowledgeCenter onBack={handleKnowledgeBack} initialTermId={knowledgeTermId} returnLabel={knowledgeReturnPage ? 'မေးခွန်းသို့ ပြန်သွားမယ်' : null} /></Suspense>}
       {page === 'careerInterest' && <Suspense fallback={<ModuleLoadingFallback />}><CareerInterestModule key={activeRecord?.id || 'career-new'} record={activeRecord?.assessmentType === 'careerInterest' ? activeRecord : null} onHome={handleNavigateHome} onDataChange={setAppData} persistRef={careerPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
       {page === 'instructions' && <InstructionsPage level={level} onBack={() => setPage('home')} onBegin={handleBegin} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
       {page === 'innerCompass' && <Suspense fallback={<ModuleLoadingFallback />}><InnerCompassModule key={activeRecord?.id || 'inner-compass-active'} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
+      {page === 'bondSense' && <Suspense fallback={<ModuleLoadingFallback />}><BondSenseModule key={activeRecord?.id || 'bondsense-active'} initialRecord={activeRecord?.assessmentType === 'bondSense' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={bondSensePersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
+      {page === 'valueMap' && <Suspense fallback={<ModuleLoadingFallback />}><ValueMapModule key={activeRecord?.id || 'valuemap-active'} initialRecord={activeRecord?.assessmentType === 'valueMap' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={valueMapPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} />}
       {page === 'review' && <ReviewPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={handleGoToQuestion} onFinish={handleFinish} onBack={() => setPage('assessment')} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
       {page === 'result' && <ResultsPage record={activeRecord} onHome={() => { setAppData(loadAppData()); setPage('home') }} onRetake={handleRetake} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}

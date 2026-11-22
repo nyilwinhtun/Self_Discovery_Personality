@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 
+const TONE_PALETTES = {
+  plum: { active: 'border-[#d9c9e0] bg-[#f4eef6] text-[#725981]', idle: 'border-[#eee5ef] bg-white text-[#6b5e70]' },
+  blue: { active: 'border-[#b9cce0] bg-[#edf4fb] text-[#456d97]', idle: 'border-[#e5edf5] bg-white text-[#4e6379]' },
+  terracotta: { active: 'border-[#e0bfb8] bg-[#fbf0ed] text-[#7c392b]', idle: 'border-[#f0e1de] bg-white text-[#6d4b44]' },
+  sage: { active: 'border-[#bfd3c4] bg-[#eef5f0] text-[#33573d]', idle: 'border-[#dce6de] bg-white text-[#475e4d]' },
+}
+
 export default function ReportSectionNavigation({ items, tone = 'plum' }) {
   const [activeId, setActiveId] = useState(items[0]?.id || '')
   const navRef = useRef(null)
-  const palette = tone === 'blue'
-    ? { active: 'border-[#b9cce0] bg-[#edf4fb] text-[#456d97]', idle: 'border-[#e5edf5] bg-white text-[#4e6379]' }
-    : { active: 'border-[#d9c9e0] bg-[#f4eef6] text-[#725981]', idle: 'border-[#eee5ef] bg-white text-[#6b5e70]' }
+  const palette = TONE_PALETTES[tone] || TONE_PALETTES.plum
 
   const itemKey = items.map((item) => item.id).join('|')
 

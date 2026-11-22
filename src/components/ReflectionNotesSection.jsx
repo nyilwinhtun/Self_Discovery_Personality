@@ -27,6 +27,30 @@ const THEME = {
     secondaryBtn: 'border-[#d2e0ef] text-[#446c96] hover:bg-[#f0f5fb]',
     focusRing: 'focus:border-[#6e94bc]',
   },
+  bondSense: {
+    border: 'border-[#ebd6d1]',
+    bg: 'bg-[#fcf7f5]',
+    badgeBg: 'bg-[#f8eae6]',
+    badgeText: 'text-[#7c392b]',
+    heading: 'text-[#662f23]',
+    body: 'text-[#6a4840]',
+    muted: 'text-[#6a4840]',
+    primaryBtn: 'bg-[#924433] hover:bg-[#7d3829] text-white',
+    secondaryBtn: 'border-[#e5cbc5] text-[#7c392b] hover:bg-[#fbf1ee]',
+    focusRing: 'focus:border-[#b57263]',
+  },
+  valueMap: {
+    border: 'border-[#d4e1d7]',
+    bg: 'bg-[#f6faf7]',
+    badgeBg: 'bg-[#e8f2eb]',
+    badgeText: 'text-[#33573d]',
+    heading: 'text-[#2c4a34]',
+    body: 'text-[#465e4c]',
+    muted: 'text-[#465e4c]',
+    primaryBtn: 'bg-[#3d6347] hover:bg-[#31523a] text-white',
+    secondaryBtn: 'border-[#cad9ce] text-[#33573d] hover:bg-[#eef5f0]',
+    focusRing: 'focus:border-[#6a9174]',
+  },
 }
 
 function formatNoteDate(value) {

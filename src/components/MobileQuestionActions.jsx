@@ -11,6 +11,16 @@ const accents = {
     soft: 'border-[#d8e3ee] text-[#446c96] hover:bg-[#f4f8fc]',
     link: 'text-[#446c96]',
   },
+  terracotta: {
+    primary: 'bg-[#924433] hover:bg-[#7d3829] disabled:bg-[#dec2bc]',
+    soft: 'border-[#ead5d0] text-[#71372b] hover:bg-[#fdf7f5]',
+    link: 'text-[#843d2e]',
+  },
+  sage: {
+    primary: 'bg-[#3d6347] hover:bg-[#31523a] disabled:bg-[#c3d5c7]',
+    soft: 'border-[#d4e1d7] text-[#35573e] hover:bg-[#f5f9f6]',
+    link: 'text-[#3d6347]',
+  },
 }
 
 export default function MobileQuestionActions({
