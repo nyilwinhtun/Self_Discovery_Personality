@@ -16,7 +16,7 @@ const THEME = {
   },
 }
 
-export default function KnowledgeInlineHelp({ questionText, theme = 'trait' }) {
+export default function KnowledgeInlineHelp({ questionText, theme = 'trait', onOpenKnowledgeTerm }) {
   const relatedTerms = getKnowledgeTermsForQuestion(questionText, glossary.terms)
   const [activeTermId, setActiveTermId] = useState(null)
   const activeTerm = relatedTerms.find((term) => term.id === activeTermId) || null
@@ -136,13 +136,28 @@ export default function KnowledgeInlineHelp({ questionText, theme = 'trait' }) {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => setActiveTermId(null)}
-              className={`mt-5 min-h-11 w-full rounded-xl px-4 py-2.5 text-xs font-bold text-white transition ${theme === 'innerCompass' ? 'bg-[#527daa] hover:bg-[#456d97]' : 'bg-[#80678f] hover:bg-[#725981]'}`}
-            >
-              မေးခွန်းသို့ ပြန်သွားမယ်
-            </button>
+            <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+              {onOpenKnowledgeTerm && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const termId = activeTerm.id
+                    setActiveTermId(null)
+                    onOpenKnowledgeTerm(termId)
+                  }}
+                  className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-xs font-bold transition ${style.chip}`}
+                >
+                  <BookOpen size={14} /> Knowledge Center တွင် အပြည့်အစုံဖတ်မယ်
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setActiveTermId(null)}
+                className={`min-h-11 flex-1 rounded-xl px-4 py-2.5 text-xs font-bold text-white transition ${theme === 'innerCompass' ? 'bg-[#527daa] hover:bg-[#456d97]' : 'bg-[#80678f] hover:bg-[#725981]'}`}
+              >
+                မေးခွန်းသို့ ပြန်သွားမယ်
+              </button>
+            </div>
           </section>
         </div>
       )}

@@ -9,6 +9,7 @@ import {
 } from 'recharts'
 import { InnerCompassLogo } from './AssessmentLogos.jsx'
 import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
+import ReflectionNotesSection from './ReflectionNotesSection.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
 import StorageWriteAlert from './StorageWriteAlert.jsx'
@@ -138,7 +139,7 @@ function GuideView({ draft, onBack, onBegin, onResume, onRestart, storageAlertVi
   )
 }
 
-function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError }) {
+function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError, onOpenKnowledgeTerm }) {
   const question = INNERCOMPASS_V02_QUESTIONS_30[questionIndex]
   const dimension = INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === question.dimensionId)
   const answeredCount = Object.keys(answers).length
@@ -166,7 +167,7 @@ function QuestionView({ answers, skippedQuestionIds, questionIndex, onAnswer, on
         <div className="mt-5 flex items-center justify-between text-[11px] text-[#4e6379]"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#edf2f7]"><div className="h-full rounded-full bg-gradient-to-r from-[#6b91ba] to-[#9cb8d4] transition-all" style={{ width: `${progress}%` }}/></div>
         <div className="mt-7 flex items-start gap-3 rounded-2xl bg-[#f3f7fb] p-4"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-xs font-bold text-[#446c96]">{dimension.code}</span><div><p className="text-xs font-bold text-[#405f82]">{dimension.name}</p><p className="mt-1 text-[11px] leading-5 text-[#4e6379]">{dimension.description}</p></div></div>
-        <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#f5f8fc] to-[#f8fbff] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#4e6379]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#3d536c] sm:text-[1.35rem]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="innerCompass" /></div>
+        <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#f5f8fc] to-[#f8fbff] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#4e6379]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#3d536c] sm:text-[1.35rem]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="innerCompass" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></div>
         <div className="space-y-2.5" role="radiogroup" aria-label="အဖြေရွေးချယ်မှု">
           {INNERCOMPASS_V02_ANSWER_OPTIONS.map((option) => {
             const selected = Number(selectedAnswer) === option.value
@@ -365,6 +366,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
           ))}
         </div>
       </section>
+      <ReflectionNotesSection recordId={record.id} theme="innerCompass" />
       <section className="no-print mt-8 flex flex-wrap justify-center gap-3"><SecondaryButton onClick={onHome}>ပင်မစာမျက်နှာသို့ ပြန်မယ်</SecondaryButton><PrimaryButton onClick={onRetake} icon={RotateCcw}>ပြန်လည်ဖြေဆိုမယ်</PrimaryButton></section>
       <p id="inner-report-notes" className="mt-5 scroll-mt-28 text-center text-[11px] leading-6 text-[#4e6379]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p>
     </main>
@@ -381,6 +383,7 @@ export default function InnerCompassModule({
   storageAlertVisible: sharedStorageAlertVisible,
   onStorageWriteResult,
   onDismissStorageError,
+  onOpenKnowledgeTerm,
 }) {
   const initialDraft = initialRecord ? null : loadDraft(ASSESSMENT_LEVEL, ASSESSMENT_TYPE)
   const [view, setView] = useState(initialRecord ? 'result' : 'guide')
@@ -641,7 +644,7 @@ export default function InnerCompassModule({
     setView('question')
   }
 
-  if (view === 'question') return <><QuestionView answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
+  if (view === 'question') return <><QuestionView answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} onOpenKnowledgeTerm={onOpenKnowledgeTerm}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
   if (view === 'review') return <><ReviewView answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>{toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#405f82] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}</>
   if (view === 'result') return <ResultView record={record || initialRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>
   return <GuideView draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>

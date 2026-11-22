@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  font-family: "Noto Sans Myanmar", "DM Sans", sans-serif;
+  font-family: "Noto Sans Myanmar", "Padauk", "Myanmar Text", "Pyidaungsu", "Myanmar3", "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #403747;
   background: #f8f5f6;
   font-synthesis: none;

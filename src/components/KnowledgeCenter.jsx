@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   AlertTriangle, ArrowLeft, BookOpen, Brain, CheckCircle2, ChevronRight,
   ExternalLink, HeartHandshake, Lightbulb, Search, ShieldAlert, Sparkles, X,
@@ -14,12 +14,34 @@ const CATEGORY_ICONS = {
   'psychology-growth': BookOpen,
 }
 
-export default function KnowledgeCenter({ onBack }) {
+function getRelatedTerms(term, allTerms) {
+  if (!term) return []
+  const haystacks = [term.distinction, term.definition_simple].join(' ').toLocaleLowerCase()
+  const mentioned = allTerms.filter((candidate) => {
+    if (candidate.id === term.id) return false
+    const en = (candidate.term_en || '').toLocaleLowerCase()
+    const my = (candidate.term_my || '').toLocaleLowerCase()
+    return (en && haystacks.includes(en)) || (my && haystacks.includes(my))
+  })
+  const sameCategory = allTerms.filter(
+    (candidate) => candidate.id !== term.id && candidate.category_id === term.category_id && !mentioned.some((m) => m.id === candidate.id),
+  )
+  return [...mentioned, ...sameCategory].slice(0, 4)
+}
+
+export default function KnowledgeCenter({ onBack, initialTermId = null, returnLabel = null }) {
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
-  const [selectedId, setSelectedId] = useState(null)
+  const [selectedId, setSelectedId] = useState(initialTermId)
+
+  useEffect(() => {
+    if (initialTermId) {
+      setSelectedId(initialTermId)
+    }
+  }, [initialTermId])
 
   const selectedTerm = glossary.terms.find((term) => term.id === selectedId) || null
+  const relatedTerms = useMemo(() => getRelatedTerms(selectedTerm, glossary.terms), [selectedTerm])
   const filteredTerms = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase()
     return glossary.terms.filter((term) => {
@@ -37,9 +59,16 @@ export default function KnowledgeCenter({ onBack }) {
     <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <button onClick={selectedTerm ? openList : onBack} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#e8dfe9] bg-white px-3 py-2 text-xs font-semibold text-[#6d5a74] hover:bg-[#faf7fb]">
-          <ArrowLeft size={15} /> {selectedTerm ? 'စကားလုံးစာရင်းသို့ ပြန်သွားမယ်' : 'ပင်မစာမျက်နှာသို့ ပြန်သွားမယ်'}
+          <ArrowLeft size={15} /> {selectedTerm ? 'စကားလုံးစာရင်းသို့ ပြန်သွားမယ်' : (returnLabel || 'ပင်မစာမျက်နှာသို့ ပြန်သွားမယ်')}
         </button>
-        <span className="rounded-full border border-[#eadfc9] bg-[#fff7e8] px-3 py-1.5 text-[11px] font-bold text-[#825824]">BETA · မူကြမ်းအကြောင်းအရာ</span>
+        <div className="flex flex-wrap items-center gap-2">
+          {selectedTerm && returnLabel && (
+            <button onClick={onBack} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#ded1e4] bg-[#f8f4fa] px-3 py-2 text-xs font-semibold text-[#6e557c] hover:bg-[#f1e9f5]">
+              <ArrowLeft size={14} /> {returnLabel}
+            </button>
+          )}
+          <span className="rounded-full border border-[#eadfc9] bg-[#fff7e8] px-3 py-1.5 text-[11px] font-bold text-[#825824]">BETA · မူကြမ်းအကြောင်းအရာ</span>
+        </div>
       </div>
 
       <section className="overflow-hidden rounded-[2rem] border border-[#e9e0ed] bg-gradient-to-br from-[#f1ebf6] via-[#fbf8fb] to-[#f7edf0] p-5 shadow-sm sm:p-8">
@@ -99,6 +128,29 @@ export default function KnowledgeCenter({ onBack }) {
               <p className="mt-2 text-xs leading-7 text-[#806d63]">{selectedTerm.caution}</p>
             </section>
           </div>
+
+          {relatedTerms.length > 0 && (
+            <section className="rounded-2xl border border-[#eae2eb] bg-white p-5 shadow-sm sm:p-6">
+              <h3 className="text-sm font-bold text-[#514357]">ဆက်စပ်ဝေါဟာရများ</h3>
+              <p className="mt-1 text-[11px] text-[#6b5e70]">ဆက်စပ်နေသော စိတ်ပညာဆိုင်ရာ စကားလုံးများကို ဆက်လက်ဖတ်ရှုနိုင်ပါသည်။</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {relatedTerms.map((term) => (
+                  <button
+                    key={term.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedId(term.id)
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-[#ded1e4] bg-[#f8f4fa] px-3.5 py-2 text-xs font-semibold text-[#6e557c] transition hover:border-[#c8b5d2] hover:bg-[#f1e9f5]"
+                  >
+                    <span>{term.term_my}</span>
+                    <span className="text-[11px] text-[#6b5e70]">({term.term_en})</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="rounded-2xl border border-[#eae2eb] bg-white p-5 shadow-sm sm:p-6">
             <h3 className="text-sm font-bold text-[#514357]">ကိုးကားရင်းမြစ်များ</h3>

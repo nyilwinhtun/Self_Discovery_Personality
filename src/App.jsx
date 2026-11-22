@@ -25,6 +25,7 @@ const CareerInterestModule = lazy(() => import('./components/CareerInterestModul
 const InnerCompassModule = lazy(() => import('./components/InnerCompassModule.jsx'))
 const KnowledgeCenter = lazy(() => import('./components/KnowledgeCenter.jsx'))
 const KnowledgeInlineHelp = lazy(() => import('./components/KnowledgeInlineHelp.jsx'))
+const ReflectionNotesSection = lazy(() => import('./components/ReflectionNotesSection.jsx'))
 const TraitRadarChart = lazy(() => import('./components/TraitRadarChart.jsx'))
 
 function ModuleLoadingFallback() {
@@ -510,7 +511,7 @@ function InstructionsPage({ level, onBack, onBegin, storageAlertVisible, onExpor
   )
 }
 
-function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError }) {
+function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex, onAnswer, onPrevious, onNext, onSkip, onReview, onExit, storageError, storageAlertVisible, onExportBackup, onDismissStorageError, onOpenKnowledgeTerm }) {
   const question = questions[questionIndex]
   const trait = TRAITS.find((item) => item.id === question.trait)
   const selectedAnswer = answers[question.id]
@@ -538,7 +539,7 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
         <div className="mt-5 flex items-center justify-between text-[11px] text-[#6b5e70]"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#f1ebf2]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }} /></div>
         <div className="mt-7 flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f4eef6] text-[#80678f]"><TraitIcon id={trait.id} size={17} /></span><div><p className="text-xs font-bold text-[#725f7a]">{trait.name}</p><p className="text-[11px] text-[#6b5e70]">ပင်ကိုစရိုက် အချက် {TRAITS.findIndex((item) => item.id === trait.id) + 1} / ၅</p></div></div>
-        <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#faf6fb] to-[#fcf7f6] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#6b5e70]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#493b4d] sm:text-[1.35rem]">{question.text}</h2><Suspense fallback={null}><KnowledgeInlineHelp questionText={question.text} theme="trait" /></Suspense></div>
+        <div className="my-7 min-h-32 rounded-[1.5rem] bg-gradient-to-br from-[#faf6fb] to-[#fcf7f6] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#6b5e70]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#493b4d] sm:text-[1.35rem]">{question.text}</h2><Suspense fallback={null}><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></Suspense></div>
         <div className="space-y-2.5" role="radiogroup" aria-label="အဖြေရွေးချယ်မှု">
           {ANSWER_OPTIONS.map((option) => {
             const isSelected = Number(selectedAnswer) === option.value
@@ -799,6 +800,9 @@ function ResultsPage({ record, onHome, onRetake, storageAlertVisible, onExportBa
           </div>
         </section>
       )}
+      <Suspense fallback={null}>
+        <ReflectionNotesSection recordId={record.id} theme="trait" />
+      </Suspense>
       <section id="trait-report-notes" className="mt-6 scroll-mt-28 rounded-2xl border border-[#eee4ed] bg-[#fbf8fb] p-5"><div className="flex items-start gap-3"><CircleHelp size={18} className="mt-0.5 shrink-0 text-[#6b5e70]" /><div><h3 className="text-sm font-bold text-[#66576b]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</h3><p className="mt-2 text-xs leading-7 text-[#6b5e70]">ဤဆန်းစစ်မှုသည် မြန်မာဘာသာဖြင့် ကိုယ်ပိုင်ရေးဆွဲထားသော မေးခွန်းများကို အသုံးပြုထားသည်။ 0–100 ရမှတ်သည် သင်ရွေးချယ်ထားသော အဖြေများကို အညွှန်းအဖြစ် ပြောင်းလဲဖော်ပြခြင်းသာဖြစ်ပြီး လူဦးရေအဆင့် သို့မဟုတ် အခြားသူများနှင့် နှိုင်းယှဉ်ထားသော ရလဒ် မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p></div></div></section>
       <div className="no-print mt-8 flex flex-col justify-center gap-3 sm:flex-row"><PrimaryButton onClick={onRetake} icon={RotateCcw}>ထပ်မံဖြေဆိုမယ်</PrimaryButton><SecondaryButton onClick={onHome} icon={Home}>ပင်မစာမျက်နှာသို့</SecondaryButton></div>
     </main>
@@ -1101,6 +1105,8 @@ export default function App() {
   const [backupPreview, setBackupPreview] = useState(null)
   const [restoreMode, setRestoreMode] = useState('merge')
   const [pendingHomeSection, setPendingHomeSection] = useState(null)
+  const [knowledgeTermId, setKnowledgeTermId] = useState(null)
+  const [knowledgeReturnPage, setKnowledgeReturnPage] = useState(null)
   const [storageError, setStorageError] = useState(false)
   const [storageAlertDismissed, setStorageAlertDismissed] = useState(false)
   const isStorageAlertVisible = storageError && !storageAlertDismissed
@@ -1425,9 +1431,40 @@ export default function App() {
     if (page === 'assessment' || page === 'review') persistDraft()
     if (page === 'careerInterest') careerPersistRef.current?.()
     if (page === 'innerCompass') innerCompassPersistRef.current?.()
+    setKnowledgeTermId(null)
+    setKnowledgeReturnPage(null)
     setAppData(loadAppData())
     setPage('knowledge')
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleOpenKnowledgeTerm = (termId) => {
+    if (page === 'assessment' || page === 'review') {
+      persistDraft()
+      setKnowledgeReturnPage(page)
+    } else if (page === 'innerCompass') {
+      innerCompassPersistRef.current?.()
+      setKnowledgeReturnPage('innerCompass')
+    } else {
+      setKnowledgeReturnPage(null)
+    }
+    setAppData(loadAppData())
+    setKnowledgeTermId(termId || null)
+    setPage('knowledge')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleKnowledgeBack = () => {
+    if (knowledgeReturnPage) {
+      const target = knowledgeReturnPage
+      setKnowledgeReturnPage(null)
+      setKnowledgeTermId(null)
+      setAppData(loadAppData())
+      setPage(target)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    handleNavigateHome()
   }
 
   const handleNavigateAssessment = () => {
@@ -1450,11 +1487,11 @@ export default function App() {
     <div className={cn('min-h-screen bg-[#f8f5f6] text-[#403747]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
       {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={() => { setActiveRecord(null); setPage('innerCompass') }} onOpenKnowledge={handleNavigateKnowledge} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
-      {page === 'knowledge' && <Suspense fallback={<ModuleLoadingFallback />}><KnowledgeCenter onBack={handleNavigateHome} /></Suspense>}
+      {page === 'knowledge' && <Suspense fallback={<ModuleLoadingFallback />}><KnowledgeCenter onBack={handleKnowledgeBack} initialTermId={knowledgeTermId} returnLabel={knowledgeReturnPage ? 'မေးခွန်းသို့ ပြန်သွားမယ်' : null} /></Suspense>}
       {page === 'careerInterest' && <Suspense fallback={<ModuleLoadingFallback />}><CareerInterestModule key={activeRecord?.id || 'career-new'} record={activeRecord?.assessmentType === 'careerInterest' ? activeRecord : null} onHome={handleNavigateHome} onDataChange={setAppData} persistRef={careerPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'instructions' && <InstructionsPage level={level} onBack={() => setPage('home')} onBegin={handleBegin} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
-      {page === 'innerCompass' && <Suspense fallback={<ModuleLoadingFallback />}><InnerCompassModule key={activeRecord?.id || 'inner-compass-active'} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
-      {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'innerCompass' && <Suspense fallback={<ModuleLoadingFallback />}><InnerCompassModule key={activeRecord?.id || 'inner-compass-active'} initialRecord={activeRecord?.assessmentType === 'innerCompass' ? activeRecord : null} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={innerCompassPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} /></Suspense>}
+      {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} />}
       {page === 'review' && <ReviewPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={handleGoToQuestion} onFinish={handleFinish} onBack={() => setPage('assessment')} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
       {page === 'result' && <ResultsPage record={activeRecord} onHome={() => { setAppData(loadAppData()); setPage('home') }} onRetake={handleRetake} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
       {page === 'history' && (
