@@ -24,6 +24,7 @@ import {
   INNERCOMPASS_V02_VERSION,
   getInnerCompassQuestionsForLevel,
 } from '../data/innerCompassDraftV02.js'
+import { trackAssessmentCompleted } from '../utils/analytics.js'
 import { downloadTextFile } from '../utils/download.js'
 import { scoreInnerCompassV02 } from '../utils/innerCompassV02Scoring.js'
 import { getInnerCompassLifeDomainSummary, getInnerCompassReportInsight, REPORT_INTERPRETATION_NOTICE } from '../utils/resultInterpretations.js'
@@ -692,6 +693,7 @@ export default function InnerCompassModule({
     }
     const { ok } = saveAssessmentWithStatus(completed)
     reportStorageWrite(ok)
+    trackAssessmentCompleted('innercompass', activeQuestions.length)
     if (!ok) {
       setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
     }

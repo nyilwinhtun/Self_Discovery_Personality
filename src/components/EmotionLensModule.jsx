@@ -22,6 +22,7 @@ import {
   EMOTIONLENS_VERSION,
   getEmotionLensQuestionsForLevel,
 } from '../data/emotionLensPilot.js'
+import { trackAssessmentCompleted } from '../utils/analytics.js'
 import { downloadTextFile } from '../utils/download.js'
 import { getEmotionLensInsight, scoreEmotionLens } from '../utils/emotionLensScoring.js'
 import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
@@ -751,6 +752,7 @@ export default function EmotionLensModule({
     }
     const { ok } = saveAssessmentWithStatus(completed)
     reportStorageWrite(ok)
+    trackAssessmentCompleted('emotionlens', activeQuestions.length)
     if (!ok) {
       setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
     }

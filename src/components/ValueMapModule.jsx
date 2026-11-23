@@ -22,6 +22,7 @@ import {
   VALUEMAP_VERSION,
   getValueMapQuestionsForLevel,
 } from '../data/valueMapPilot.js'
+import { trackAssessmentCompleted } from '../utils/analytics.js'
 import { downloadTextFile } from '../utils/download.js'
 import { getValueMapInsight, scoreValueMap } from '../utils/valueMapScoring.js'
 import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
@@ -643,6 +644,7 @@ export default function ValueMapModule({
     }
     const { ok } = saveAssessmentWithStatus(completed)
     reportStorageWrite(ok)
+    trackAssessmentCompleted('valuemap', activeQuestions.length)
     if (!ok) {
       setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
     }

@@ -15,6 +15,7 @@ import MobileQuestionActions from './components/MobileQuestionActions.jsx'
 import ReportSectionNavigation from './components/ReportSectionNavigation.jsx'
 import StorageWriteAlert from './components/StorageWriteAlert.jsx'
 import { TraitLensLogo, InnerCompassLogo, BondSenseLogo, ValueMapLogo } from './components/AssessmentLogos.jsx'
+import { trackAssessmentCompleted, trackPageView } from './utils/analytics.js'
 import { downloadTextFile } from './utils/download.js'
 import {
   clearDraft, clearHistoryWithStatus, createBackupSnapshot, deleteAssessmentWithStatus, inspectBackupSnapshot,
@@ -1209,6 +1210,23 @@ const HASH_TO_PAGE = {
 
 const HOME_ANCHOR_HASHES = new Set(['#assessment-dashboard', '#personality-levels'])
 
+const PAGE_TO_ANALYTICS_VIEW = {
+  home: 'home',
+  instructions: 'traitlens',
+  assessment: 'traitlens',
+  review: 'traitlens',
+  result: 'traitlens',
+  innerCompass: 'innercompass',
+  emotionLens: 'emotionlens',
+  bondSense: 'bondsense',
+  valueMap: 'valuemap',
+  careerInterest: 'career',
+  mindProfile: 'mind-profile',
+  journal: 'journal',
+  history: 'history',
+  knowledge: 'knowledge',
+}
+
 function getInitialPageFromHash() {
   if (typeof window === 'undefined') return 'home'
   const rawHash = window.location.hash || ''
@@ -1229,6 +1247,7 @@ function getInitialHomeSectionFromHash() {
 export default function App() {
   const [appData, setAppData] = useState(() => loadAppData())
   const [page, setPage] = useState(getInitialPageFromHash)
+  const lastTrackedViewRef = useRef(null)
   const [level, setLevel] = useState(30)
   const [answers, setAnswers] = useState({})
   const [skippedQuestionIds, setSkippedQuestionIds] = useState([])
@@ -1298,6 +1317,13 @@ export default function App() {
   }
 
   latestNavRef.current = { page, persistDraft, activeRecord }
+
+  useEffect(() => {
+    const viewPath = PAGE_TO_ANALYTICS_VIEW[page]
+    if (!viewPath || lastTrackedViewRef.current === viewPath) return
+    lastTrackedViewRef.current = viewPath
+    trackPageView(`/${viewPath}`, `Self Discovery - ${viewPath}`)
+  }, [page])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -1577,6 +1603,7 @@ export default function App() {
     }
     const { ok, history } = saveAssessmentWithStatus(record)
     reportStorageWriteResult(ok)
+    trackAssessmentCompleted('traitlens', questions.length)
     if (!ok) {
       setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
     }

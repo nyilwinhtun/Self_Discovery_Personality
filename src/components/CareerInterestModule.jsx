@@ -8,6 +8,7 @@ import {
 } from 'recharts'
 import { CAREER_ANSWER_OPTIONS, CAREER_QUESTIONS, RIASEC_BANK_VERSION, RIASEC_CATEGORIES } from '../data/careerQuestions.js'
 import { buildCareerResult, getCareerScoreBand } from '../utils/careerScoring.js'
+import { trackAssessmentCompleted } from '../utils/analytics.js'
 import { downloadTextFile } from '../utils/download.js'
 import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
 import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
@@ -423,6 +424,7 @@ export default function CareerInterestModule({
     }
     const { ok } = saveAssessmentWithStatus(record)
     reportStorageWrite(ok)
+    trackAssessmentCompleted('career')
     if (!ok) {
       setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
     }

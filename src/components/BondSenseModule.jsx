@@ -22,6 +22,7 @@ import {
   BONDSENSE_VERSION,
   getBondSenseQuestionsForLevel,
 } from '../data/bondSensePilot.js'
+import { trackAssessmentCompleted } from '../utils/analytics.js'
 import { downloadTextFile } from '../utils/download.js'
 import { getBondSenseInsight, scoreBondSense } from '../utils/bondSenseScoring.js'
 import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft } from '../utils/storage.js'
@@ -643,6 +644,7 @@ export default function BondSenseModule({
     }
     const { ok } = saveAssessmentWithStatus(completed)
     reportStorageWrite(ok)
+    trackAssessmentCompleted('bondsense', activeQuestions.length)
     if (!ok) {
       setToast('သတိပေးချက်: Browser Storage ထဲသို့ ရလဒ်သိမ်းဆည်း၍ မရပါ။')
     }
