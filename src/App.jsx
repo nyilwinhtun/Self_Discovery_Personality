@@ -12,6 +12,7 @@ import {
 } from './utils/resultInterpretations.js'
 import MobileBottomNavigation from './components/MobileBottomNavigation.jsx'
 import MobileQuestionActions from './components/MobileQuestionActions.jsx'
+import PwaInstallBanner from './components/PwaInstallBanner.jsx'
 import ReportSectionNavigation from './components/ReportSectionNavigation.jsx'
 import StorageWriteAlert from './components/StorageWriteAlert.jsx'
 import {
@@ -992,6 +993,7 @@ export default function App() {
   const [backupPreview, setBackupPreview] = useState(null)
   const [restoreMode, setRestoreMode] = useState('merge')
   const [pendingHomeSection, setPendingHomeSection] = useState(getInitialHomeSectionFromHash)
+  const [homeSectionTab, setHomeSectionTab] = useState(() => (getInitialHomeSectionFromHash() === 'assessment-dashboard' ? 'assessment' : 'home'))
   const [knowledgeTermId, setKnowledgeTermId] = useState(null)
   const [knowledgeReturnPage, setKnowledgeReturnPage] = useState(null)
   const [storageError, setStorageError] = useState(false)
@@ -1430,6 +1432,8 @@ export default function App() {
   const handleNavigateHome = () => {
     flushActiveModuleDraft()
     setActiveRecord(null)
+    setPendingHomeSection(null)
+    setHomeSectionTab('home')
     setAppData(loadAppData())
     setPage('home')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1497,6 +1501,7 @@ export default function App() {
   }
 
   const handleNavigateAssessment = () => {
+    setHomeSectionTab('assessment')
     if (page === 'home') {
       document.getElementById('assessment-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
@@ -1509,6 +1514,7 @@ export default function App() {
   }
 
   const showMobileNavigation = ['home', 'history', 'knowledge', 'mindProfile', 'journal'].includes(page)
+  const mobileNavActive = page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : page === 'home' ? homeSectionTab : 'home'
 
   return (
     <div className={cn('min-h-screen bg-[#faf8f5] text-[#242029]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
@@ -1570,7 +1576,8 @@ export default function App() {
         </>
       )}
       <footer className="no-print border-t border-[#ebe5dc] bg-[#faf8f5] px-4 py-6 text-center"><p className="text-xs font-semibold text-[#524b59]">Self Discovery · ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း</p><p className="mt-1 text-xs leading-6 text-[#524b59]">ပိုမိုနားလည်လာခြင်းက ကိုယ့်ကိုယ်ကို ဂရုစိုက်ခြင်းရဲ့ အစဖြစ်ပါတယ်။</p><p className="mx-auto mt-2 max-w-2xl text-xs leading-6 text-[#6b5e70]">ဤ App ကို ပိုမိုကောင်းမွန်စေရန် ဆက်လက်ပြင်ဆင်နေဆဲ ဖြစ်ပါသည်။ ရလဒ်များသည် ကိုယ်တိုင်သုံးသပ်ရန်သာ ဖြစ်ပြီး အဖြေများကို ဒီဖုန်းရဲ့ Browser ထဲမှာပဲ သိမ်းထားပါတယ်။</p></footer>
-      {showMobileNavigation && <MobileBottomNavigation active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} onHome={handleNavigateHome} onAssessment={handleNavigateAssessment} onKnowledge={handleNavigateKnowledge} onHistory={handleNavigateHistory} />}
+      {showMobileNavigation && <MobileBottomNavigation active={mobileNavActive} onHome={handleNavigateHome} onAssessment={handleNavigateAssessment} onKnowledge={handleNavigateKnowledge} onHistory={handleNavigateHistory} />}
+      {showMobileNavigation && <PwaInstallBanner hasBottomNav={showMobileNavigation} />}
       <input ref={fileInputRef} type="file" accept=".json,application/json" className="hidden" onChange={handleBackupFileSelected} />
       <BackupRestoreDialog preview={backupPreview} mode={restoreMode} onModeChange={setRestoreMode} onCancel={() => setBackupPreview(null)} onConfirm={handleConfirmRestore} />
       {toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-full bg-[#514357] px-5 py-3 text-center text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}
