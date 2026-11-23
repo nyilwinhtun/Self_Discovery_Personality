@@ -14,6 +14,7 @@ import { clearDraft, loadAppData, loadDraft, saveAssessmentWithStatus, saveDraft
 import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
 import LikertScaleSelector from './LikertScaleSelector.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
+import { CareerInterestEmblem } from './ModuleEmblems.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
 import ResultShareCardButton from './ResultShareCardButton.jsx'
 import StorageWriteAlert from './StorageWriteAlert.jsx'
@@ -56,11 +57,16 @@ function IntroView({ draft, onResume, onStart, onHome, storageAlertVisible, onEx
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
       <button onClick={onHome} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#716679] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <section className="overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-white card-shadow">
-        <div className="bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f7edf0] px-6 py-8 sm:px-9 sm:py-10">
-          <span className="inline-flex rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#80678f]">CAREER INTEREST</span>
-          <h1 className="mt-4 text-2xl font-bold leading-relaxed text-[#493a4e] sm:text-3xl">သင် ဘယ်လိုလုပ်ဆောင်မှုမျိုးကို ပိုနှစ်သက်ပါသလဲ။</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-8 text-[#6f6276]">ဒီဆန်းစစ်မှုက သင်လုပ်ရတာကို စိတ်ဝင်စားပြီး ပျော်ရွှင်နိုင်မယ့် အလုပ်ဆိုင်ရာလုပ်ဆောင်မှုတွေကို ရှာဖွေပေးပါတယ်။ လက်ရှိကျွမ်းကျင်မှုနဲ့ အတွေ့အကြုံကို စစ်ဆေးတာမဟုတ်ပါဘူး။</p>
+      <section className="overflow-hidden rounded-[2rem] border border-[#e7dfd6] bg-[#fffdf9] card-shadow">
+        <div className="bg-gradient-to-br from-[#f6f1eb] via-[#faf8f5] to-[#f4efe7] px-6 py-8 sm:px-9 sm:py-10">
+          <div className="flex items-center gap-4">
+            <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl border border-[#e8dccb] bg-[#faf8f5] text-[#7c5324]"><CareerInterestEmblem size={38} /></span>
+            <div>
+              <p className="text-xs font-semibold tracking-[0.14em] text-[#7c5324]">CAREER INTEREST</p>
+              <h1 className="mt-1 text-xl font-bold text-[#1c1917] sm:text-2xl">သင် ဘယ်လိုလုပ်ဆောင်မှုမျိုးကို ပိုနှစ်သက်ပါသလဲ။</h1>
+            </div>
+          </div>
+          <p className="mt-5 max-w-2xl text-sm leading-8 text-[#44403c]">ဒီဆန်းစစ်မှုက သင်လုပ်ရတာကို စိတ်ဝင်စားပြီး ပျော်ရွှင်နိုင်မယ့် အလုပ်ဆိုင်ရာလုပ်ဆောင်မှုတွေကို ရှာဖွေပေးပါတယ်။ လက်ရှိကျွမ်းကျင်မှုနဲ့ အတွေ့အကြုံကို စစ်ဆေးတာမဟုတ်ပါဘူး။</p>
         </div>
         <div className="p-6 sm:p-9">
           <div className="grid gap-3 sm:grid-cols-3">

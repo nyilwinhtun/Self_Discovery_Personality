@@ -11,6 +11,7 @@ import BalancedSpectrumBar from './BalancedSpectrumBar.jsx'
 import CalmingBreathPause from './CalmingBreathPause.jsx'
 import LikertScaleSelector from './LikertScaleSelector.jsx'
 import MobileQuestionActions from './MobileQuestionActions.jsx'
+import { EmotionLensEmblem } from './ModuleEmblems.jsx'
 import ReflectionNotesSection from './ReflectionNotesSection.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
 import ResultShareCardButton from './ResultShareCardButton.jsx'
@@ -95,7 +96,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
         <div className="bg-gradient-to-br from-[#eaf4f4] via-[#f9fcfc] to-[#e4f0f1] p-6 sm:p-9">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-4">
-              <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl bg-white text-[#2f6d73] shadow-sm"><EmotionLensLogo size={52} /></span>
+              <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl border border-[#d2e0e1] bg-[#faf8f5] text-[#2b5e63]"><EmotionLensEmblem size={38} /></span>
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#3a5a5e]">EMOTIONLENS</p>
                 <h1 className="mt-1 text-xl font-bold text-[#1e4a4f] sm:text-2xl">စိတ်ခံစားချက် သိမှတ်မှုနှင့် စိတ်အေးချမ်းမှုကို လေ့လာခြင်း</h1>

@@ -8,6 +8,7 @@ import {
   ResponsiveContainer, Tooltip,
 } from 'recharts'
 import { BondSenseLogo } from './AssessmentLogos.jsx'
+import { BondSenseEmblem } from './ModuleEmblems.jsx'
 import CalmingBreathPause from './CalmingBreathPause.jsx'
 import LikertScaleSelector from './LikertScaleSelector.jsx'
 import ReflectionNotesSection from './ReflectionNotesSection.jsx'
@@ -76,7 +77,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
         <div className="bg-gradient-to-br from-[#fbeeea] via-[#fffaf8] to-[#f8ece8] p-6 sm:p-9">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-4">
-              <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl bg-white text-[#924433] shadow-sm"><BondSenseLogo size={52} /></span>
+              <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl border border-[#e8d5cf] bg-[#faf8f5] text-[#8a4332]"><BondSenseEmblem size={38} /></span>
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#6d4b44]">BONDSENSE</p>
                 <h1 className="mt-1 text-xl font-bold text-[#662f23] sm:text-2xl">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</h1>

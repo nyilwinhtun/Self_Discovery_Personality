@@ -8,6 +8,7 @@ import {
   ResponsiveContainer, Tooltip,
 } from 'recharts'
 import { ValueMapLogo } from './AssessmentLogos.jsx'
+import { ValueMapEmblem } from './ModuleEmblems.jsx'
 import CalmingBreathPause from './CalmingBreathPause.jsx'
 import LikertScaleSelector from './LikertScaleSelector.jsx'
 import ReflectionNotesSection from './ReflectionNotesSection.jsx'
@@ -76,7 +77,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
         <div className="bg-gradient-to-br from-[#eef4ef] via-[#f9fcf9] to-[#eaf2ec] p-6 sm:p-9">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-4">
-              <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl bg-white text-[#3d6347] shadow-sm"><ValueMapLogo size={52} /></span>
+              <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl border border-[#d5e0d7] bg-[#faf8f5] text-[#36593f]"><ValueMapEmblem size={38} /></span>
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#475e4d]">VALUEMAP</p>
                 <h1 className="mt-1 text-xl font-bold text-[#2c4a34] sm:text-2xl">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</h1>

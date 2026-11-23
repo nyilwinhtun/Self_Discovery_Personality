@@ -8,6 +8,7 @@ import {
   ResponsiveContainer, Tooltip,
 } from 'recharts'
 import { InnerCompassLogo } from './AssessmentLogos.jsx'
+import { InnerCompassEmblem } from './ModuleEmblems.jsx'
 import BalancedSpectrumBar from './BalancedSpectrumBar.jsx'
 import CalmingBreathPause from './CalmingBreathPause.jsx'
 import KnowledgeInlineHelp from './KnowledgeInlineHelp.jsx'
@@ -100,7 +101,7 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
         <div className="bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 sm:p-9">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-4">
-              <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl bg-white text-[#446c96] shadow-sm"><InnerCompassLogo size={52}/></span>
+              <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl border border-[#dce3ea] bg-[#faf8f5] text-[#3d5b7a]"><InnerCompassEmblem size={38} /></span>
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#4e6379]">INNERCOMPASS</p>
                 <h1 className="mt-1 text-xl font-bold text-[#3f5873] sm:text-2xl">စိတ်နေသဘောထားကို လေ့လာခြင်း</h1>

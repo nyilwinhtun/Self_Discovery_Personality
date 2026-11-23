@@ -14,7 +14,10 @@ import MobileBottomNavigation from './components/MobileBottomNavigation.jsx'
 import MobileQuestionActions from './components/MobileQuestionActions.jsx'
 import ReportSectionNavigation from './components/ReportSectionNavigation.jsx'
 import StorageWriteAlert from './components/StorageWriteAlert.jsx'
-import { TraitLensLogo, InnerCompassLogo, BondSenseLogo, ValueMapLogo } from './components/AssessmentLogos.jsx'
+import {
+  TraitLensEmblem, InnerCompassEmblem, EmotionLensEmblem,
+  BondSenseEmblem, ValueMapEmblem, CareerInterestEmblem,
+} from './components/ModuleEmblems.jsx'
 import { useAutoAdvance } from './hooks/useAutoAdvance.js'
 import { trackAssessmentCompleted, trackPageView } from './utils/analytics.js'
 import { downloadTextFile } from './utils/download.js'
@@ -100,17 +103,17 @@ function Brand({ onClick }) {
 
 function Header({ onHome, onHistory, onKnowledge, active }) {
   return (
-    <header className="no-print sticky top-0 z-30 border-b border-[#ebe5dc] bg-[#faf8f5]/90 backdrop-blur-xl">
+    <header className="no-print sticky top-0 z-30 border-b border-[#e7e0d6] bg-[#faf8f5]/95 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Brand onClick={onHome} />
-        <nav className="hidden items-center gap-1 rounded-full bg-[#f2edf2] p-1 sm:flex">
-          <button onClick={onHome} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'home' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#6b5e70] hover:text-[#614b6b]')}>
+        <nav className="hidden items-center gap-1 rounded-full border border-[#e7e0d6] bg-[#f3eee7] p-1 sm:flex">
+          <button onClick={onHome} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'home' ? 'bg-[#fffdf9] text-[#1c1917] shadow-xs' : 'text-[#57534e] hover:text-[#1c1917]')}>
             <Home size={15} /> <span className="hidden sm:inline">ပင်မစာမျက်နှာ</span>
           </button>
-          <button onClick={onHistory} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'history' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#6b5e70] hover:text-[#614b6b]')}>
+          <button onClick={onHistory} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'history' ? 'bg-[#fffdf9] text-[#1c1917] shadow-xs' : 'text-[#57534e] hover:text-[#1c1917]')}>
             <History size={15} /> <span className="hidden sm:inline">မှတ်တမ်း</span>
           </button>
-          <button onClick={onKnowledge} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'knowledge' ? 'bg-white text-[#614b6b] shadow-sm' : 'text-[#6b5e70] hover:text-[#614b6b]')}>
+          <button onClick={onKnowledge} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'knowledge' ? 'bg-[#fffdf9] text-[#1c1917] shadow-xs' : 'text-[#57534e] hover:text-[#1c1917]')}>
             <BookOpen size={15} /> <span className="hidden sm:inline">အသိပညာ</span>
           </button>
         </nav>
@@ -181,15 +184,15 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
     <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
 
-      <section className="relative overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f4e9ed] px-6 py-8 card-shadow sm:px-10 sm:py-12 lg:px-14">
+      <section className="relative overflow-hidden rounded-[2rem] border border-[#e7dfd6] bg-gradient-to-br from-[#f6f2ec] via-[#faf8f5] to-[#f4efe7] px-6 py-8 card-shadow sm:px-10 sm:py-12 lg:px-14">
         <div className="soft-grid pointer-events-none absolute inset-0 opacity-30" />
-        <div className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-full bg-[#e0d2e8]/50 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-[#f1d9e1]/60 blur-3xl" />
+        <div className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-full bg-[#e9dfd3]/50 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-[#ede2db]/50 blur-3xl" />
         <div className="relative grid items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="max-w-2xl">
-            <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#6f587a] shadow-sm"><Sparkles size={14} /> ကိုယ့်ကိုယ်ကို နားလည်ဖို့ ခရီးစဉ်ငယ်တစ်ခု</span>
-            <h1 className="text-3xl font-bold leading-[1.45] tracking-tight text-[#44364a] sm:text-4xl lg:text-[2.8rem]">ကိုယ့်ပင်ကိုစရိုက်နဲ့<br className="hidden sm:block" /> အတွင်းစိတ်ကို ပိုမိုနားလည်ပါ</h1>
-            <p className="mt-4 max-w-xl text-sm leading-8 text-[#5d5162] sm:text-base">မိမိရဲ့ အတွေးအခေါ်၊ စိတ်ခံစားမှု၊ အပြုအမူနဲ့ ဆက်ဆံရေးပုံစံတွေကို အဆင့်ဆင့် လေ့လာပြီး ကိုယ့်ကိုယ်ကို ပိုမိုနားလည်လာစေဖို့ ရည်ရွယ်ပါတယ်။</p>
+            <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#e7dfd6] bg-[#fffdf9]/90 px-3 py-1.5 text-xs font-semibold text-[#57534e] shadow-xs"><Sparkles size={14} /> ကိုယ့်ကိုယ်ကို နားလည်ဖို့ ခရီးစဉ်ငယ်တစ်ခု</span>
+            <h1 className="text-3xl font-bold leading-[1.45] tracking-tight text-[#1c1917] sm:text-4xl lg:text-[2.8rem]">ကိုယ့်ပင်ကိုစရိုက်နဲ့<br className="hidden sm:block" /> အတွင်းစိတ်ကို ပိုမိုနားလည်ပါ</h1>
+            <p className="mt-4 max-w-xl text-sm leading-8 text-[#44403c] sm:text-base">မိမိရဲ့ အတွေးအခေါ်၊ စိတ်ခံစားမှု၊ အပြုအမူနဲ့ ဆက်ဆံရေးပုံစံတွေကို အဆင့်ဆင့် လေ့လာပြီး ကိုယ့်ကိုယ်ကို ပိုမိုနားလည်လာစေဖို့ ရည်ရွယ်ပါတယ်။</p>
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#5d5162]">
               <span className="inline-flex items-center gap-1.5"><Clock3 size={14} /> ၅ မိနစ်မှ စတင်နိုင်</span>
               <span className="inline-flex items-center gap-1.5"><PauseCircle size={14} /> ခဏရပ်ပြီး ပြန်ဆက်နိုင်</span>
@@ -299,13 +302,13 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
         </div>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
-          <section id="personality-levels" className="scroll-mt-24 rounded-2xl border border-[#d8c7df] bg-white p-5 shadow-sm ring-1 ring-[#eee5f0] sm:p-6 md:col-span-12">
+          <section id="personality-levels" className="scroll-mt-24 rounded-2xl border border-[#e4ddd7] bg-[#fffdf9] p-5 shadow-xs sm:p-6 md:col-span-12">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-4">
-              <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><TraitLensLogo size={54}/></span>
+              <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl border border-[#e4ddd7] bg-[#f5f1ec] text-[#5e4b66]"><TraitLensEmblem size={42} /></span>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-bold tracking-tight text-[#514357]">TraitLens</h3>
+                  <h3 className="text-xl font-bold tracking-tight text-[#1c1917]">TraitLens</h3>
                   <span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-[11px] font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span>
                 </div>
                 <p className="mt-1 text-sm font-semibold text-[#6f587a]">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</p>
@@ -349,13 +352,13 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
           </div>
         </section>
 
-        <section className="rounded-2xl border border-[#d4e0ef] bg-white p-5 shadow-sm sm:p-6 md:col-span-12">
+        <section className="rounded-2xl border border-[#dce3ea] bg-[#fffdf9] p-5 shadow-xs sm:p-6 md:col-span-12">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-4">
-              <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl bg-[#eaf1fa] text-[#446c96]"><InnerCompassLogo size={54}/></span>
+              <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl border border-[#dce3ea] bg-[#f2f5f8] text-[#3d5b7a]"><InnerCompassEmblem size={42} /></span>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-bold tracking-tight text-[#3f5873]">InnerCompass</h3>
+                  <h3 className="text-xl font-bold tracking-tight text-[#1c1917]">InnerCompass</h3>
                   <span className="rounded-full bg-[#eef3f9] px-2.5 py-1 text-[11px] font-semibold text-[#3f648c]">စမ်းသပ်အသုံးပြုရန် (Pilot)</span>
                 </div>
                 <p className="mt-1 text-sm font-semibold text-[#3f648c]">အတွင်းစိတ်နှင့် စိတ်နေသဘောထားကို လေ့လာခြင်း</p>
@@ -434,12 +437,12 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
             <h3 className="mt-1 text-lg font-bold text-[#514357]">ဆက်ဆံရေး၊ ဘဝတန်ဖိုးနှင့် စိတ်ခံစားချက် ဆိုင်ရာ လေ့လာမှုများ</h3>
           </div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
-            <article className="flex flex-col rounded-2xl border border-[#ebd6d1] bg-white p-5 shadow-sm md:col-span-4">
+            <article className="flex flex-col rounded-2xl border border-[#e8d5cf] bg-[#fffdf9] p-5 shadow-xs md:col-span-4">
               <div className="flex items-start justify-between gap-3">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#fbeeea] text-[#924433]"><BondSenseLogo size={44} /></span>
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-[#e8d5cf] bg-[#faf1ee] text-[#8a4332]"><BondSenseEmblem size={34} /></span>
                 <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1 text-[11px] font-semibold text-[#7c392b]">စမ်းသပ်မူကြမ်း (Pilot)</span>
               </div>
-              <h3 className="mt-4 text-base font-bold text-[#662f23]">BondSense</h3>
+              <h3 className="mt-4 text-base font-bold text-[#1c1917]">BondSense</h3>
               <p className="mt-1 text-xs font-semibold text-[#7c392b]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p>
               <p className="mt-2 flex-1 text-xs leading-6 text-[#6a4840]">ယုံကြည်မှု၊ ကိုယ်ပိုင်နယ်နိမိတ်၊ စာနာနားထောင်ပေးမှုနှင့် သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံတို့ကို ပြန်လည်သုံးသပ်ပါ။</p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#7c392b]">
@@ -500,12 +503,12 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
               </div>
             </article>
 
-            <article className="flex flex-col rounded-2xl border border-[#d4e1d7] bg-white p-5 shadow-sm md:col-span-4">
+            <article className="flex flex-col rounded-2xl border border-[#d5e0d7] bg-[#fffdf9] p-5 shadow-xs md:col-span-4">
               <div className="flex items-start justify-between gap-3">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eef4ef] text-[#3d6347]"><ValueMapLogo size={44} /></span>
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-[#d5e0d7] bg-[#f1f6f2] text-[#36593f]"><ValueMapEmblem size={34} /></span>
                 <span className="rounded-full bg-[#eef5f0] px-2.5 py-1 text-[11px] font-semibold text-[#33573d]">စမ်းသပ်မူကြမ်း (Pilot)</span>
               </div>
-              <h3 className="mt-4 text-base font-bold text-[#2c4a34]">ValueMap</h3>
+              <h3 className="mt-4 text-base font-bold text-[#1c1917]">ValueMap</h3>
               <p className="mt-1 text-xs font-semibold text-[#33573d]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p>
               <p className="mt-2 flex-1 text-xs leading-6 text-[#465e4c]">လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ထဲမှ ကိုယ်အလေးထားရာကို ပြန်လည်သုံးသပ်ပါ။</p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#33573d]">
@@ -566,12 +569,12 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
               </div>
             </article>
 
-            <article className="flex flex-col rounded-2xl border border-[#cce0e2] bg-white p-5 shadow-sm md:col-span-4">
+            <article className="flex flex-col rounded-2xl border border-[#d2e0e1] bg-[#fffdf9] p-5 shadow-xs md:col-span-4">
               <div className="flex items-start justify-between gap-3">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#eaf4f4] text-[#2f6d73]"><Wind size={28} /></span>
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-[#d2e0e1] bg-[#eff5f5] text-[#2b5e63]"><EmotionLensEmblem size={34} /></span>
                 <span className="rounded-full bg-[#eaf4f4] px-2.5 py-1 text-[11px] font-semibold text-[#1e4a4f]">စမ်းသပ်မူကြမ်း (Pilot)</span>
               </div>
-              <h3 className="mt-4 text-base font-bold text-[#1e4a4f]">EmotionLens</h3>
+              <h3 className="mt-4 text-base font-bold text-[#1c1917]">EmotionLens</h3>
               <p className="mt-1 text-xs font-semibold text-[#2f6d73]">စိတ်ခံစားချက် သိမှတ်မှုနှင့် စိတ်အေးချမ်းမှု</p>
               <p className="mt-2 flex-1 text-xs leading-6 text-[#3a5a5e]">ခံစားချက်သိမှတ်မှု၊ စိတ်ဖိစီးမှုတည်ငြိမ်မှု၊ ကိုယ့်ကိုယ်ကို ကြင်နာမှုနှင့် အတွေးလွန်လွတ်မြောက်မှုတို့ကို သုံးသပ်ပါ။</p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#1e4a4f]">
@@ -671,16 +674,16 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
         </div>
       </section>
 
-      <section className="mt-10 rounded-2xl border border-[#eee5ed] bg-[#fcfafd] p-5 sm:p-6">
+      <section className="mt-10 rounded-2xl border border-[#e7dfd6] bg-[#f7f4ee] p-5 sm:p-6">
         <div className="mb-4">
-          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">SECONDARY TOOLS</p>
-          <h2 className="mt-1 text-lg font-bold text-[#514357]">အခြား လေ့လာရေး ကိရိယာများ (Secondary Tools)</h2>
-          <p className="mt-1 text-xs leading-6 text-[#6b5e70]">အလုပ်အကိုင် စိတ်ဝင်စားမှုနှင့် အနာဂတ်တွင် ထပ်မံထည့်သွင်းမည့် ကိရိယာများကို သီးခြားစုစည်းထားပါသည်။</p>
+          <p className="text-xs font-semibold tracking-wide text-[#57534e]">SECONDARY TOOLS</p>
+          <h2 className="mt-1 text-lg font-bold text-[#1c1917]">အခြား လေ့လာရေး ကိရိယာများ (Secondary Tools)</h2>
+          <p className="mt-1 text-xs leading-6 text-[#57534e]">အလုပ်အကိုင် စိတ်ဝင်စားမှုနှင့် အနာဂတ်တွင် ထပ်မံထည့်သွင်းမည့် ကိရိယာများကို သီးခြားစုစည်းထားပါသည်။</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <article className="flex flex-col rounded-2xl border border-[#e9dce7] bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-2"><span className="grid h-11 w-11 place-items-center rounded-xl bg-[#f8edf1] text-[#865569]"><BriefcaseBusiness size={20}/></span><span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-[11px] font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span></div>
-            <h3 className="mt-4 text-base font-bold text-[#514357]">Career Interest</h3>
+          <article className="flex flex-col rounded-2xl border border-[#e8dccb] bg-[#fffdf9] p-5 shadow-xs">
+            <div className="flex items-center justify-between gap-2"><span className="grid h-12 w-12 place-items-center rounded-xl border border-[#e8dccb] bg-[#fbf5ec] text-[#7c5324]"><CareerInterestEmblem size={28} /></span><span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-[11px] font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span></div>
+            <h3 className="mt-4 text-base font-bold text-[#1c1917]">Career Interest</h3>
             <p className="mt-2 flex-1 text-xs leading-6 text-[#6b5e70]">ဘယ်လိုလုပ်ဆောင်မှုတွေကို ပိုနှစ်သက်သလဲ၊ ဘယ်လိုအလုပ်ပတ်ဝန်းကျင်တွေကို စိတ်ဝင်စားသလဲဆိုတာ သီးခြားလေ့လာပါ။</p>
             <p className="mt-4 inline-flex flex-wrap items-center gap-2 text-[11px] font-semibold text-[#865569]"><span>မေးခွန်း ၃၀ · စိတ်ဝင်စားမှု အမျိုးအစား ၆ မျိုး</span><span className="inline-flex items-center gap-1 rounded-full bg-[#f8edf1] px-2 py-0.5"><Clock3 size={11} /> ~၅ မိနစ်</span></p>
             {careerDraft ? (
@@ -763,13 +766,13 @@ function InstructionsPage({ level, onBack, onBegin, storageAlertVisible, onExpor
     <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
       <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#716679] hover:text-[#614b6b]"><ArrowLeft size={16} /> နောက်သို့</button>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <section className="overflow-hidden rounded-[2rem] border border-[#e5d8e9] bg-white card-shadow">
-        <div className="bg-gradient-to-br from-[#f2eaf5] via-[#fbf8fb] to-[#f8eff2] p-6 sm:p-9">
+      <section className="overflow-hidden rounded-[2rem] border border-[#e4ddd7] bg-[#fffdf9] card-shadow">
+        <div className="bg-gradient-to-br from-[#f6f1eb] via-[#faf8f5] to-[#f4efe7] p-6 sm:p-9">
           <div className="flex items-center gap-4">
-            <span className="grid h-[76px] w-[76px] shrink-0 place-items-center rounded-2xl bg-white/90 text-[#80678f] shadow-sm"><TraitLensLogo size={58}/></span>
+            <span className="grid h-[76px] w-[76px] shrink-0 place-items-center rounded-2xl border border-[#e4ddd7] bg-[#faf8f5] text-[#5e4b66]"><TraitLensEmblem size={42} /></span>
             <div>
-              <p className="text-xs font-semibold tracking-[0.12em] text-[#745b83]">TRAITLENS</p>
-              <h1 className="mt-1 text-xl font-bold text-[#493c4d] sm:text-2xl">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</h1>
+              <p className="text-xs font-semibold tracking-[0.12em] text-[#5e4b66]">TRAITLENS</p>
+              <h1 className="mt-1 text-xl font-bold text-[#1c1917] sm:text-2xl">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</h1>
               <p className="mt-1 text-xs text-[#6f6276]">အချက် ၅ ချက် · {selected.value} မေးခွန်း · {selected.label}</p>
             </div>
           </div>
