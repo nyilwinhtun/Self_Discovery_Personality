@@ -90,8 +90,8 @@ function TraitIcon({ id, size = 19 }) {
 
 function Brand({ onClick }) {
   return (
-    <button onClick={onClick} className="flex items-center gap-3 text-left" aria-label="ပင်မစာမျက်နှာ">
-      <span className="grid h-10 w-10 place-items-center rounded-2xl border border-[#e7e0d6] bg-[#faf8f5] text-[#1c1917] shadow-xs">
+    <button onClick={onClick} className="flex shrink-0 items-center gap-3 text-left" aria-label="ပင်မစာမျက်နှာ">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#e7e0d6] bg-[#faf8f5] text-[#1c1917] shadow-xs">
         <BrandLogo size={26} />
       </span>
       <span>
@@ -105,7 +105,7 @@ function Brand({ onClick }) {
 function Header({ onHome, onHistory, onKnowledge, active }) {
   return (
     <header className="no-print sticky top-0 z-30 border-b border-[#e7e0d6] bg-[#faf8f5]/95 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <Brand onClick={onHome} />
         <nav className="hidden items-center gap-1 rounded-full border border-[#e7e0d6] bg-[#f3eee7] p-1 sm:flex">
           <button onClick={onHome} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition sm:text-sm', active === 'home' ? 'bg-[#fffdf9] text-[#1c1917] shadow-xs' : 'text-[#57534e] hover:text-[#1c1917]')}>
@@ -245,14 +245,14 @@ function HomePage({ drafts, onStart, onResume, onStartCareer, onExportBackup, on
     <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
 
-      <section className="relative overflow-hidden rounded-[2rem] border border-[#e7dfd6] bg-gradient-to-br from-[#f6f2ec] via-[#faf8f5] to-[#f4efe7] px-6 py-8 card-shadow sm:px-10 sm:py-12 lg:px-14">
+      <section className="relative overflow-hidden rounded-[2rem] border border-[#e7dfd6] bg-gradient-to-br from-[#f6f2ec] via-[#faf8f5] to-[#f4efe7] px-5 py-7 card-shadow sm:px-10 sm:py-12 lg:px-14">
         <div className="soft-grid pointer-events-none absolute inset-0 opacity-30" />
         <div className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-full bg-[#e9dfd3]/50 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-[#ede2db]/50 blur-3xl" />
         <div className="relative grid items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="max-w-2xl">
             <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#e7dfd6] bg-[#fffdf9]/90 px-3 py-1.5 text-xs font-semibold text-[#57534e] shadow-xs"><Sparkles size={14} /> ကိုယ့်ကိုယ်ကို နားလည်ဖို့ ခရီးစဉ်ငယ်တစ်ခု</span>
-            <h1 className="text-3xl font-bold leading-[1.45] tracking-tight text-[#1c1917] sm:text-4xl lg:text-[2.8rem]">ကိုယ့်ပင်ကိုစရိုက်နဲ့<br className="hidden sm:block" /> အတွင်းစိတ်ကို ပိုမိုနားလည်ပါ</h1>
+            <h1 className="text-[1.65rem] font-bold leading-[1.48] tracking-tight text-[#1c1917] sm:text-4xl lg:text-[2.75rem]">ကိုယ့်ပင်ကိုစရိုက်နဲ့<br className="hidden sm:block" /> အတွင်းစိတ်ကို ပိုမိုနားလည်ပါ</h1>
             <p className="mt-4 max-w-xl text-sm leading-8 text-[#44403c] sm:text-base">မိမိရဲ့ အတွေးအခေါ်၊ စိတ်ခံစားမှု၊ အပြုအမူနဲ့ ဆက်ဆံရေးပုံစံတွေကို အဆင့်ဆင့် လေ့လာပြီး ကိုယ့်ကိုယ်ကို ပိုမိုနားလည်လာစေဖို့ ရည်ရွယ်ပါတယ်။</p>
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#5d5162]">
               <span className="inline-flex items-center gap-1.5"><Clock3 size={14} /> ၅ မိနစ်မှ စတင်နိုင်</span>

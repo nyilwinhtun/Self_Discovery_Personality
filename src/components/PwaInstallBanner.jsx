@@ -98,7 +98,7 @@ export default function PwaInstallBanner({ hasBottomNav = false }) {
     <aside
       role="region"
       aria-label="App ထည့်သွင်းရန် အကြံပြုချက်"
-      className={`no-print fixed inset-x-3 z-30 mx-auto max-w-md rounded-2xl border border-[#1c1917]/20 bg-[#faf8f5]/95 p-4 text-[#1c1917] shadow-[0_14px_34px_rgba(28,25,23,0.12)] backdrop-blur-md sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-full sm:max-w-sm ${hasBottomNav ? 'bottom-[calc(4.9rem+env(safe-area-inset-bottom))] sm:bottom-5' : 'bottom-4 sm:bottom-5'}`}
+      className={`no-print fixed inset-x-3 z-30 mx-auto max-w-md rounded-2xl border border-[#1c1917]/20 bg-[#faf8f5]/95 p-4 text-[#1c1917] shadow-[0_14px_34px_rgba(28,25,23,0.12)] backdrop-blur-md sm:left-auto sm:right-6 sm:bottom-6 sm:w-[22rem] sm:max-w-[calc(100vw-3rem)] ${hasBottomNav ? 'bottom-[calc(4.9rem+env(safe-area-inset-bottom))] sm:bottom-6' : 'bottom-4 sm:bottom-6'}`}
     >
       <div className="flex items-start gap-3">
         <span
@@ -110,7 +110,7 @@ export default function PwaInstallBanner({ hasBottomNav = false }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <p className="text-xs font-bold leading-7 text-[#1c1917]">
-              ဖုန်းမျက်နှာပြင်ပေါ်တွင် App အဖြစ် သိမ်းဆည်းရန်
+              {deferredPrompt ? 'App အဖြစ် ထည့်သွင်းထားမယ်' : 'ဖုန်း Home Screen ပေါ် တင်ထားမယ်'}
             </p>
             <button
               type="button"
@@ -124,7 +124,7 @@ export default function PwaInstallBanner({ hasBottomNav = false }) {
           {deferredPrompt ? (
             <>
               <p className="mt-0.5 text-xs leading-7 text-[#44403c]">
-                အင်တာနက်မရှိချိန်တွင်လည်း ပြန်လည်ဖတ်ရှုနိုင်ရန် ဖုန်းထဲတွင် App အဖြစ် ထည့်သွင်းထားနိုင်ပါသည်။
+                အင်တာနက်မရှိချိန်မှာပါ အေးအေးဆေးဆေး ပြန်ဖတ်နိုင်ဖို့ App အဖြစ် ထည့်သွင်းထားနိုင်ပါတယ်။
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <button
@@ -133,7 +133,7 @@ export default function PwaInstallBanner({ hasBottomNav = false }) {
                   className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-[#1c1917] px-3.5 py-2 text-xs font-semibold text-[#faf8f5] transition hover:bg-[#292524]"
                 >
                   <Download size={14} strokeWidth={1.75} />
-                  ဖုန်းထဲ ထည့်သွင်းမယ်
+                  App အဖြစ် ထည့်သွင်းမယ်
                 </button>
                 <button
                   type="button"
@@ -147,13 +147,13 @@ export default function PwaInstallBanner({ hasBottomNav = false }) {
           ) : (
             <>
               <p className="mt-0.5 text-xs leading-7 text-[#44403c]">
-                Safari အောက်ခြေရှိ <span className="inline-flex items-center gap-1 font-semibold text-[#1c1917]"><Share size={12} strokeWidth={1.75} aria-hidden="true" /> Share</span> ခလုတ်ကို နှိပ်ပြီး <strong>Add to Home Screen</strong> ကို ရွေးချယ်ကာ App အဖြစ် သိမ်းဆည်းနိုင်ပါသည်။
+                Safari အောက်ခြေက <span className="inline-flex items-center gap-1 font-semibold text-[#1c1917]"><Share size={12} strokeWidth={1.75} aria-hidden="true" /> Share</span> ခလုတ်ကို နှိပ်ပြီး <strong>Add to Home Screen</strong> ကို ရွေးပေးရင် ဖုန်း Home Screen ပေါ် တင်ထားနိုင်ပါတယ်။
               </p>
               <div className="mt-2.5 flex justify-end">
                 <button
                   type="button"
                   onClick={handleDismiss}
-                  className="inline-flex min-h-9 items-center rounded-xl border border-[#d6cfc5] bg-white px-3 py-1.5 text-xs font-semibold text-[#44403c] hover:bg-[#f3efe8]"
+                  className="inline-flex min-h-10 items-center rounded-xl border border-[#d6cfc5] bg-white px-3 py-2 text-xs font-semibold text-[#44403c] hover:bg-[#f3efe8]"
                 >
                   ပိတ်မယ်
                 </button>
