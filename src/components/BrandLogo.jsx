@@ -1,9 +1,9 @@
 import React from 'react'
 
 /**
- * Bespoke 1.75px single-line brand mark for Self Discovery:
- * a calm side-profile head silhouette with an inner compass needle
- * tilted gently toward the upper right.
+ * Bespoke single-line brand mark for Self Discovery:
+ * a calm side-profile head silhouette with a poised inner compass
+ * dial and terracotta needle pointing toward the upper right.
  */
 export default function BrandLogo({ size = 28, className = '' }) {
   return (
@@ -19,15 +19,18 @@ export default function BrandLogo({ size = 28, className = '' }) {
       aria-label="Self Discovery logo"
       className={className}
     >
-      {/* Calm, minimalist side-profile head silhouette */}
+      {/* Calm, well-proportioned side-profile head silhouette */}
       <path
-        d="M11 27.5v-2.6c0-1.1-.6-2.1-1.5-2.7-1.9-1.3-3-3.5-3-6.1 0-5.4 4.2-9.6 9.8-9.6 4.4 0 8.1 2.7 9 6.6l1.4 3.4c.3.7-.2 1.5-.9 1.6l-1.3.2v2.7c0 1.4-1.1 2.5-2.5 2.5h-2.5v4"
+        d="M10.5 27.2c0-2-.7-3.4-1.9-4.7-1.8-2-2.6-4.7-2.4-7.7.3-5.4 4.5-9.6 10-9.6 4 0 7 2.3 7.9 6 .2.9.5 1.5 1.2 2.5l1 1.6c.4.6.1 1.4-.7 1.6l-1.1.2c.1 1.1-.1 2.2-.5 3.3-.4 1.1-1.4 1.9-2.7 2l-1.7.1c-.7 0-1.1.5-1.1 1.3v3.4"
         stroke="#1C1917"
       />
-      {/* Subtle poised inner compass needle tilted toward upper right */}
-      <path d="M13.2 18.8l5.8-5.8" stroke="#A6523E" />
-      <path d="M15.6 12.6l3.4.4-.4 3.4" stroke="#A6523E" />
-      <circle cx="13.2" cy="18.8" r="1.1" stroke="#1C1917" />
+      {/* Inner compass dial inside the mind area */}
+      <circle cx="15" cy="14.2" r="4.8" stroke="#1C1917" strokeWidth="1.5" />
+      {/* Compass needle: charcoal tail + terracotta pointer toward upper right */}
+      <path d="M12.6 16.6L15 14.2" stroke="#1C1917" strokeWidth="1.5" />
+      <path d="M15 14.2l2.9-2.9" stroke="#A6523E" />
+      <path d="M15.4 11.3h2.5v2.5" stroke="#A6523E" />
+      <circle cx="15" cy="14.2" r="1.1" fill="#FAF8F5" stroke="#1C1917" strokeWidth="1.4" />
     </svg>
   )
 }
