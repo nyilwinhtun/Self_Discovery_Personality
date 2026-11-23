@@ -15,6 +15,7 @@ import MobileQuestionActions from './MobileQuestionActions.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
 import ResultShareCardButton from './ResultShareCardButton.jsx'
 import StorageWriteAlert from './StorageWriteAlert.jsx'
+import { useAutoAdvance } from '../hooks/useAutoAdvance.js'
 import {
   BONDSENSE_ANSWER_OPTIONS,
   BONDSENSE_DIMENSIONS,
@@ -189,8 +190,22 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
   const selectedAnswer = answers[question.id]
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
-      <div className="mb-7 flex items-center justify-between gap-3">
+    <main className="mx-auto flex min-h-[100dvh] max-w-3xl flex-col justify-between px-3.5 pb-28 pt-3 sm:block sm:min-h-0 sm:px-6 sm:py-12">
+      <div className="sm:hidden">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <button onClick={onExit} className="inline-flex min-h-10 items-center gap-1.5 text-xs font-semibold text-[#6d4b44] hover:text-[#57342d]"><ArrowLeft size={15} /> ခဏရပ်</button>
+          <div className="flex items-center gap-2">
+            {storageError && <AlertTriangle size={14} className="text-[#9a3b3b]" aria-label="သိမ်းဆည်းမှု မအောင်မြင်ပါ" />}
+            <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1 text-xs font-bold tabular-nums text-[#662f23]">
+              {questionIndex + 1} / {totalQuestions}
+            </span>
+          </div>
+        </div>
+        <div className="mb-2.5 h-1.5 overflow-hidden rounded-full bg-[#efe7e2]">
+          <div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#924433] to-[#c47d6e]" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+      <div className="mb-7 hidden items-center justify-between gap-3 sm:flex">
         <button onClick={onExit} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#6d4b44] hover:text-[#57342d]"><ArrowLeft size={16} /> ခဏရပ်ပြီး ထွက်မယ်</button>
         {storageError ? (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12} /> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span>
@@ -199,17 +214,17 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
         )}
       </div>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <section className="rounded-[2rem] border border-[#ebe5dc] bg-[#fffdf9] p-5 card-shadow sm:p-9">
-        <div className="flex items-end justify-between gap-3">
+      <section className="rounded-2xl border border-[#ebe5dc] bg-[#fffdf9] p-3.5 card-shadow sm:rounded-[2rem] sm:p-9">
+        <div className="hidden items-end justify-between gap-3 sm:flex">
           <div><p className="text-xs font-semibold tracking-wide text-[#524b59]">BONDSENSE · PILOT {totalQuestions}</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
           <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#924433]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / {totalQuestions}</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
         </div>
-        <div className="mt-5 flex items-center justify-between text-[11px] text-[#524b59]"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#efe7e2]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#924433] to-[#c47d6e]" style={{ width: `${progress}%` }} /></div>
+        <div className="mt-5 hidden items-center justify-between text-[11px] text-[#524b59] sm:flex"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
+        <div className="mt-2 hidden h-2 overflow-hidden rounded-full bg-[#efe7e2] sm:block"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#924433] to-[#c47d6e]" style={{ width: `${progress}%` }} /></div>
         <div key={question.id} className="question-card-enter">
-          <div className="my-7 min-h-32 rounded-[1.5rem] border border-[#ebe5dc] bg-gradient-to-br from-[#fcf6f4] to-[#faf8f5] px-5 py-7 sm:px-7 sm:py-8">
+          <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#ebe5dc] bg-gradient-to-br from-[#fcf6f4] to-[#faf8f5] px-4 py-4 sm:my-7 sm:min-h-32 sm:rounded-[1.5rem] sm:px-7 sm:py-8">
             <p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p>
-            <h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#242029] sm:text-[1.35rem]">{question.text}</h2>
+            <h2 className="mt-1.5 text-base font-bold leading-[1.7] text-[#242029] sm:mt-3 sm:text-[1.35rem] sm:leading-[1.9]">{question.text}</h2>
           </div>
           <LikertScaleSelector
             options={BONDSENSE_ANSWER_OPTIONS}
@@ -225,7 +240,7 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
             <PrimaryButton onClick={isLast ? onReview : onNext} disabled={selectedAnswer === undefined} icon={isLast ? CheckCircle2 : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</PrimaryButton>
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#fcf6f4] px-4 py-3"><p className="text-[11px] leading-5 text-[#6d4b44]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="min-h-11 text-xs font-semibold text-[#924433] hover:text-[#662f23]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
+        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#fcf6f4] px-4 py-3 sm:flex"><p className="text-[11px] leading-5 text-[#6d4b44]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="min-h-11 text-xs font-semibold text-[#924433] hover:text-[#662f23]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
       <MobileQuestionActions
         accent="terracotta"
@@ -238,7 +253,7 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
         showSkip={selectedAnswer === undefined}
         isLast={isLast}
       />
-      <p className="mt-5 text-center text-[11px] leading-6 text-[#6d4b44]">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
+      <p className="mt-5 hidden text-center text-[11px] leading-6 text-[#6d4b44] sm:block">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
     </main>
   )
 }
@@ -544,7 +559,10 @@ export default function BondSenseModule({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const { scheduleAutoAdvance, cancelAutoAdvance } = useAutoAdvance({ delayMs: 260, isActive: view === 'question' })
+
   const exit = () => {
+    cancelAutoAdvance()
     if (view === 'question' || view === 'review') persistDraft()
     onDataChange?.(loadAppData())
     onHome()
@@ -565,14 +583,25 @@ export default function BondSenseModule({
     reportStorageWrite(saved)
     setDraft(payload)
     onDataChange?.(loadAppData())
+    const activeIndex = questionIndex
+    scheduleAutoAdvance(activeIndex, () => {
+      if (activeIndex < activeQuestions.length - 1) {
+        setQuestionIndex((current) => (current === activeIndex ? current + 1 : current))
+      } else {
+        setView('review')
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
   }
 
   const goPrevious = () => {
+    cancelAutoAdvance()
     setQuestionIndex((current) => Math.max(0, current - 1))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const goNext = () => {
+    cancelAutoAdvance()
     const currentQuestion = activeQuestions[questionIndex]
     if (answers[currentQuestion.id] === undefined) {
       setToast('အဖြေရွေးချယ်ပါ၊ ဒါမှမဟုတ် ဒီမေးခွန်းကို ကျော်ထားနိုင်ပါတယ်။')
@@ -584,6 +613,7 @@ export default function BondSenseModule({
   }
 
   const skipQuestion = () => {
+    cancelAutoAdvance()
     const currentQuestion = activeQuestions[questionIndex]
     if (answers[currentQuestion.id] !== undefined) return
     const nextSkipped = [...new Set([...skippedQuestionIds, currentQuestion.id])]
@@ -605,6 +635,7 @@ export default function BondSenseModule({
   }
 
   const goToQuestion = (index) => {
+    cancelAutoAdvance()
     setQuestionIndex(Math.max(0, Math.min(index, activeQuestions.length - 1)))
     setView('question')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -683,7 +714,7 @@ export default function BondSenseModule({
     setView('question')
   }
 
-  if (view === 'question') return <><QuestionView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#662f23] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
+  if (view === 'question') return <><QuestionView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => { cancelAutoAdvance(); setView('review') }} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#662f23] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
   if (view === 'review') return <><ReviewView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#662f23] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
   if (view === 'result') return <ResultView record={record || initialRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />
   return <GuideView level={level} onSelectLevel={handleSelectLevel} questionCount={activeQuestions.length} draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />

@@ -17,6 +17,7 @@ import MobileQuestionActions from './MobileQuestionActions.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
 import ResultShareCardButton from './ResultShareCardButton.jsx'
 import StorageWriteAlert from './StorageWriteAlert.jsx'
+import { useAutoAdvance } from '../hooks/useAutoAdvance.js'
 
 const ASSESSMENT_TYPE = 'careerInterest'
 const LEVEL = 30
@@ -119,15 +120,29 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
   const progress = (answered / CAREER_QUESTIONS.length) * 100
   const isLast = index === CAREER_QUESTIONS.length - 1
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
-      <div className="mb-7 flex items-center justify-between gap-3"><button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={16}/> ခဏရပ်မယ်</button>{storageError ? <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12}/> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span> : <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6b5e70] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>}</div>
+    <main className="mx-auto flex min-h-[100dvh] max-w-3xl flex-col justify-between px-3.5 pb-28 pt-3 sm:block sm:min-h-0 sm:px-6 sm:py-12">
+      <div className="sm:hidden">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <button onClick={onExit} className="inline-flex min-h-10 items-center gap-1.5 text-xs font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={15}/> ခဏရပ်</button>
+          <div className="flex items-center gap-2">
+            {storageError && <AlertTriangle size={14} className="text-[#9a3b3b]" aria-label="သိမ်းဆည်းမှု မအောင်မြင်ပါ" />}
+            <span className="rounded-full bg-[#f5eff7] px-2.5 py-1 text-xs font-bold tabular-nums text-[#6f5879]">
+              {index + 1} / ၃၀
+            </span>
+          </div>
+        </div>
+        <div className="mb-2.5 h-1.5 overflow-hidden rounded-full bg-[#efe9df]">
+          <div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }}/>
+        </div>
+      </div>
+      <div className="mb-7 hidden items-center justify-between gap-3 sm:flex"><button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={16}/> ခဏရပ်မယ်</button>{storageError ? <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12}/> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span> : <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6b5e70] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>}</div>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <section className="rounded-[2rem] border border-[#ebe5dc] bg-[#fffdf9] p-5 card-shadow sm:p-9">
-        <div className="flex items-end justify-between gap-3"><div><p className="text-xs font-semibold tracking-wide text-[#524b59]">CAREER INTEREST</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">စိတ်ဝင်စားမှုကို ရွေးချယ်ပါ</h1></div><div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(index + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / ၃၀</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answered} · ကျော်ထား {skippedCount}</p></div></div>
-        <div className="mt-5 flex items-center justify-between text-[11px] text-[#524b59]"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-[#efe9df]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }}/></div>
+      <section className="rounded-2xl border border-[#ebe5dc] bg-[#fffdf9] p-3.5 card-shadow sm:rounded-[2rem] sm:p-9">
+        <div className="hidden items-end justify-between gap-3 sm:flex"><div><p className="text-xs font-semibold tracking-wide text-[#524b59]">CAREER INTEREST</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">စိတ်ဝင်စားမှုကို ရွေးချယ်ပါ</h1></div><div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(index + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / ၃၀</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answered} · ကျော်ထား {skippedCount}</p></div></div>
+        <div className="mt-5 hidden items-center justify-between text-[11px] text-[#524b59] sm:flex"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div><div className="mt-2 hidden h-2 overflow-hidden rounded-full bg-[#efe9df] sm:block"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }}/></div>
         <div key={question.id} className="question-card-enter">
-          <div className="my-7 min-h-36 rounded-[1.5rem] border border-[#ebe5dc] bg-gradient-to-br from-[#faf6f1] to-[#fcf9f5] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {index + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#242029] sm:text-[1.35rem]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></div>
-          <p className="mb-3 text-xs font-semibold text-[#524b59]">ဒီလုပ်ဆောင်မှုကို လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲ။</p>
+          <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#ebe5dc] bg-gradient-to-br from-[#faf6f1] to-[#fcf9f5] px-4 py-4 sm:my-7 sm:min-h-36 sm:rounded-[1.5rem] sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {index + 1}</p><h2 className="mt-1.5 text-base font-bold leading-[1.7] text-[#242029] sm:mt-3 sm:text-[1.35rem] sm:leading-[1.9]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></div>
+          <p className="mb-2 hidden text-xs font-semibold text-[#524b59] sm:mb-3 sm:block">ဒီလုပ်ဆောင်မှုကို လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲ။</p>
           <LikertScaleSelector
             options={CAREER_ANSWER_OPTIONS}
             value={selected}
@@ -139,7 +154,7 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
           />
         </div>
         <div className="no-print mt-8 hidden flex-wrap items-center justify-between gap-3 border-t border-[#f0eaf0] pt-5 sm:flex"><Button secondary onClick={onPrevious} icon={ArrowLeft} disabled={index === 0}>ယခင်</Button><div className="flex flex-wrap items-center gap-2">{!selected && <button onClick={onSkip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-[#d8c8dc] bg-[#fcf9fc] px-4 py-2.5 text-sm font-semibold text-[#866d90] hover:bg-[#f7f1f8]">ကျော်ထားမယ် <ArrowRight size={15}/></button>}<Button onClick={isLast ? onReview : onNext} disabled={!selected} icon={isLast ? ClipboardCheck : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</Button></div></div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3"><p className="text-[11px] leading-5 text-[#6b5e70]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ထားပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
+        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3 sm:flex"><p className="text-[11px] leading-5 text-[#6b5e70]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ထားပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
       <MobileQuestionActions
         onPrevious={onPrevious}
@@ -151,7 +166,7 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
         showSkip={selected === undefined}
         isLast={isLast}
       />
-      <p className="mt-5 text-center text-[11px] leading-6 text-[#6b5e70]">{STORAGE_HINT}</p>
+      <p className="mt-5 hidden text-center text-[11px] leading-6 text-[#6b5e70] sm:block">{STORAGE_HINT}</p>
     </main>
   )
 }
@@ -372,6 +387,8 @@ export default function CareerInterestModule({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const { scheduleAutoAdvance, cancelAutoAdvance } = useAutoAdvance({ delayMs: 260, isActive: page === 'assessment' })
+
   const answer = (questionId, value) => {
     const nextAnswers = { ...answers, [questionId]: value }
     const nextSkipped = skipped.filter((id) => id !== questionId)
@@ -381,9 +398,19 @@ export default function CareerInterestModule({
     reportStorageWrite(saved)
     setDraft(loadDraft(LEVEL, ASSESSMENT_TYPE))
     onDataChange?.(loadAppData())
+    const activeIndex = index
+    scheduleAutoAdvance(activeIndex, () => {
+      if (activeIndex < CAREER_QUESTIONS.length - 1) {
+        setIndex((current) => (current === activeIndex ? current + 1 : current))
+      } else {
+        setPage('review')
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
   }
-  const previous = () => { setIndex((current) => Math.max(0, current - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+  const previous = () => { cancelAutoAdvance(); setIndex((current) => Math.max(0, current - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }
   const next = () => {
+    cancelAutoAdvance()
     const question = CAREER_QUESTIONS[index]
     if (answers[question.id] === undefined) { setToast('အဖြေရွေးချယ်ပါ၊ ဒါမှမဟုတ် ဒီမေးခွန်းကို ကျော်ထားနိုင်ပါတယ်။'); return }
     if (index < CAREER_QUESTIONS.length - 1) setIndex((current) => current + 1)
@@ -391,6 +418,7 @@ export default function CareerInterestModule({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   const skip = () => {
+    cancelAutoAdvance()
     const question = CAREER_QUESTIONS[index]
     if (answers[question.id] !== undefined) { setToast('ဒီမေးခွန်းကို ဖြေပြီးသားပါ။'); return }
     const nextSkipped = [...new Set([...skipped, question.id])]
@@ -404,7 +432,7 @@ export default function CareerInterestModule({
     if (index === CAREER_QUESTIONS.length - 1) setPage('review')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const goTo = (nextIndex) => { setIndex(Math.max(0, Math.min(nextIndex, CAREER_QUESTIONS.length - 1))); setPage('assessment'); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+  const goTo = (nextIndex) => { cancelAutoAdvance(); setIndex(Math.max(0, Math.min(nextIndex, CAREER_QUESTIONS.length - 1))); setPage('assessment'); window.scrollTo({ top: 0, behavior: 'smooth' }) }
   const finish = () => {
     const unanswered = CAREER_QUESTIONS.filter((question) => answers[question.id] === undefined)
     if (unanswered.length) { setToast(`မဖြေရသေးတဲ့ မေးခွန်း ${unanswered.length} ခု ကျန်နေပါသေးတယ်။`); setPage('review'); return }
@@ -433,13 +461,13 @@ export default function CareerInterestModule({
     onDataChange?.(loadAppData())
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  const exit = () => { persistDraft(); onHome() }
-  const retake = () => { setActiveRecord(null); startNew() }
+  const exit = () => { cancelAutoAdvance(); persistDraft(); onHome() }
+  const retake = () => { cancelAutoAdvance(); setActiveRecord(null); startNew() }
 
   return (
     <>
       {page === 'intro' && <IntroView draft={draft} onResume={resume} onStart={startNew} onHome={onHome} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
-      {page === 'assessment' && <QuestionView answers={answers} skipped={skipped} index={index} onAnswer={answer} onPrevious={previous} onNext={next} onSkip={skip} onReview={() => setPage('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} onOpenKnowledgeTerm={onOpenKnowledgeTerm}/>}
+      {page === 'assessment' && <QuestionView answers={answers} skipped={skipped} index={index} onAnswer={answer} onPrevious={previous} onNext={next} onSkip={skip} onReview={() => { cancelAutoAdvance(); setPage('review') }} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} onOpenKnowledgeTerm={onOpenKnowledgeTerm}/>}
       {page === 'review' && <ReviewView answers={answers} skipped={skipped} onGoTo={goTo} onFinish={finish} onBack={() => setPage('assessment')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
       {page === 'result' && <CareerResultView record={activeRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError}/>}
       {toast && <div role="status" className="no-print fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#514357] px-5 py-3 text-xs font-semibold text-white shadow-xl">{toast}</div>}

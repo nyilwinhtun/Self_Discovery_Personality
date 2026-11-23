@@ -15,6 +15,7 @@ import ReflectionNotesSection from './ReflectionNotesSection.jsx'
 import ReportSectionNavigation from './ReportSectionNavigation.jsx'
 import ResultShareCardButton from './ResultShareCardButton.jsx'
 import StorageWriteAlert from './StorageWriteAlert.jsx'
+import { useAutoAdvance } from '../hooks/useAutoAdvance.js'
 import {
   EMOTIONLENS_ANSWER_OPTIONS,
   EMOTIONLENS_DIMENSIONS,
@@ -235,8 +236,19 @@ function QuestionView({
   const isLast = questionIndex === total - 1
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-36 pt-6 sm:px-6 sm:pb-14 sm:pt-10">
-      <div className="no-print mb-4 flex items-center justify-between gap-3">
+    <main className="mx-auto flex min-h-[100dvh] max-w-3xl flex-col justify-between px-3.5 pb-28 pt-3 sm:block sm:min-h-0 sm:px-6 sm:pb-14 sm:pt-10">
+      <div className="no-print sm:hidden">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <button onClick={onExit} className="inline-flex min-h-10 items-center gap-1.5 text-xs font-semibold text-[#3a5a5e] hover:text-[#1e4a4f]"><ArrowLeft size={15} /> ခဏရပ်</button>
+          <span className="rounded-full border border-[#cce0e2] bg-white px-2.5 py-1 text-xs font-bold tabular-nums text-[#1e4a4f]">
+            {questionIndex + 1} / {total}
+          </span>
+        </div>
+        <div className="mb-2.5 h-1.5 overflow-hidden rounded-full bg-[#e6f1f2]">
+          <div className="progress-fill h-full rounded-full bg-[#2f6d73]" style={{ width: `${Math.max(4, progress)}%` }} />
+        </div>
+      </div>
+      <div className="no-print mb-4 hidden items-center justify-between gap-3 sm:flex">
         <button onClick={onExit} className="inline-flex min-h-11 items-center gap-2 text-xs font-semibold text-[#3a5a5e] hover:text-[#1e4a4f] sm:text-sm"><ArrowLeft size={16} /> ခဏနားပြီး ထွက်မယ်</button>
         <span className="rounded-full border border-[#cce0e2] bg-white px-3 py-1 text-[11px] font-semibold text-[#1e4a4f]">EmotionLens · Pilot</span>
       </div>
@@ -244,19 +256,22 @@ function QuestionView({
       {storageError && !storageAlertVisible && (
         <p className="mb-3 text-center text-[11px] font-medium text-[#8b3a2b]">သိမ်းဆည်းမှု သတိပေးချက်: JSON Backup ထုတ်ထားရန် အကြံပြုပါသည်။</p>
       )}
-      <section className="rounded-[2rem] border border-[#cce0e2] bg-white p-5 card-shadow sm:p-8">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#3a5a5e]">
+      <section className="rounded-2xl border border-[#cce0e2] bg-white p-3.5 card-shadow sm:rounded-[2rem] sm:p-8">
+        <div className="hidden flex-wrap items-center justify-between gap-2 text-xs text-[#3a5a5e] sm:flex">
           <span className="font-semibold text-[#1e4a4f]">မေးခွန်း {questionIndex + 1} / {total}</span>
           <span>ဖြေပြီး {answeredCount} / {total} ({progress}%)</span>
         </div>
-        <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-[#e6f1f2]">
+        <div className="mt-2.5 hidden h-2 overflow-hidden rounded-full bg-[#e6f1f2] sm:block">
           <div className="h-full rounded-full bg-[#2f6d73] transition-all duration-300" style={{ width: `${Math.max(4, progress)}%` }} />
         </div>
         {isSkipped && (
-          <p className="mt-3 inline-flex rounded-full bg-[#fff7ed] px-3 py-1 text-[11px] font-semibold text-[#825824]">ကျော်ထားသော မေးခွန်း · ယခုပြန်ဖြေနိုင်ပါသည်</p>
+          <p className="mt-1.5 inline-flex rounded-full bg-[#fff7ed] px-2.5 py-0.5 text-[11px] font-semibold text-[#825824] sm:mt-3 sm:px-3 sm:py-1">ကျော်ထားသော မေးခွန်း · ယခုပြန်ဖြေနိုင်ပါသည်</p>
         )}
-        <h1 className="mt-6 text-lg font-bold leading-relaxed text-[#1e4a4f] sm:text-xl">{question.text}</h1>
-        <div className="mt-6">
+        <div key={question.id} className="question-card-enter">
+          <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#dcebed] bg-gradient-to-br from-[#f4f9f9] to-[#faf8f5] px-4 py-4 sm:my-6 sm:min-h-28 sm:rounded-[1.5rem] sm:px-6 sm:py-6">
+            <p className="text-[11px] font-semibold tracking-wide text-[#3a5a5e]">မေးခွန်း {questionIndex + 1}</p>
+            <h1 className="mt-1.5 text-base font-bold leading-[1.7] text-[#1e4a4f] sm:mt-2.5 sm:text-xl sm:leading-relaxed">{question.text}</h1>
+          </div>
           <LikertScaleSelector
             options={EMOTIONLENS_ANSWER_OPTIONS}
             value={selectedAnswer}
@@ -271,7 +286,7 @@ function QuestionView({
             <PrimaryButton onClick={isLast ? onReview : onNext} disabled={selectedAnswer === undefined} icon={isLast ? CheckCircle2 : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</PrimaryButton>
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f4f9f9] px-4 py-3"><p className="text-[11px] leading-5 text-[#3a5a5e]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="min-h-11 text-xs font-semibold text-[#2f6d73] hover:text-[#1e4a4f]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
+        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f4f9f9] px-4 py-3 sm:flex"><p className="text-[11px] leading-5 text-[#3a5a5e]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="min-h-11 text-xs font-semibold text-[#2f6d73] hover:text-[#1e4a4f]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
       <MobileQuestionActions
         accent="teal"
@@ -284,7 +299,7 @@ function QuestionView({
         showSkip={selectedAnswer === undefined}
         isLast={isLast}
       />
-      <p className="mt-5 text-center text-[11px] leading-6 text-[#3a5a5e]">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
+      <p className="mt-5 hidden text-center text-[11px] leading-6 text-[#3a5a5e] sm:block">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
     </main>
   )
 }
@@ -652,7 +667,10 @@ export default function EmotionLensModule({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const { scheduleAutoAdvance, cancelAutoAdvance } = useAutoAdvance({ delayMs: 260, isActive: view === 'question' })
+
   const exit = () => {
+    cancelAutoAdvance()
     if (view === 'question' || view === 'review') persistDraft()
     onDataChange?.(loadAppData())
     onHome()
@@ -673,14 +691,25 @@ export default function EmotionLensModule({
     reportStorageWrite(saved)
     setDraft(payload)
     onDataChange?.(loadAppData())
+    const activeIndex = questionIndex
+    scheduleAutoAdvance(activeIndex, () => {
+      if (activeIndex < activeQuestions.length - 1) {
+        setQuestionIndex((current) => (current === activeIndex ? current + 1 : current))
+      } else {
+        setView('review')
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
   }
 
   const goPrevious = () => {
+    cancelAutoAdvance()
     setQuestionIndex((current) => Math.max(0, current - 1))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const goNext = () => {
+    cancelAutoAdvance()
     const currentQuestion = activeQuestions[questionIndex]
     if (answers[currentQuestion.id] === undefined) {
       setToast('အဖြေရွေးချယ်ပါ၊ ဒါမှမဟုတ် ဒီမေးခွန်းကို ကျော်ထားနိုင်ပါတယ်။')
@@ -692,6 +721,7 @@ export default function EmotionLensModule({
   }
 
   const skipQuestion = () => {
+    cancelAutoAdvance()
     const currentQuestion = activeQuestions[questionIndex]
     if (answers[currentQuestion.id] !== undefined) return
     const nextSkipped = [...new Set([...skippedQuestionIds, currentQuestion.id])]
@@ -713,6 +743,7 @@ export default function EmotionLensModule({
   }
 
   const goToQuestion = (index) => {
+    cancelAutoAdvance()
     setQuestionIndex(Math.max(0, Math.min(index, activeQuestions.length - 1)))
     setView('question')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -791,7 +822,7 @@ export default function EmotionLensModule({
     setView('question')
   }
 
-  if (view === 'question') return <><QuestionView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => setView('review')} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#1e4a4f] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
+  if (view === 'question') return <><QuestionView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={answerQuestion} onPrevious={goPrevious} onNext={goNext} onSkip={skipQuestion} onReview={() => { cancelAutoAdvance(); setView('review') }} onExit={exit} storageError={storageError} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#1e4a4f] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
   if (view === 'review') return <><ReviewView activeQuestions={activeQuestions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={goToQuestion} onFinish={finish} onBack={() => setView('question')} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />{toast && <div role="status" className="no-print fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#1e4a4f] px-5 py-3 text-xs font-semibold text-white shadow-xl sm:bottom-5">{toast}</div>}</>
   if (view === 'result') return <ResultView record={record || initialRecord} onHome={onHome} onRetake={retake} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />
   return <GuideView level={level} onSelectLevel={handleSelectLevel} questionCount={activeQuestions.length} draft={draft} onBack={onHome} onBegin={startFresh} onResume={resume} onRestart={startFresh} storageAlertVisible={storageAlertVisible} onExportBackup={onExportBackup} onDismissStorageError={dismissStorageError} />

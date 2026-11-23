@@ -15,6 +15,7 @@ import MobileQuestionActions from './components/MobileQuestionActions.jsx'
 import ReportSectionNavigation from './components/ReportSectionNavigation.jsx'
 import StorageWriteAlert from './components/StorageWriteAlert.jsx'
 import { TraitLensLogo, InnerCompassLogo, BondSenseLogo, ValueMapLogo } from './components/AssessmentLogos.jsx'
+import { useAutoAdvance } from './hooks/useAutoAdvance.js'
 import { trackAssessmentCompleted, trackPageView } from './utils/analytics.js'
 import { downloadTextFile } from './utils/download.js'
 import {
@@ -826,8 +827,22 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
   const isLast = questionIndex === questions.length - 1
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-36 pt-7 sm:px-6 sm:py-12">
-      <div className="mb-7 flex items-center justify-between gap-3">
+    <main className="mx-auto flex min-h-[100dvh] max-w-3xl flex-col justify-between px-3.5 pb-28 pt-3 sm:block sm:min-h-0 sm:px-6 sm:py-12">
+      <div className="sm:hidden">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <button onClick={onExit} className="inline-flex min-h-10 items-center gap-1.5 text-xs font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={15} /> ခဏရပ်</button>
+          <div className="flex items-center gap-2">
+            {storageError && <AlertTriangle size={14} className="text-[#9a3b3b]" aria-label="သိမ်းဆည်းမှု မအောင်မြင်ပါ" />}
+            <span className="rounded-full bg-[#f5eff7] px-2.5 py-1 text-xs font-bold tabular-nums text-[#6f5879]">
+              {questionIndex + 1} / {questions.length}
+            </span>
+          </div>
+        </div>
+        <div className="mb-2.5 h-1.5 overflow-hidden rounded-full bg-[#efe9df]">
+          <div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+      <div className="mb-7 hidden items-center justify-between gap-3 sm:flex">
         <button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={16} /> ခဏရပ်မယ်</button>
         {storageError ? (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12} /> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span>
@@ -836,15 +851,15 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
         )}
       </div>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
-      <section className="rounded-[2rem] border border-[#ebe5dc] bg-[#fffdf9] p-5 card-shadow sm:p-9">
-        <div className="flex items-end justify-between gap-3">
+      <section className="rounded-2xl border border-[#ebe5dc] bg-[#fffdf9] p-3.5 card-shadow sm:rounded-[2rem] sm:p-9">
+        <div className="hidden items-end justify-between gap-3 sm:flex">
           <div><p className="text-xs font-semibold tracking-wide text-[#524b59]">PERSONALITY ASSESSMENT · {questions.length} QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
           <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / {questions.length}</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
         </div>
-        <div className="mt-5 flex items-center justify-between text-[11px] text-[#524b59]"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#efe9df]"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }} /></div>
+        <div className="mt-5 hidden items-center justify-between text-[11px] text-[#524b59] sm:flex"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div>
+        <div className="mt-2 hidden h-2 overflow-hidden rounded-full bg-[#efe9df] sm:block"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }} /></div>
         <div key={question.id} className="question-card-enter">
-          <div className="my-7 min-h-32 rounded-[1.5rem] border border-[#ebe5dc] bg-gradient-to-br from-[#faf6f1] to-[#fcf9f5] px-5 py-7 sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-3 text-lg font-bold leading-[1.9] text-[#242029] sm:text-[1.35rem]">{question.text}</h2><Suspense fallback={null}><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></Suspense></div>
+          <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#ebe5dc] bg-gradient-to-br from-[#faf6f1] to-[#fcf9f5] px-4 py-4 sm:my-7 sm:min-h-32 sm:rounded-[1.5rem] sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-1.5 text-base font-bold leading-[1.7] text-[#242029] sm:mt-3 sm:text-[1.35rem] sm:leading-[1.9]">{question.text}</h2><Suspense fallback={null}><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></Suspense></div>
           <Suspense fallback={<div className="h-36 rounded-[1.5rem] border border-[#ebe5dc] bg-[#faf8f5]" />}>
             <LikertScaleSelector
               options={ANSWER_OPTIONS}
@@ -861,7 +876,7 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
             <PrimaryButton onClick={isLast ? onReview : onNext} disabled={!selectedAnswer} icon={isLast ? ClipboardCheck : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</PrimaryButton>
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3"><p className="text-[11px] leading-5 text-[#6b5e70]">မသေချာသေးတဲ့ မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
+        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3 sm:flex"><p className="text-[11px] leading-5 text-[#6b5e70]">မသေချာသေးတဲ့ မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
       <MobileQuestionActions
         onPrevious={onPrevious}
@@ -873,7 +888,7 @@ function AssessmentPage({ questions, answers, skippedQuestionIds, questionIndex,
         showSkip={selectedAnswer === undefined}
         isLast={isLast}
       />
-      <p className="mt-5 text-center text-[11px] leading-6 text-[#6b5e70]">{STORAGE_HINT}</p>
+      <p className="mt-5 hidden text-center text-[11px] leading-6 text-[#6b5e70] sm:block">{STORAGE_HINT}</p>
     </main>
   )
 }
@@ -1528,6 +1543,8 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const { scheduleAutoAdvance, cancelAutoAdvance } = useAutoAdvance({ delayMs: 260, isActive: page === 'assessment' })
+
   const handleAnswer = (questionId, value) => {
     const nextAnswers = { ...answers, [questionId]: value }
     const nextSkipped = skippedQuestionIds.filter((id) => id !== questionId)
@@ -1536,14 +1553,25 @@ export default function App() {
     const saved = saveDraft({ assessmentType: 'personality', questionBankVersion: QUESTION_BANK_VERSION, level, answers: nextAnswers, skippedQuestionIds: nextSkipped, currentIndex: questionIndex, startedAt, updatedAt: new Date().toISOString(), status: 'in-progress' })
     reportStorageWriteResult(saved)
     setAppData(loadAppData())
+    const activeIndex = questionIndex
+    scheduleAutoAdvance(activeIndex, () => {
+      if (activeIndex < questions.length - 1) {
+        setQuestionIndex((current) => (current === activeIndex ? current + 1 : current))
+      } else {
+        setPage('review')
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
   }
 
   const handlePrevious = () => {
+    cancelAutoAdvance()
     setQuestionIndex((current) => Math.max(0, current - 1))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleNext = () => {
+    cancelAutoAdvance()
     const currentQuestion = questions[questionIndex]
     if (answers[currentQuestion.id] === undefined) {
       setToast('အဖြေရွေးချယ်ပါ၊ ဒါမှမဟုတ် ဒီမေးခွန်းကို ကျော်ထားနိုင်ပါတယ်။')
@@ -1559,6 +1587,7 @@ export default function App() {
   }
 
   const handleSkip = () => {
+    cancelAutoAdvance()
     const currentQuestion = questions[questionIndex]
     if (answers[currentQuestion.id] !== undefined) {
       setToast('ဒီမေးခွန်းကို ဖြေပြီးသားပါ။ နောက်မေးခွန်းသို့ ဆက်သွားနိုင်ပါတယ်။')
@@ -1576,6 +1605,7 @@ export default function App() {
   }
 
   const handleGoToQuestion = (index) => {
+    cancelAutoAdvance()
     setQuestionIndex(Math.max(0, Math.min(index, questions.length - 1)))
     setPage('assessment')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1638,6 +1668,7 @@ export default function App() {
   }
 
   const handleExitAssessment = () => {
+    cancelAutoAdvance()
     persistDraft()
     setAppData(loadAppData())
     setPage('home')
@@ -1796,7 +1827,7 @@ export default function App() {
       {page === 'bondSense' && <Suspense fallback={<ModuleLoadingFallback />}><BondSenseModule key={activeRecord?.id || `bondsense-${bondSenseLevel}`} initialRecord={activeRecord?.assessmentType === 'bondSense' ? activeRecord : null} initialLevel={bondSenseLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={bondSensePersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'valueMap' && <Suspense fallback={<ModuleLoadingFallback />}><ValueMapModule key={activeRecord?.id || `valuemap-${valueMapLevel}`} initialRecord={activeRecord?.assessmentType === 'valueMap' ? activeRecord : null} initialLevel={valueMapLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={valueMapPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
       {page === 'emotionLens' && <Suspense fallback={<ModuleLoadingFallback />}><EmotionLensModule key={activeRecord?.id || `emotionlens-${emotionLensLevel}`} initialRecord={activeRecord?.assessmentType === 'emotionLens' ? activeRecord : null} initialLevel={emotionLensLevel} onHome={() => { setActiveRecord(null); setAppData(loadAppData()); setPage('home') }} onDataChange={setAppData} persistRef={emotionLensPersistRef} onExportBackup={handleExportBackup} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onStorageWriteResult={reportStorageWriteResult} onDismissStorageError={dismissStorageAlert} /></Suspense>}
-      {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => setPage('review')} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} />}
+      {page === 'assessment' && <AssessmentPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} questionIndex={questionIndex} onAnswer={handleAnswer} onPrevious={handlePrevious} onNext={handleNext} onSkip={handleSkip} onReview={() => { cancelAutoAdvance(); setPage('review') }} onExit={handleExitAssessment} storageError={storageError} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} onOpenKnowledgeTerm={handleOpenKnowledgeTerm} />}
       {page === 'review' && <ReviewPage questions={questions} answers={answers} skippedQuestionIds={skippedQuestionIds} onGoTo={handleGoToQuestion} onFinish={handleFinish} onBack={() => setPage('assessment')} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
       {page === 'result' && <ResultsPage record={activeRecord} onHome={() => { setAppData(loadAppData()); setPage('home') }} onRetake={handleRetake} storageAlertVisible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismissStorageError={dismissStorageAlert} />}
       {page === 'history' && (
