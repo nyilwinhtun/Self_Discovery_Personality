@@ -2,9 +2,8 @@ import React from 'react'
 
 /**
  * Bespoke 1.75px editorial line-art brand mark for Self Discovery:
- * a calm circular compass ring with subtle cardinal ticks, a simple
- * left-side brain hemisphere contour, and a warm terracotta compass arrow
- * pointing right on the opposite side.
+ * a calm, balanced dual-hemisphere brain contour in charcoal ink with
+ * bidirectional compass needles in warm terracotta along the center seam.
  */
 export default function BrandLogo({ size = 28, className = '' }) {
   return (
@@ -20,19 +19,26 @@ export default function BrandLogo({ size = 28, className = '' }) {
       aria-label="Self Discovery logo"
       className={className}
     >
-      {/* Outer compass ring with comfortable inner breathing room */}
-      <circle cx="16" cy="16" r="12" stroke="#1C1917" />
-      {/* Subtle cardinal ticks */}
-      <path d="M16 4v1.2M16 26.8V28M4 16h1.2M26.8 16H28" stroke="#1C1917" />
-      {/* Left side: calm, simple brain-hemisphere contour */}
+      {/* Left brain hemisphere with generous inner breathing room */}
       <path
-        d="M14 10c-2.8-.4-5 1.2-5.2 3.6-.4 1.4-.4 3.4 0 4.8.2 2.4 2.4 4 5.2 3.6V10Z"
+        d="M13.2 9.2C10.9 8.2 7.8 9.2 7.0 11.8C5.6 13.2 5.4 16.2 6.6 18.0C6.8 21.0 9.6 23.4 13.2 22.8"
         stroke="#1C1917"
       />
-      <path d="M11.4 13.6c1 1 1 3.8 0 4.8" stroke="#1C1917" />
-      {/* Right side: rightward compass arrow in warm terracotta */}
-      <path d="M16.6 16h7" stroke="#A6523E" />
-      <path d="M20.6 13l3 3-3 3" stroke="#A6523E" />
+      <path d="M9.6 13.0C11.0 14.1 11.0 17.7 9.5 18.9" stroke="#1C1917" />
+
+      {/* Right brain hemisphere */}
+      <path
+        d="M18.8 9.2C21.1 8.2 24.2 9.2 25.0 11.8C26.4 13.2 26.6 16.2 25.4 18.0C25.2 21.0 22.4 23.4 18.8 22.8"
+        stroke="#1C1917"
+      />
+      <path d="M22.4 13.0C21.0 14.1 21.0 17.7 22.5 18.9" stroke="#1C1917" />
+
+      {/* Center balance point and compass arrows in warm terracotta */}
+      <circle cx="16" cy="16" r="1.6" stroke="#A6523E" />
+      <path d="M16 14.4V5.2" stroke="#A6523E" />
+      <path d="M14.0 7.4L16 5.2L18.0 7.4" stroke="#A6523E" />
+      <path d="M16 17.6V26.8" stroke="#A6523E" />
+      <path d="M14.0 24.6L16 26.8L18.0 24.6" stroke="#A6523E" />
     </svg>
   )
 }
