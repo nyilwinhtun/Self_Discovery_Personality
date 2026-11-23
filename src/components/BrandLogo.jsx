@@ -1,9 +1,9 @@
 import React from 'react'
 
 /**
- * Bespoke single-line brand mark for Self Discovery:
- * a calm left-facing side-profile head silhouette with a poised inner
- * compass dial and terracotta needle pointing toward the upper left.
+ * Bespoke 1.75px editorial line-art brand mark for Self Discovery:
+ * a calm circular compass ring with cardinal ticks, a gentle inner mind
+ * contour curve, and a two-tone compass needle pointing toward the upper right.
  */
 export default function BrandLogo({ size = 28, className = '' }) {
   return (
@@ -19,18 +19,17 @@ export default function BrandLogo({ size = 28, className = '' }) {
       aria-label="Self Discovery logo"
       className={className}
     >
-      {/* Calm, well-proportioned left-facing side-profile head silhouette */}
-      <path
-        d="M12.2 27.2c.4-1.9.5-3.6.1-5.1-2.2-.1-3.3-.8-3.4-2.3-.1-.9.3-1.6 0-2.3-.2-.6.2-1.2-.1-1.8l-1.6-.9c-.4-.3-.3-.8.1-1.1l1.6-1.6c.4-3.5 3.6-7.1 8.5-7.1 5 0 8.1 3.8 7.8 9-.2 3.9-2.1 6.6-4.5 8.2-.4 2 0 3.6.9 5"
-        stroke="#1C1917"
-      />
-      {/* Inner compass dial inside the mind area */}
-      <circle cx="17.4" cy="13.5" r="4.5" stroke="#1C1917" strokeWidth="1.45" />
-      {/* Compass needle: charcoal tail + terracotta pointer toward upper left */}
-      <path d="M19.5 15.6L17.4 13.5" stroke="#1C1917" strokeWidth="1.5" />
-      <path d="M17.4 13.5l-2.7-2.7" stroke="#A6523E" />
-      <path d="M14.7 13.1v-2.3H17" stroke="#A6523E" />
-      <circle cx="17.4" cy="13.5" r="1.05" fill="#FAF8F5" stroke="#1C1917" strokeWidth="1.4" />
+      {/* Calm outer compass ring with generous breathing room */}
+      <circle cx="16" cy="16" r="11.5" stroke="#1C1917" />
+      {/* Subtle cardinal ticks */}
+      <path d="M16 4.5v1.5M16 26v1.5M4.5 16H6M26 16h1.5" stroke="#1C1917" />
+      {/* Gentle inner mind contour curve */}
+      <path d="M9.8 16.6c-.4-3.2 1.6-6 4.4-6.2.9-.1 1.5.3 1.8.9" stroke="#1C1917" />
+      {/* Compass needle: charcoal tail + terracotta pointer toward upper right */}
+      <path d="M16 16l-3.2 3.2" stroke="#1C1917" />
+      <path d="M16 16l4.2-4.2" stroke="#A6523E" />
+      <path d="M17.8 11.8h2.4v2.4" stroke="#A6523E" />
+      <circle cx="16" cy="16" r="1.2" fill="#FAF8F5" stroke="#1C1917" />
     </svg>
   )
 }
