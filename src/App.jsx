@@ -143,38 +143,99 @@ function getDraftStats(draft, level) {
   return { total, answered, skipped, remaining: Math.max(0, total - answered), progress: total ? Math.round((answered / total) * 100) : 0 }
 }
 
-function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory, onOpenRecord, onExportBackup, onImportBackup, onOpenInnerCompass, onOpenBondSense, onOpenValueMap, onOpenEmotionLens, onOpenKnowledge, onOpenMindProfile, onOpenJournal, storageAlertVisible, onDismissStorageError }) {
-  const completedCount = history.length
-  const draftCount = Object.values(drafts || {}).reduce((sum, group) => {
-    return sum + (group && typeof group === 'object' ? Object.keys(group).length : 0)
-  }, 0)
+function getLatestModuleDraft(group, levels) {
+  const candidates = levels
+    .map((levelValue) => {
+      const draft = group?.[String(levelValue)]
+      if (!draft || draft.status === 'completed') return null
+      const answered = Object.keys(draft.answers || {}).length
+      const skipped = (draft.skippedQuestionIds || []).filter((id) => draft.answers?.[id] === undefined).length
+      return {
+        levelValue,
+        draft,
+        answered,
+        skipped,
+        progress: Math.round((answered / levelValue) * 100),
+        updatedAt: new Date(draft.updatedAt || 0).getTime(),
+      }
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+  return candidates[0] || null
+}
+
+function HomePage({ drafts, onStart, onResume, onStartCareer, onExportBackup, onOpenInnerCompass, onOpenBondSense, onOpenValueMap, onOpenEmotionLens, onOpenMindProfile, onOpenJournal, storageAlertVisible, onDismissStorageError }) {
   const personalityDrafts = Object.entries(drafts?.personality || {})
     .filter(([, draft]) => draft && draft.status !== 'completed')
     .sort((a, b) => new Date(b[1]?.updatedAt || 0).getTime() - new Date(a[1]?.updatedAt || 0).getTime())
   const latestPersonalityDraft = personalityDrafts[0]
+  const latestPersonalityLevel = latestPersonalityDraft ? Number(latestPersonalityDraft[0]) : null
+  const latestPersonalityStats = latestPersonalityDraft ? getDraftStats(latestPersonalityDraft[1], latestPersonalityLevel) : null
   const careerDraft = drafts?.careerInterest?.['30'] || null
   const careerAnswered = Object.keys(careerDraft?.answers || {}).length
   const careerProgress = Math.round((careerAnswered / 30) * 100)
-  const innerCompassDraft30 = drafts?.innerCompass?.['30'] || null
-  const innerCompassDraft60 = drafts?.innerCompass?.['60'] || null
-  const innerCompassDraft120 = drafts?.innerCompass?.['120'] || null
-  const bondSenseDraft20 = drafts?.bondSense?.['20'] || null
-  const bondSenseDraft40 = drafts?.bondSense?.['40'] || null
-  const bondSenseDraft80 = drafts?.bondSense?.['80'] || null
-  const bondSenseDraft120 = drafts?.bondSense?.['120'] || null
-  const valueMapDraft20 = drafts?.valueMap?.['20'] || null
-  const valueMapDraft40 = drafts?.valueMap?.['40'] || null
-  const valueMapDraft80 = drafts?.valueMap?.['80'] || null
-  const valueMapDraft120 = drafts?.valueMap?.['120'] || null
-  const emotionLensDraft20 = drafts?.emotionLens?.['20'] || null
-  const emotionLensDraft40 = drafts?.emotionLens?.['40'] || null
-  const emotionLensDraft80 = drafts?.emotionLens?.['80'] || null
-  const emotionLensDraft120 = drafts?.emotionLens?.['120'] || null
-  const recentPersonalityHistory = history.slice(0, 3)
+  const latestInnerCompassDraft = getLatestModuleDraft(drafts?.innerCompass, [30, 60, 120])
+  const latestBondSenseDraft = getLatestModuleDraft(drafts?.bondSense, [20, 40, 80, 120])
+  const latestValueMapDraft = getLatestModuleDraft(drafts?.valueMap, [20, 40, 80, 120])
+  const latestEmotionLensDraft = getLatestModuleDraft(drafts?.emotionLens, [20, 40, 80, 120])
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
+
+  const reflectionModules = [
+    {
+      id: 'bondSense',
+      name: 'BondSense',
+      subtitle: 'ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း',
+      description: 'ယုံကြည်မှု၊ ကိုယ်ပိုင်နယ်နိမိတ်၊ စာနာနားထောင်ပေးမှုနှင့် သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံတို့ကို ပြန်လည်သုံးသပ်ပါ။',
+      emblem: <BondSenseEmblem size={34} />,
+      draft: latestBondSenseDraft,
+      onOpen: onOpenBondSense,
+      border: 'border-[#e8d5cf]',
+      iconBg: 'border-[#e8d5cf] bg-[#faf1ee] text-[#8a4332]',
+      badgeBg: 'bg-[#fdf3f0] text-[#7c392b]',
+      subtitleColor: 'text-[#7c392b]',
+      bodyColor: 'text-[#6a4840]',
+      progressBg: 'bg-[#f0dfdb]',
+      progressFill: 'bg-[#924433]',
+      buttonBg: 'bg-[#924433] hover:bg-[#7d3829]',
+    },
+    {
+      id: 'valueMap',
+      name: 'ValueMap',
+      subtitle: 'ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း',
+      description: 'လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ထဲမှ ကိုယ်အလေးထားရာကို ပြန်လည်သုံးသပ်ပါ။',
+      emblem: <ValueMapEmblem size={34} />,
+      draft: latestValueMapDraft,
+      onOpen: onOpenValueMap,
+      border: 'border-[#d5e0d7]',
+      iconBg: 'border-[#d5e0d7] bg-[#f1f6f2] text-[#36593f]',
+      badgeBg: 'bg-[#eef5f0] text-[#33573d]',
+      subtitleColor: 'text-[#33573d]',
+      bodyColor: 'text-[#465e4c]',
+      progressBg: 'bg-[#dce7df]',
+      progressFill: 'bg-[#3d6347]',
+      buttonBg: 'bg-[#3d6347] hover:bg-[#31523a]',
+    },
+    {
+      id: 'emotionLens',
+      name: 'EmotionLens',
+      subtitle: 'စိတ်ခံစားချက် သိမှတ်မှုနှင့် စိတ်အေးချမ်းမှု',
+      description: 'ခံစားချက်သိမှတ်မှု၊ စိတ်ဖိစီးမှုတည်ငြိမ်မှု၊ ကိုယ့်ကိုယ်ကို ကြင်နာမှုနှင့် အတွေးလွန်လွတ်မြောက်မှုတို့ကို သုံးသပ်ပါ။',
+      emblem: <EmotionLensEmblem size={34} />,
+      draft: latestEmotionLensDraft,
+      onOpen: onOpenEmotionLens,
+      border: 'border-[#d2e0e1]',
+      iconBg: 'border-[#d2e0e1] bg-[#eff5f5] text-[#2b5e63]',
+      badgeBg: 'bg-[#eaf4f4] text-[#1e4a4f]',
+      subtitleColor: 'text-[#2f6d73]',
+      bodyColor: 'text-[#3a5a5e]',
+      progressBg: 'bg-[#d8e8ea]',
+      progressFill: 'bg-[#2f6d73]',
+      buttonBg: 'bg-[#2f6d73] hover:bg-[#24565b]',
+    },
+  ]
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8">
@@ -197,7 +258,7 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
             <div className="mt-7 flex flex-wrap gap-3">
               <PrimaryButton onClick={() => scrollTo('personality-levels')}>TraitLens ဖြင့် စတင်လေ့လာမယ်</PrimaryButton>
               {latestPersonalityDraft && (
-                <SecondaryButton onClick={() => onResume(Number(latestPersonalityDraft[0]))} icon={ArrowRight}>အရင်ဖြေထားတာ ဆက်မယ်</SecondaryButton>
+                <SecondaryButton onClick={() => onResume(latestPersonalityLevel)} icon={ArrowRight}>အရင်ဖြေထားတာ ဆက်မယ်</SecondaryButton>
               )}
               <SecondaryButton onClick={onOpenMindProfile} icon={Sparkles}>ကျွန်ုပ်၏ စိတ်ပုံရိပ်</SecondaryButton>
             </div>
@@ -226,481 +287,150 @@ function HomePage({ history, drafts, onStart, onResume, onStartCareer, onHistory
         </div>
       </section>
 
-      <section className="mt-6 grid grid-cols-3 gap-2 sm:gap-4" aria-label="လက်ရှိအသုံးပြုမှု အကျဉ်းချုပ်">
-        <article className="rounded-2xl border border-[#eee5ed] bg-white p-3 shadow-sm sm:p-4">
-          <span className="text-xs font-medium text-[#6b5e70]">ပြီးဆုံးထားသော မှတ်တမ်း</span>
-          <p className="mt-1 text-xl font-bold tabular-nums text-[#80678f] sm:text-2xl">{completedCount}</p>
-        </article>
-        <article className="rounded-2xl border border-[#eee5ed] bg-white p-3 shadow-sm sm:p-4">
-          <span className="text-xs font-medium text-[#6b5e70]">မပြီးသေးသော အဖြေ</span>
-          <p className="mt-1 text-xl font-bold tabular-nums text-[#865569] sm:text-2xl">{draftCount}</p>
-        </article>
-        <article className="rounded-2xl border border-[#eee5ed] bg-white p-3 shadow-sm sm:p-4">
-          <span className="text-xs font-medium text-[#6b5e70]">ယခုလေ့လာနိုင်သော အပိုင်း</span>
-          <p className="mt-1 text-xl font-bold tabular-nums text-[#825824] sm:text-2xl">၆ မျိုး</p>
-        </article>
-      </section>
-
-      <section id="assessment-dashboard" className="mt-9 scroll-mt-24">
+      <section id="assessment-dashboard" className="mt-8 scroll-mt-24">
         <div className="mb-5">
-          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">CORE SELF-DISCOVERY MODULES</p>
-          <h2 className="mt-1 text-xl font-bold text-[#514357]">အဓိက ကိုယ့်ကိုယ်ကို လေ့လာရေး အပိုင်းများ</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-7 text-[#6b5e70]">ဆန်းစစ်မှုတစ်ခုချင်းစီမှာ ကိုယ်ပိုင်ရည်ရွယ်ချက်၊ မေးခွန်းနဲ့ ရလဒ်ရှိပါတယ်။ အဖြေတစ်ခုတည်းနဲ့ သင့်ကို အပြီးသတ်သတ်မှတ်မှာ မဟုတ်ဘဲ ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်နိုင်ဖို့ ကူညီပေးမှာပါ။</p>
+          <h2 className="text-xl font-bold text-[#514357]">အဓိက ကိုယ့်ကိုယ်ကို လေ့လာရေး အပိုင်းများ</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-[#6b5e70]">ဆန်းစစ်မှုတစ်ခုချင်းစီမှာ ကိုယ်ပိုင်ရည်ရွယ်ချက်၊ မေးခွန်းနဲ့ ရလဒ်ရှိပါတယ်။ မေးခွန်းအရေအတွက်ကို စတင်မည့် စာမျက်နှာတွင် ရွေးချယ်နိုင်ပါသည်။</p>
         </div>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
-          <section id="personality-levels" className="scroll-mt-24 rounded-2xl border border-[#e4ddd7] bg-[#fffdf9] p-5 shadow-xs sm:p-6 md:col-span-12">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-4">
-              <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl border border-[#e4ddd7] bg-[#f5f1ec] text-[#5e4b66]"><TraitLensEmblem size={42} /></span>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-bold tracking-tight text-[#1c1917]">TraitLens</h3>
-                  <span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-xs font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span>
-                </div>
-                <p className="mt-1 text-sm font-semibold text-[#6f587a]">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</p>
-                <p className="mt-2 max-w-2xl text-sm leading-7 text-[#6b5e70]">နေ့စဉ်ဘဝမှာ သင်တွေးခေါ်ပုံ၊ ပြုမူပုံ၊ လူမှုဆက်ဆံရေးနဲ့ စိတ်ခံစားမှုတုံ့ပြန်ပုံတွေကို အဓိက အချက် ၅ ချက်ကို အခြေခံပြီး လေ့လာနိုင်ပါတယ်။ ပထမဆုံးအကြိမ် စတင်သူများအတွက် ၃၀ မေးခွန်း (~၅ မိနစ်) ဖြင့် စတင်ရန် အကြံပြုပါတယ်။</p>
-              </div>
+          <article id="personality-levels" className="flex scroll-mt-24 flex-col rounded-2xl border border-[#e4ddd7] bg-[#fffdf9] p-5 shadow-xs sm:p-6 md:col-span-6">
+            <div className="flex items-start justify-between gap-3">
+              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#e4ddd7] bg-[#f5f1ec] text-[#5e4b66]"><TraitLensEmblem size={36} /></span>
+              <span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-xs font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span>
             </div>
-          </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {LEVELS.map((level) => {
-              const draft = drafts?.personality?.[String(level.value)] || null
-              const stats = draft ? getDraftStats(draft, level.value) : null
-              return (
-                <article key={level.value} className={cn('flex flex-col rounded-2xl border bg-[#fcfafc] p-4 sm:p-5', level.recommended ? 'border-[#ccb8d6] ring-1 ring-[#e8dcea]' : 'border-[#eee5ed]')}>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="rounded-full bg-[#f3edf5] px-3 py-1 text-xs font-semibold text-[#6f587a]">{level.label}</span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#5d5162] shadow-xs"><Clock3 size={12} /> {level.duration}</span>
+            <h3 className="mt-4 text-xl font-bold tracking-tight text-[#1c1917]">TraitLens</h3>
+            <p className="mt-1 text-sm font-semibold text-[#6f587a]">ပင်ကိုစရိုက်ကို လေ့လာခြင်း</p>
+            <p className="mt-2 flex-1 text-sm leading-7 text-[#6b5e70]">နေ့စဉ်ဘဝမှာ သင်တွေးခေါ်ပုံ၊ ပြုမူပုံ၊ လူမှုဆက်ဆံရေးနဲ့ စိတ်ခံစားမှုတုံ့ပြန်ပုံတွေကို အဓိက အချက် ၅ ချက်ဖြင့် လေ့လာနိုင်ပါတယ်။</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-[#6f587a]">
+              <span className="rounded-full bg-[#f3edf5] px-2.5 py-1">မေးခွန်း ၃၀ / ၆၀ / ၁၂၀</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#f3edf5] px-2.5 py-1"><Clock3 size={12} /> ~၅–၂၀ မိနစ်</span>
+              <span className="rounded-full bg-[#f3edf5] px-2.5 py-1">အဓိက အချက် ၅ ချက်</span>
+            </div>
+            {latestPersonalityDraft ? (
+              <div className="mt-4 rounded-xl border border-[#e7dce9] bg-[#faf6fb] p-3">
+                <div className="flex items-center justify-between text-xs"><span className="font-semibold text-[#725f7a]">{latestPersonalityLevel} မေးခွန်း · ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6b5e70]">{latestPersonalityStats.progress}%</span></div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${latestPersonalityStats.progress}%` }} /></div>
+                <p className="mt-1.5 text-xs text-[#6b5e70]">ဖြေပြီး {latestPersonalityStats.answered} ခု · ကျော်ထား {latestPersonalityStats.skipped} ခု</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <PrimaryButton onClick={() => onResume(latestPersonalityLevel)} icon={ArrowRight}>ဆက်လက်ဖြေဆိုမယ်</PrimaryButton>
+                  <button type="button" onClick={() => onStart(latestPersonalityLevel, true)} className="px-2 py-2 text-xs font-semibold text-[#865569] hover:text-[#6e3f52]">အစကနေ အသစ်ပြန်စမယ်</button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-5">
+                <PrimaryButton onClick={() => onStart(30, false)}>စတင်ဖြေဆိုမယ်</PrimaryButton>
+              </div>
+            )}
+          </article>
+
+          <article className="flex flex-col rounded-2xl border border-[#dce3ea] bg-[#fffdf9] p-5 shadow-xs sm:p-6 md:col-span-6">
+            <div className="flex items-start justify-between gap-3">
+              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#dce3ea] bg-[#f2f5f8] text-[#3d5b7a]"><InnerCompassEmblem size={36} /></span>
+              <span className="rounded-full bg-[#eef3f9] px-2.5 py-1 text-xs font-semibold text-[#3f648c]">ကိုယ်တိုင်သုံးသပ်မှု</span>
+            </div>
+            <h3 className="mt-4 text-xl font-bold tracking-tight text-[#1c1917]">InnerCompass</h3>
+            <p className="mt-1 text-sm font-semibold text-[#3f648c]">အတွင်းစိတ်နှင့် စိတ်နေသဘောထားကို လေ့လာခြင်း</p>
+            <p className="mt-2 flex-1 text-sm leading-7 text-[#596d83]">ယုံကြည်စိတ်ချရမှု၊ စိတ်ခံစားချက် ကိုင်တွယ်ပုံ၊ လူမှုဆက်ဆံရေး၊ အမြင်မတူမှုကို ကိုင်တွယ်ပုံနှင့် စူးစမ်းတွေးခေါ်ပုံတို့ကို ပြန်လည်သုံးသပ်နိုင်ပါတယ်။</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-[#3f648c]">
+              <span className="rounded-full bg-[#eef3f9] px-2.5 py-1">မေးခွန်း ၃၀ / ၆၀ / ၁၂၀</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#eef3f9] px-2.5 py-1"><Clock3 size={12} /> ~၅–၂၀ မိနစ်</span>
+              <span className="rounded-full bg-[#eef3f9] px-2.5 py-1">အချက် ၆ ချက်</span>
+            </div>
+            {latestInnerCompassDraft ? (
+              <div className="mt-4 rounded-xl border border-[#d6e2ef] bg-[#f7fafd] p-3">
+                <div className="flex items-center justify-between text-xs"><span className="font-semibold text-[#405f82]">{latestInnerCompassDraft.levelValue} မေးခွန်း · ဆက်လက်ဖြေဆိုရန်</span><span className="text-[#4e6379]">{latestInnerCompassDraft.progress}%</span></div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e1eaf3]"><div className="h-full rounded-full bg-[#527daa]" style={{ width: `${latestInnerCompassDraft.progress}%` }} /></div>
+                <p className="mt-1.5 text-xs text-[#4e6379]">ဖြေပြီး {latestInnerCompassDraft.answered} ခု · ကျော်ထား {latestInnerCompassDraft.skipped} ခု</p>
+                <button type="button" onClick={() => onOpenInnerCompass(latestInnerCompassDraft.levelValue)} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#446c96] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#3a5d82]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => onOpenInnerCompass(30)} className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#446c96] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#3a5d82]">စတင်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
+            )}
+          </article>
+
+          <div className="md:col-span-12">
+            <div className="mb-3 mt-2">
+              <h3 className="text-lg font-bold text-[#514357]">ဆက်ဆံရေး၊ ဘဝတန်ဖိုးနှင့် စိတ်ခံစားချက် ဆိုင်ရာ လေ့လာမှုများ</h3>
+            </div>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
+              {reflectionModules.map((mod) => (
+                <article key={mod.id} className={cn('flex flex-col rounded-2xl border bg-[#fffdf9] p-5 shadow-xs md:col-span-4', mod.border)}>
+                  <div className="flex items-start justify-between gap-3">
+                    <span className={cn('grid h-14 w-14 shrink-0 place-items-center rounded-xl border', mod.iconBg)}>{mod.emblem}</span>
+                    <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', mod.badgeBg)}>ကိုယ်တိုင်သုံးသပ်မှု</span>
                   </div>
-                  {level.recommended && (
-                    <span className="mt-2.5 inline-flex w-fit rounded-full bg-[#eef5ed] px-2.5 py-0.5 text-xs font-semibold text-[#436b4f]">ပထမဆုံး စတင်သူများအတွက် အကြံပြု</span>
-                  )}
-                  <h4 className="mt-3 text-base font-bold text-[#514357]">{level.title}</h4>
-                  <p className="mt-1.5 min-h-11 text-sm leading-7 text-[#6b5e70]">{level.subtitle}</p>
-                  <div className="mt-3 flex items-end justify-between gap-2">
-                    <div className="flex items-end gap-2"><strong className="text-3xl text-[#80678f]">{level.value}</strong><span className="pb-1 text-xs text-[#6b5e70]">မေးခွန်း</span></div>
-                    <span className="text-xs text-[#6b5e70]">{level.time}</span>
+                  <h4 className="mt-4 text-base font-bold text-[#1c1917]">{mod.name}</h4>
+                  <p className={cn('mt-1 text-xs font-semibold', mod.subtitleColor)}>{mod.subtitle}</p>
+                  <p className={cn('mt-2 flex-1 text-sm leading-7', mod.bodyColor)}>{mod.description}</p>
+                  <div className={cn('mt-3 flex flex-wrap gap-2 text-xs font-semibold', mod.subtitleColor)}>
+                    <span className={cn('rounded-full px-2.5 py-1', mod.badgeBg)}>မေးခွန်း ၂၀ / ၄၀ / ၈၀ / ၁၂၀</span>
+                    <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1', mod.badgeBg)}><Clock3 size={12} /> ~၄–၂၀ မိနစ်</span>
+                    <span className={cn('rounded-full px-2.5 py-1', mod.badgeBg)}>အချက် ၄ ချက်</span>
                   </div>
-                  {draft ? (
-                    <div className="mt-4 rounded-xl bg-white p-3 shadow-xs">
-                      <div className="flex items-center justify-between text-xs"><span className="font-semibold text-[#725f7a]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6b5e70]">{stats.progress}%</span></div>
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${stats.progress}%` }} /></div>
-                      <p className="mt-2 text-xs text-[#6b5e70]">ဖြေပြီး {stats.answered} ခု · ကျော်ထား {stats.skipped} ခု · နောက်ဆုံး {formatDate(draft.updatedAt)}</p>
-                      <div className="mt-3"><PrimaryButton onClick={() => onResume(level.value)} icon={ArrowRight}>ဆက်လက်ဖြေဆိုမယ်</PrimaryButton></div>
-                      <button onClick={() => onStart(level.value, true)} className="mt-2 w-full py-2 text-xs font-semibold text-[#865569] hover:text-[#8d5f72]">အစကနေ အသစ်ပြန်စမယ်</button>
+                  {mod.draft ? (
+                    <div className={cn('mt-4 rounded-xl border p-3', mod.border)}>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className={cn('font-semibold', mod.subtitleColor)}>{mod.draft.levelValue} မေးခွန်း · ဆက်လက်ဖြေဆိုရန်</span>
+                        <span className={mod.bodyColor}>{mod.draft.progress}%</span>
+                      </div>
+                      <div className={cn('mt-2 h-1.5 overflow-hidden rounded-full', mod.progressBg)}><div className={cn('h-full rounded-full', mod.progressFill)} style={{ width: `${mod.draft.progress}%` }} /></div>
+                      <p className={cn('mt-1.5 text-xs', mod.bodyColor)}>ဖြေပြီး {mod.draft.answered}/{mod.draft.levelValue} · ကျော်ထား {mod.draft.skipped} ခု</p>
+                      <button type="button" onClick={() => mod.onOpen(mod.draft.levelValue)} className={cn('mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold text-white transition', mod.buttonBg)}>ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={14} /></button>
                     </div>
                   ) : (
-                    <div className="mt-auto pt-4"><PrimaryButton onClick={() => onStart(level.value, false)}>စတင်ဖြေဆိုမယ်</PrimaryButton></div>
+                    <button type="button" onClick={() => mod.onOpen(20)} className={cn('mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold text-white transition', mod.buttonBg)}>စတင်ဖြေဆိုမယ် <ArrowRight size={14} /></button>
                   )}
                 </article>
-              )
-            })}
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-[#dce3ea] bg-[#fffdf9] p-5 shadow-xs sm:p-6 md:col-span-12">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-4">
-              <span className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl border border-[#dce3ea] bg-[#f2f5f8] text-[#3d5b7a]"><InnerCompassEmblem size={42} /></span>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-bold tracking-tight text-[#1c1917]">InnerCompass</h3>
-                  <span className="rounded-full bg-[#eef3f9] px-2.5 py-1 text-xs font-semibold text-[#3f648c]">ကိုယ်တိုင်သုံးသပ်မှု</span>
-                </div>
-                <p className="mt-1 text-sm font-semibold text-[#3f648c]">အတွင်းစိတ်နှင့် စိတ်နေသဘောထားကို လေ့လာခြင်း</p>
-                <p className="mt-2 max-w-2xl text-sm leading-7 text-[#596d83]">ကိုယ့်ရဲ့ ယုံကြည်စိတ်ချရမှု၊ စိတ်ခံစားချက်ကို သိမြင်ကိုင်တွယ်ပုံ၊ လူမှုဆက်ဆံရေး၊ အမြင်မတူမှုကို ကိုင်တွယ်ပုံ၊ ကိုယ်ပိုင်စီမံမှုနဲ့ စူးစမ်းတွေးခေါ်ပုံတွေကို အဓိက အချက် ၆ ချက်ဖြင့် ပြန်လည်သုံးသပ်နိုင်ပါတယ်။</p>
-              </div>
+              ))}
             </div>
           </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {[
-              {
-                levelValue: 30,
-                badge: 'အခြေခံ',
-                duration: '~၅ မိနစ်',
-                title: 'အခြေခံ ၃၀ မေးခွန်း',
-                subtitle: 'အဓိက အချက် ၆ ချက်ကို အကျဉ်းချုပ် ပြန်လည်သုံးသပ်ရန်',
-                recommended: true,
-                draft: innerCompassDraft30,
-              },
-              {
-                levelValue: 60,
-                badge: 'အသေးစိတ်',
-                duration: '~၁၀ မိနစ်',
-                title: 'အသေးစိတ် ၆၀ မေးခွန်း',
-                subtitle: 'အချက် ၆ ချက်ကို မေးခွန်းပိုများဖြင့် ပိုမိုစုံလင်စွာ သုံးသပ်ရန်',
-                recommended: false,
-                draft: innerCompassDraft60,
-              },
-              {
-                levelValue: 120,
-                badge: 'အနက်ရှိုင်းဆုံး',
-                duration: '~၂၀ မိနစ်',
-                title: 'အနက်ရှိုင်းဆုံး ၁၂၀ မေးခွန်း',
-                subtitle: 'အချက် ၆ ချက်ကို ရှုထောင့်စုံမှ အနက်ရှိုင်းဆုံး ပြန်လည်သုံးသပ်ရန်',
-                recommended: false,
-                draft: innerCompassDraft120,
-              },
-            ].map((item) => {
-              const answered = Object.keys(item.draft?.answers || {}).length
-              const skipped = (item.draft?.skippedQuestionIds || []).filter((id) => item.draft?.answers?.[id] === undefined).length
-              const progress = Math.round((answered / item.levelValue) * 100)
-              return (
-                <article key={item.levelValue} className={cn('flex flex-col rounded-2xl border bg-[#f9fbfe] p-4 sm:p-5', item.recommended ? 'border-[#b9cde2] ring-1 ring-[#e2ecf6]' : 'border-[#dce6f0]')}>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', item.recommended ? 'bg-[#eaf1fa] text-[#3f648c]' : 'bg-[#eef3f9] text-[#3f648c]')}>{item.badge}</span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#4e6379] shadow-xs"><Clock3 size={12} /> {item.duration}</span>
-                    </div>
-                    {item.recommended && (
-                      <span className="mt-2.5 inline-flex w-fit rounded-full bg-[#eef5ed] px-2.5 py-0.5 text-xs font-semibold text-[#436b4f]">ပထမဆုံး စတင်သူများအတွက် အကြံပြု</span>
-                    )}
-                    <h4 className="mt-3 text-base font-bold text-[#3f5873]">{item.title}</h4>
-                    <p className="mt-1.5 min-h-10 text-sm leading-7 text-[#596d83]">{item.subtitle}</p>
-                    <div className="mt-3 flex items-end justify-between gap-2">
-                      <div className="flex items-end gap-2"><strong className="text-3xl text-[#446c96]">{item.levelValue}</strong><span className="pb-1 text-xs text-[#4e6379]">မေးခွန်း</span></div>
-                      <span className="text-xs text-[#4e6379]">အချက် ၆ ချက်</span>
-                    </div>
-                    {item.draft ? (
-                      <div className="mt-4 rounded-xl bg-white p-3 shadow-xs">
-                        <div className="flex items-center justify-between text-xs"><span className="font-semibold text-[#405f82]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#4e6379]">{progress}%</span></div>
-                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e1eaf3]"><div className="h-full rounded-full bg-[#527daa]" style={{ width: `${progress}%` }}/></div>
-                        <p className="mt-2 text-xs text-[#4e6379]">ဖြေပြီး {answered} ခု · ကျော်ထား {skipped} ခု</p>
-                        <button onClick={() => onOpenInnerCompass(item.levelValue)} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#446c96] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#3a5d82]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
-                      </div>
-                    ) : (
-                      <button onClick={() => onOpenInnerCompass(item.levelValue)} className="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#cbd9e9] bg-white px-4 py-2.5 text-xs font-semibold text-[#3f648c] transition hover:bg-[#edf3fa]">စတင်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
-                    )}
-                  </article>
-                )
-              })}
-            </div>
-            <p className="mt-3 text-xs leading-6 text-[#4e6379]">ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုအတွက်သာ ဖြစ်ပြီး အတည်ပြုထားသော စိတ်ပညာစမ်းသပ်မှု မဟုတ်ပါ။</p>
-          </section>
 
-        <div className="md:col-span-12">
-          <div className="mb-3">
-            <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">SELF-REFLECTION TOOLS</p>
-            <h3 className="mt-1 text-lg font-bold text-[#514357]">ဆက်ဆံရေး၊ ဘဝတန်ဖိုးနှင့် စိတ်ခံစားချက် ဆိုင်ရာ လေ့လာမှုများ</h3>
+          <div className="md:col-span-7">
+            <Suspense fallback={<div className="h-full min-h-48 rounded-2xl border border-[#e7dce9] bg-[#fcf9fc] p-5 text-xs text-[#6b5e70]">နေ့စဉ်မေးခွန်းကို ဖွင့်နေပါသည်...</div>}>
+              <DailyMindPromptCard onOpenJournal={onOpenJournal} />
+            </Suspense>
           </div>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
-            <article className="flex flex-col rounded-2xl border border-[#e8d5cf] bg-[#fffdf9] p-5 shadow-xs md:col-span-4">
-              <div className="flex items-start justify-between gap-3">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-[#e8d5cf] bg-[#faf1ee] text-[#8a4332]"><BondSenseEmblem size={34} /></span>
-                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1 text-xs font-semibold text-[#7c392b]">ကိုယ်တိုင်သုံးသပ်မှု</span>
-              </div>
-              <h3 className="mt-4 text-base font-bold text-[#1c1917]">BondSense</h3>
-              <p className="mt-1 text-xs font-semibold text-[#7c392b]">ဆက်ဆံရေးအတွင်း ကိုယ့်တုံ့ပြန်ပုံကို လေ့လာခြင်း</p>
-              <p className="mt-2 flex-1 text-sm leading-7 text-[#6a4840]">ယုံကြည်မှု၊ ကိုယ်ပိုင်နယ်နိမိတ်၊ စာနာနားထောင်ပေးမှုနှင့် သဘောထားကွဲလွဲမှု ကိုင်တွယ်ပုံတို့ကို ပြန်လည်သုံးသပ်ပါ။</p>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-[#7c392b]">
-                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀ / ၈၀ / ၁၂၀</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#fdf3f0] px-2.5 py-1"><Clock3 size={12} /> ~၄–၂၀ မိနစ်</span>
-                <span className="rounded-full bg-[#fdf3f0] px-2.5 py-1">အချက် ၄ ချက်</span>
-              </div>
-              <div className="mt-4 grid gap-2.5">
-                {[
-                  {
-                    levelValue: 20,
-                    title: 'အခြေခံ ၂၀ မေးခွန်း',
-                    duration: '~၄ မိနစ်',
-                    draft: bondSenseDraft20,
-                  },
-                  {
-                    levelValue: 40,
-                    title: 'အသေးစိတ် ၄၀ မေးခွန်း',
-                    duration: '~၈ မိနစ်',
-                    draft: bondSenseDraft40,
-                  },
-                  {
-                    levelValue: 80,
-                    title: 'အသေးစိတ် ၈၀ မေးခွန်း',
-                    duration: '~၁၅ မိနစ်',
-                    draft: bondSenseDraft80,
-                  },
-                  {
-                    levelValue: 120,
-                    title: 'အနက်ရှိုင်းဆုံး ၁၂၀ မေးခွန်း',
-                    duration: '~၂၀ မိနစ်',
-                    draft: bondSenseDraft120,
-                  },
-                ].map((item) => {
-                  const answered = Object.keys(item.draft?.answers || {}).length
-                  const skipped = (item.draft?.skippedQuestionIds || []).filter((id) => item.draft?.answers?.[id] === undefined).length
-                  const progress = Math.round((answered / item.levelValue) * 100)
-                  if (item.draft) {
-                    return (
-                      <div key={item.levelValue} className="rounded-xl border border-[#ebd6d1] bg-[#fdf7f5] p-3">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-[#7c392b]">{item.title} · ဆက်လက်ဖြေဆိုရန်</span>
-                          <span className="text-[#6d4b44]">{progress}%</span>
-                        </div>
-                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#f0dfdb]"><div className="h-full rounded-full bg-[#924433]" style={{ width: `${progress}%` }} /></div>
-                        <p className="mt-1.5 text-xs text-[#6d4b44]">ဖြေပြီး {answered}/{item.levelValue} · ကျော်ထား {skipped} ခု</p>
-                        <button onClick={() => onOpenBondSense(item.levelValue)} className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#924433] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#7d3829]">ဆက်လက်ဖြေဆိုမယ် ({item.levelValue}) <ArrowRight size={14} /></button>
-                      </div>
-                    )
-                  }
-                  return (
-                    <button key={item.levelValue} onClick={() => onOpenBondSense(item.levelValue)} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-[#e5cbc5] bg-[#fdf7f5] px-3.5 py-2.5 text-left text-xs font-semibold text-[#7c392b] transition hover:bg-[#faeae5]">
-                      <span>{item.title}</span>
-                      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-[#924433]">{item.duration} <ArrowRight size={14} /></span>
-                    </button>
-                  )
-                })}
-              </div>
-            </article>
 
-            <article className="flex flex-col rounded-2xl border border-[#d5e0d7] bg-[#fffdf9] p-5 shadow-xs md:col-span-4">
-              <div className="flex items-start justify-between gap-3">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-[#d5e0d7] bg-[#f1f6f2] text-[#36593f]"><ValueMapEmblem size={34} /></span>
-                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1 text-xs font-semibold text-[#33573d]">ကိုယ်တိုင်သုံးသပ်မှု</span>
-              </div>
-              <h3 className="mt-4 text-base font-bold text-[#1c1917]">ValueMap</h3>
-              <p className="mt-1 text-xs font-semibold text-[#33573d]">ဘဝမှာ ကိုယ်တန်ဖိုးထားတဲ့အရာတွေကို ရှာဖွေခြင်း</p>
-              <p className="mt-2 flex-1 text-sm leading-7 text-[#465e4c]">လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ထဲမှ ကိုယ်အလေးထားရာကို ပြန်လည်သုံးသပ်ပါ။</p>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-[#33573d]">
-                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀ / ၈၀ / ၁၂၀</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#eef5f0] px-2.5 py-1"><Clock3 size={12} /> ~၄–၂၀ မိနစ်</span>
-                <span className="rounded-full bg-[#eef5f0] px-2.5 py-1">အချက် ၄ ချက်</span>
-              </div>
-              <div className="mt-4 grid gap-2.5">
-                {[
-                  {
-                    levelValue: 20,
-                    title: 'အခြေခံ ၂၀ မေးခွန်း',
-                    duration: '~၄ မိနစ်',
-                    draft: valueMapDraft20,
-                  },
-                  {
-                    levelValue: 40,
-                    title: 'အသေးစိတ် ၄၀ မေးခွန်း',
-                    duration: '~၈ မိနစ်',
-                    draft: valueMapDraft40,
-                  },
-                  {
-                    levelValue: 80,
-                    title: 'အသေးစိတ် ၈၀ မေးခွန်း',
-                    duration: '~၁၅ မိနစ်',
-                    draft: valueMapDraft80,
-                  },
-                  {
-                    levelValue: 120,
-                    title: 'အနက်ရှိုင်းဆုံး ၁၂၀ မေးခွန်း',
-                    duration: '~၂၀ မိနစ်',
-                    draft: valueMapDraft120,
-                  },
-                ].map((item) => {
-                  const answered = Object.keys(item.draft?.answers || {}).length
-                  const skipped = (item.draft?.skippedQuestionIds || []).filter((id) => item.draft?.answers?.[id] === undefined).length
-                  const progress = Math.round((answered / item.levelValue) * 100)
-                  if (item.draft) {
-                    return (
-                      <div key={item.levelValue} className="rounded-xl border border-[#d4e1d7] bg-[#f5f9f6] p-3">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-[#33573d]">{item.title} · ဆက်လက်ဖြေဆိုရန်</span>
-                          <span className="text-[#475e4d]">{progress}%</span>
-                        </div>
-                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#dce7df]"><div className="h-full rounded-full bg-[#3d6347]" style={{ width: `${progress}%` }} /></div>
-                        <p className="mt-1.5 text-xs text-[#475e4d]">ဖြေပြီး {answered}/{item.levelValue} · ကျော်ထား {skipped} ခု</p>
-                        <button onClick={() => onOpenValueMap(item.levelValue)} className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#3d6347] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#31523a]">ဆက်လက်ဖြေဆိုမယ် ({item.levelValue}) <ArrowRight size={14} /></button>
-                      </div>
-                    )
-                  }
-                  return (
-                    <button key={item.levelValue} onClick={() => onOpenValueMap(item.levelValue)} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-[#cad9ce] bg-[#f5f9f6] px-3.5 py-2.5 text-left text-xs font-semibold text-[#33573d] transition hover:bg-[#e8f2eb]">
-                      <span>{item.title}</span>
-                      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-[#3d6347]">{item.duration} <ArrowRight size={14} /></span>
-                    </button>
-                  )
-                })}
-              </div>
-            </article>
-
-            <article className="flex flex-col rounded-2xl border border-[#d2e0e1] bg-[#fffdf9] p-5 shadow-xs md:col-span-4">
-              <div className="flex items-start justify-between gap-3">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-[#d2e0e1] bg-[#eff5f5] text-[#2b5e63]"><EmotionLensEmblem size={34} /></span>
-                <span className="rounded-full bg-[#eaf4f4] px-2.5 py-1 text-xs font-semibold text-[#1e4a4f]">ကိုယ်တိုင်သုံးသပ်မှု</span>
-              </div>
-              <h3 className="mt-4 text-base font-bold text-[#1c1917]">EmotionLens</h3>
-              <p className="mt-1 text-xs font-semibold text-[#2f6d73]">စိတ်ခံစားချက် သိမှတ်မှုနှင့် စိတ်အေးချမ်းမှု</p>
-              <p className="mt-2 flex-1 text-sm leading-7 text-[#3a5a5e]">ခံစားချက်သိမှတ်မှု၊ စိတ်ဖိစီးမှုတည်ငြိမ်မှု၊ ကိုယ့်ကိုယ်ကို ကြင်နာမှုနှင့် အတွေးလွန်လွတ်မြောက်မှုတို့ကို သုံးသပ်ပါ။</p>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-[#1e4a4f]">
-                <span className="rounded-full bg-[#eaf4f4] px-2.5 py-1">မေးခွန်း ၂၀ / ၄၀ / ၈၀ / ၁၂၀</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#eaf4f4] px-2.5 py-1"><Clock3 size={12} /> ~၄–၂၀ မိနစ်</span>
-                <span className="rounded-full bg-[#eaf4f4] px-2.5 py-1">အချက် ၄ ချက်</span>
-              </div>
-              <div className="mt-4 grid gap-2.5">
-                {[
-                  {
-                    levelValue: 20,
-                    title: 'အခြေခံ ၂၀ မေးခွန်း',
-                    duration: '~၄ မိနစ်',
-                    draft: emotionLensDraft20,
-                  },
-                  {
-                    levelValue: 40,
-                    title: 'အသေးစိတ် ၄၀ မေးခွန်း',
-                    duration: '~၈ မိနစ်',
-                    draft: emotionLensDraft40,
-                  },
-                  {
-                    levelValue: 80,
-                    title: 'အသေးစိတ် ၈၀ မေးခွန်း',
-                    duration: '~၁၅ မိနစ်',
-                    draft: emotionLensDraft80,
-                  },
-                  {
-                    levelValue: 120,
-                    title: 'အနက်ရှိုင်းဆုံး ၁၂၀ မေးခွန်း',
-                    duration: '~၂၀ မိနစ်',
-                    draft: emotionLensDraft120,
-                  },
-                ].map((item) => {
-                  const answered = Object.keys(item.draft?.answers || {}).length
-                  const skipped = (item.draft?.skippedQuestionIds || []).filter((id) => item.draft?.answers?.[id] === undefined).length
-                  const progress = Math.round((answered / item.levelValue) * 100)
-                  if (item.draft) {
-                    return (
-                      <div key={item.levelValue} className="rounded-xl border border-[#cce0e2] bg-[#f4f9f9] p-3">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-[#1e4a4f]">{item.title} · ဆက်လက်ဖြေဆိုရန်</span>
-                          <span className="text-[#3a5a5e]">{progress}%</span>
-                        </div>
-                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#d8e8ea]"><div className="h-full rounded-full bg-[#2f6d73]" style={{ width: `${progress}%` }} /></div>
-                        <p className="mt-1.5 text-xs text-[#3a5a5e]">ဖြေပြီး {answered}/{item.levelValue} · ကျော်ထား {skipped} ခု</p>
-                        <button onClick={() => onOpenEmotionLens(item.levelValue)} className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#2f6d73] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#24565b]">ဆက်လက်ဖြေဆိုမယ် ({item.levelValue}) <ArrowRight size={14} /></button>
-                      </div>
-                    )
-                  }
-                  return (
-                    <button key={item.levelValue} onClick={() => onOpenEmotionLens(item.levelValue)} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-[#bfd8da] bg-[#f4f9f9] px-3.5 py-2.5 text-left text-xs font-semibold text-[#1e4a4f] transition hover:bg-[#e5f1f2]">
-                      <span>{item.title}</span>
-                      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-[#2f6d73]">{item.duration} <ArrowRight size={14} /></span>
-                    </button>
-                  )
-                })}
-              </div>
-            </article>
-          </div>
-        </div>
-
-        <div className="md:col-span-7">
-          <Suspense fallback={<div className="h-full min-h-48 rounded-2xl border border-[#e7dce9] bg-[#fcf9fc] p-5 text-xs text-[#6b5e70]">နေ့စဉ်မေးခွန်းကို ဖွင့်နေပါသည်...</div>}>
-            <DailyMindPromptCard onOpenJournal={onOpenJournal} />
-          </Suspense>
-        </div>
-
-        <article className="flex flex-col justify-between rounded-2xl border border-[#e4d9e8] bg-gradient-to-br from-[#f8f3fa] via-white to-[#f6eff5] p-5 shadow-sm sm:p-6 md:col-span-5">
-          <div>
-            <div className="flex items-start justify-between gap-3">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#f1e7f5] text-[#6f587a]"><Brain size={24} /></span>
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#6f587a] shadow-xs">ပေါင်းစည်းမြင်ကွင်း</span>
-            </div>
-            <h3 className="mt-4 text-lg font-bold tracking-tight text-[#493b50]">ကျွန်ုပ်၏ စိတ်ပုံရိပ် (My Mind Profile)</h3>
-            <p className="mt-2 text-sm leading-7 text-[#5d5162]">TraitLens၊ InnerCompass၊ BondSense နဲ့ ValueMap တို့မှ ရလဒ်များကို တစ်နေရာတည်းမှာ ပေါင်းစည်းကြည့်ရှုပြီး ကိုယ့်ပုံရိပ်ကို ခြုံငုံသုံးသပ်နိုင်ပါတယ်။</p>
-          </div>
-          <button onClick={onOpenMindProfile} className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">
-            စိတ်ပုံရိပ်ကို ကြည့်မယ် <ArrowRight size={15} />
-          </button>
-        </article>
-
-        <article className="flex flex-col justify-between gap-4 rounded-2xl border border-[#e6dce9] bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:p-6 md:col-span-12">
-          <div className="flex items-start gap-4">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><BookOpen size={26}/></span>
+          <article className="flex flex-col justify-between rounded-2xl border border-[#e4d9e8] bg-gradient-to-br from-[#f8f3fa] via-white to-[#f6eff5] p-5 shadow-sm sm:p-6 md:col-span-5">
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-lg font-bold tracking-tight text-[#514357]">Knowledge Center</h3>
-                <span className="rounded-full bg-[#fff5e6] px-2.5 py-0.5 text-xs font-bold text-[#825824]">မူကြမ်း 0.1.0</span>
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#f1e7f5] text-[#6f587a]"><Brain size={24} /></span>
+                <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#6f587a] shadow-xs">ပေါင်းစည်းမြင်ကွင်း</span>
               </div>
-              <p className="mt-1 text-xs font-semibold text-[#6f587a]">စိတ်ပညာနဲ့ လူ့အပြုအမူဆိုင်ရာ အသိပညာများ · စကားလုံး ၃၀</p>
-              <p className="mt-1 text-sm leading-7 text-[#6b5e70]">ခက်ခဲတဲ့ စိတ်ပညာဆိုင်ရာ စကားလုံးတွေကို မြန်မာလို အဓိပ္ပာယ်၊ နေ့စဉ်ဘဝ ဥပမာနဲ့ ကွာခြားချက်တွေကို ဖတ်ရှုနိုင်ပါတယ်။</p>
+              <h3 className="mt-4 text-lg font-bold tracking-tight text-[#493b50]">ကျွန်ုပ်၏ စိတ်ပုံရိပ် (My Mind Profile)</h3>
+              <p className="mt-2 text-sm leading-7 text-[#5d5162]">TraitLens၊ InnerCompass၊ BondSense နဲ့ ValueMap တို့မှ ရလဒ်များကို တစ်နေရာတည်းမှာ ပေါင်းစည်းကြည့်ရှုပြီး ကိုယ့်ပုံရိပ်ကို ခြုံငုံသုံးသပ်နိုင်ပါတယ်။</p>
             </div>
-          </div>
-          <button onClick={onOpenKnowledge} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d9cce0] bg-[#f7f2f8] px-5 py-2.5 text-xs font-semibold text-[#6f587a] transition hover:bg-[#eee6f1]">စကားလုံးများ လေ့လာမယ် <ArrowRight size={15}/></button>
-        </article>
+            <button type="button" onClick={onOpenMindProfile} className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">
+              စိတ်ပုံရိပ်ကို ကြည့်မယ် <ArrowRight size={15} />
+            </button>
+          </article>
         </div>
       </section>
 
       <section className="mt-10 rounded-2xl border border-[#e7dfd6] bg-[#f7f4ee] p-5 sm:p-6">
         <div className="mb-4">
-          <p className="text-xs font-semibold tracking-wide text-[#57534e]">SECONDARY TOOLS</p>
-          <h2 className="mt-1 text-lg font-bold text-[#1c1917]">အခြား လေ့လာရေး ကိရိယာများ (Secondary Tools)</h2>
-          <p className="mt-1 text-sm leading-7 text-[#57534e]">အလုပ်အကိုင် စိတ်ဝင်စားမှုနှင့် အနာဂတ်တွင် ထပ်မံထည့်သွင်းမည့် ကိရိယာများကို သီးခြားစုစည်းထားပါသည်။</p>
+          <h2 className="text-lg font-bold text-[#1c1917]">အလုပ်အကိုင် စိတ်ဝင်စားမှု လေ့လာခြင်း</h2>
+          <p className="mt-1 text-sm leading-7 text-[#57534e]">မိမိနှစ်သက်သဘောကျသော လုပ်ဆောင်မှုနှင့် အလုပ်ပတ်ဝန်းကျင်များကို သီးခြားလေ့လာနိုင်ပါသည်။</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <article className="flex flex-col rounded-2xl border border-[#e8dccb] bg-[#fffdf9] p-5 shadow-xs">
-            <div className="flex items-center justify-between gap-2"><span className="grid h-12 w-12 place-items-center rounded-xl border border-[#e8dccb] bg-[#fbf5ec] text-[#7c5324]"><CareerInterestEmblem size={28} /></span><span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-xs font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span></div>
-            <h3 className="mt-4 text-base font-bold text-[#1c1917]">Career Interest</h3>
-            <p className="mt-2 flex-1 text-sm leading-7 text-[#6b5e70]">ဘယ်လိုလုပ်ဆောင်မှုတွေကို ပိုနှစ်သက်သလဲ၊ ဘယ်လိုအလုပ်ပတ်ဝန်းကျင်တွေကို စိတ်ဝင်စားသလဲဆိုတာ သီးခြားလေ့လာပါ။</p>
-            <p className="mt-4 inline-flex flex-wrap items-center gap-2 text-xs font-semibold text-[#865569]"><span>မေးခွန်း ၃၀ · စိတ်ဝင်စားမှု အမျိုးအစား ၆ မျိုး</span><span className="inline-flex items-center gap-1 rounded-full bg-[#f8edf1] px-2 py-0.5"><Clock3 size={12} /> ~၅ မိနစ်</span></p>
-            {careerDraft ? (
-              <div className="mt-3 rounded-xl bg-[#faf6fb] p-3">
-                <div className="flex items-center justify-between text-xs"><span className="font-semibold text-[#725f7a]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6b5e70]">{careerProgress}%</span></div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${careerProgress}%` }} /></div>
-                <p className="mt-2 text-xs text-[#6b5e70]">ဖြေပြီး {careerAnswered} ခု · နောက်ဆုံး {formatDate(careerDraft.updatedAt)}</p>
-                <button onClick={onStartCareer} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
-              </div>
-            ) : (
-              <button onClick={onStartCareer} className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">စတင်ဖြေဆိုမယ် <ArrowRight size={15}/></button>
-            )}
-          </article>
-          <article className="flex flex-col rounded-2xl border border-[#eee5ed] bg-white/90 p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-2"><span className="grid h-11 w-11 place-items-center rounded-xl bg-[#f1f4e9] text-[#436b4f]"><Target size={20}/></span><span className="rounded-full bg-[#f1f4e9] px-2.5 py-1 text-xs font-semibold text-[#436b4f]">ပြင်ဆင်နေဆဲ</span></div>
-            <h3 className="mt-4 text-base font-bold text-[#514357]">Skills Assessment</h3>
-            <p className="mt-2 flex-1 text-sm leading-7 text-[#6b5e70]">ကိုယ်တိုင်အကဲဖြတ်တဲ့ မေးခွန်းတွေနဲ့ လက်တွေ့လေ့ကျင့်ခန်းတွေကို ပေါင်းစပ်ပြီး ကိုယ့်ကျွမ်းကျင်မှုကို သီးခြားလေ့လာနိုင်ဖို့ ပြင်ဆင်နေပါတယ်။</p>
-            <p className="mt-4 text-xs font-semibold text-[#436b4f]">မေးခွန်း + လက်တွေ့စမ်းသပ်မှု</p>
-            <span className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e3e9d9] bg-[#f8faf5] px-4 py-2.5 text-xs font-semibold text-[#436b4f]">နောက်အဆင့်တွင် ဖွင့်လှစ်မည်</span>
-          </article>
-        </div>
+        <article className="flex flex-col rounded-2xl border border-[#e8dccb] bg-[#fffdf9] p-5 shadow-xs">
+          <div className="flex items-center justify-between gap-2"><span className="grid h-12 w-12 place-items-center rounded-xl border border-[#e8dccb] bg-[#fbf5ec] text-[#7c5324]"><CareerInterestEmblem size={28} /></span><span className="rounded-full bg-[#eef5ed] px-2.5 py-1 text-xs font-semibold text-[#436b4f]">စတင်နိုင်ပါပြီ</span></div>
+          <h3 className="mt-4 text-base font-bold text-[#1c1917]">Career Interest</h3>
+          <p className="mt-2 flex-1 text-sm leading-7 text-[#6b5e70]">ဘယ်လိုလုပ်ဆောင်မှုတွေကို ပိုနှစ်သက်သလဲ၊ ဘယ်လိုအလုပ်ပတ်ဝန်းကျင်တွေကို စိတ်ဝင်စားသလဲဆိုတာ သီးခြားလေ့လာပါ။</p>
+          <p className="mt-4 inline-flex flex-wrap items-center gap-2 text-xs font-semibold text-[#865569]"><span>မေးခွန်း ၃၀ · စိတ်ဝင်စားမှု အမျိုးအစား ၆ မျိုး</span><span className="inline-flex items-center gap-1 rounded-full bg-[#f8edf1] px-2 py-0.5"><Clock3 size={12} /> ~၅ မိနစ်</span></p>
+          {careerDraft ? (
+            <div className="mt-3 rounded-xl bg-[#faf6fb] p-3">
+              <div className="flex items-center justify-between text-xs"><span className="font-semibold text-[#725f7a]">ဖြေဆိုမှု ဆက်လက်လုပ်ဆောင်ရန်</span><span className="text-[#6b5e70]">{careerProgress}%</span></div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${careerProgress}%` }} /></div>
+              <p className="mt-2 text-xs text-[#6b5e70]">ဖြေပြီး {careerAnswered} ခု · နောက်ဆုံး {formatDate(careerDraft.updatedAt)}</p>
+              <button type="button" onClick={onStartCareer} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981]">ဆက်လက်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
+            </div>
+          ) : (
+            <button type="button" onClick={onStartCareer} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#80678f] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#725981] sm:w-fit">စတင်ဖြေဆိုမယ် <ArrowRight size={15} /></button>
+          )}
+        </article>
       </section>
 
-      <section className="mt-10 rounded-2xl border border-[#eee5ed] bg-white/80 p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div><div className="flex items-center gap-2 text-sm font-bold text-[#514357]"><History size={17} className="text-[#80678f]" /> မကြာသေးမီက ပြီးဆုံးထားသော ဆန်းစစ်မှုများ</div><p className="mt-1 text-xs text-[#6b5e70]">ကိုယ်တိုင်ဖြေဆိုပြီး သိမ်းဆည်းထားသော ရလဒ်များကို ပြန်ကြည့်နိုင်ပါတယ်။</p></div>
-          <SecondaryButton onClick={onHistory} icon={ChevronRight}>မှတ်တမ်းအားလုံးကြည့်မယ်</SecondaryButton>
-        </div>
-        {recentPersonalityHistory.length > 0 ? (
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
-            {recentPersonalityHistory.map((record) => {
-              const isCareer = record.assessmentType === 'careerInterest'
-              const isInnerCompass = record.assessmentType === 'innerCompass'
-              const isBondSense = record.assessmentType === 'bondSense'
-              const isValueMap = record.assessmentType === 'valueMap'
-              const isEmotionLens = record.assessmentType === 'emotionLens'
-              const profile = !isCareer && !isInnerCompass && !isBondSense && !isValueMap && !isEmotionLens && record.scores ? getPersonalityProfile(record.scores) : null
-              return (
-                <button key={record.id} onClick={() => onOpenRecord(record)} className="rounded-xl border border-[#eee5ed] bg-[#fcfafc] p-4 text-left transition hover:border-[#d8c7df] hover:bg-[#faf6fb]">
-                  <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-xs font-semibold text-[#80678f]">{isCareer ? 'Career Interest' : isInnerCompass ? 'InnerCompass' : isBondSense ? 'BondSense' : isValueMap ? 'ValueMap' : isEmotionLens ? 'EmotionLens' : `${record.level || record.questionCount || 30} မေးခွန်း`}</span><ArrowRight size={14} className="text-[#6b5e70]" /></div>
-                  <p className="mt-3 text-sm font-bold text-[#5b4b60]">{isCareer ? `စိတ်ဝင်စားမှုအတိုကောက် ${record.careerCode || ''}` : isInnerCompass ? 'InnerCompass · ကိုယ်တိုင်သုံးသပ်မှု' : isBondSense ? 'BondSense · ဆက်ဆံရေးသုံးသပ်မှု' : isValueMap ? 'ValueMap · ဘဝတန်ဖိုးသုံးသပ်မှု' : isEmotionLens ? 'EmotionLens · စိတ်ခံစားချက်သုံးသပ်မှု' : (profile?.title || 'TraitLens')}</p>
-                  <p className="mt-1 text-xs text-[#6b5e70]">{formatDate(record.createdAt)}</p>
-                  <p className="mt-3 text-xs font-semibold text-[#80678f]">ရလဒ်ကြည့်မယ်</p>
-                </button>
-              )
-            })}
-          </div>
-        ) : (
-          <div className="mt-4 rounded-xl bg-[#faf7fa] px-4 py-5 text-center">
-            <p className="text-sm font-semibold text-[#6f5e76]">စမ်းသပ်မှုမှတ်တမ်း မရှိသေးပါ။</p>
-            <p className="mt-1 text-xs leading-6 text-[#6b5e70]">ဆန်းစစ်မှုတစ်ခုခု ပြီးဆုံးသွားတဲ့အခါ ရလဒ်ကို ဒီနေရာမှာ အလွယ်တကူ ပြန်ကြည့်နိုင်ပါမယ်။</p>
-          </div>
-        )}
-      </section>
-
-      <section className="mt-6 rounded-2xl border border-[#e9e0eb] bg-white p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="max-w-2xl">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f3edf5] text-[#80678f]"><ShieldCheck size={19} /></span>
-            <h2 className="mt-3 text-base font-bold text-[#514357]">သင့်မှတ်တမ်းတွေကို ဖိုင်အဖြစ် သိမ်းထားပါ</h2>
-            <p className="mt-2 text-sm leading-7 text-[#6b5e70]">ဖြေဆိုထားတဲ့ အဖြေတွေ၊ မပြီးသေးတဲ့ အဖြေတွေနဲ့ ရလဒ်မှတ်တမ်းတွေကို မှတ်တမ်းဖိုင်အဖြစ် သိမ်းနိုင်ပါတယ်။ Browser အချက်အလက် ရှင်းမိတာ၊ ဖုန်းပြောင်းတာမျိုးရှိရင် သိမ်းထားတဲ့ မှတ်တမ်းဖိုင်ကနေ ပြန်ထည့်နိုင်ပါတယ်။</p>
-          </div>
-          <span className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full bg-[#f1f6ef] px-3 py-1.5 text-xs font-semibold text-[#436b4f]"><LockKeyhole size={12} /> ဒီဖုန်းရဲ့ Browser ထဲမှာပဲ သိမ်းထားပါတယ်</span>
-        </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <button onClick={onExportBackup} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#725981]"><Download size={16} /> မှတ်တမ်းဖိုင် သိမ်းရန်</button>
-          <button onClick={onImportBackup} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e5dce6] bg-[#fcfafc] px-4 py-3 text-sm font-semibold text-[#6e5a77] transition hover:bg-[#f7f1f8]"><Upload size={16} /> သိမ်းထားတဲ့ မှတ်တမ်း ပြန်ထည့်ရန်</button>
-        </div>
-        <div className="mt-3 flex gap-2 rounded-xl bg-[#fbf6f2] p-3 text-xs leading-7 text-[#825824]"><FileJson size={15} className="mt-1 shrink-0" /><p>မှတ်တမ်းဖိုင်ထဲမှာ သင်ဖြေဆိုထားတဲ့ ကိုယ်ရေးကိုယ်တာအဖြေများနဲ့ ရလဒ်တွေ ပါဝင်နိုင်ပါတယ်။ ကိုယ်ယုံကြည်ရတဲ့နေရာမှာသာ သိမ်းဆည်းပြီး အခြားသူထံ မမျှဝေပါနဲ့။</p></div>
-      </section>
       <p className="mx-auto mt-7 max-w-3xl text-center text-xs leading-7 text-[#6b5e70]">ဤစမ်းသပ်မှုသည် ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်ရန်အတွက်သာ ဖြစ်ပြီး စိတ်ကျန်းမာရေးဆိုင်ရာ ရောဂါရှာဖွေခြင်း သို့မဟုတ် အလုပ်အကိုင်အာမခံချက် ပေးခြင်း မဟုတ်ပါ။</p>
     </main>
   )
@@ -1783,7 +1513,7 @@ export default function App() {
   return (
     <div className={cn('min-h-screen bg-[#faf8f5] text-[#242029]', showMobileNavigation && 'pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0')}>
       <Header onHome={handleNavigateHome} onHistory={handleNavigateHistory} onKnowledge={handleNavigateKnowledge} active={page === 'history' ? 'history' : page === 'knowledge' ? 'knowledge' : 'home'} />
-      {page === 'home' && <HomePage history={appData.history} drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onHistory={() => setPage('history')} onOpenRecord={openHistoryRecord} onExportBackup={handleExportBackup} onImportBackup={handleChooseBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 120 ? 120 : selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={(selectedLevel = 20) => { setActiveRecord(null); setBondSenseLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('bondSense') }} onOpenValueMap={(selectedLevel = 20) => { setActiveRecord(null); setValueMapLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenKnowledge={handleNavigateKnowledge} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
+      {page === 'home' && <HomePage drafts={appData.drafts} onStart={handleStart} onResume={handleResume} onStartCareer={handleStartCareer} onExportBackup={handleExportBackup} onOpenInnerCompass={(selectedLevel = 30) => { setActiveRecord(null); setInnerCompassLevel(selectedLevel === 120 ? 120 : selectedLevel === 60 ? 60 : 30); setPage('innerCompass') }} onOpenBondSense={(selectedLevel = 20) => { setActiveRecord(null); setBondSenseLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('bondSense') }} onOpenValueMap={(selectedLevel = 20) => { setActiveRecord(null); setValueMapLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('valueMap') }} onOpenEmotionLens={(selectedLevel = 20) => { setActiveRecord(null); setEmotionLensLevel(selectedLevel === 120 ? 120 : selectedLevel === 80 ? 80 : selectedLevel === 40 ? 40 : 20); setPage('emotionLens') }} onOpenMindProfile={handleNavigateMindProfile} onOpenJournal={handleNavigateJournal} storageAlertVisible={isStorageAlertVisible} onDismissStorageError={dismissStorageAlert} />}
       {page === 'mindProfile' && (
         <Suspense fallback={<ModuleLoadingFallback />}>
           <MyMindProfile
@@ -1825,7 +1555,17 @@ export default function App() {
             <StorageWriteAlert visible={isStorageAlertVisible} onExportBackup={handleExportBackup} onDismiss={dismissStorageAlert} className="mb-0" />
           </div>
           <Suspense fallback={<ModuleLoadingFallback />}>
-            <HistoryPage history={appData.history} onOpen={openHistoryRecord} onDelete={handleDeleteRecord} onClear={handleClearHistory} onStart={handleStart} onOpenMindProfile={handleNavigateMindProfile} />
+            <HistoryPage
+              history={appData.history}
+              draftsCount={Object.values(appData.drafts || {}).reduce((sum, group) => sum + (group && typeof group === 'object' ? Object.keys(group).length : 0), 0)}
+              onOpen={openHistoryRecord}
+              onDelete={handleDeleteRecord}
+              onClear={handleClearHistory}
+              onStart={handleStart}
+              onOpenMindProfile={handleNavigateMindProfile}
+              onExportBackup={handleExportBackup}
+              onImportBackup={handleChooseBackup}
+            />
           </Suspense>
         </>
       )}

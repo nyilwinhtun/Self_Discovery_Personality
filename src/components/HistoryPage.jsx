@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowRight, ChevronRight, History, Sparkles, Trash2 } from 'lucide-react'
+import { ArrowRight, ChevronRight, Download, FileJson, History, LockKeyhole, ShieldCheck, Sparkles, Trash2, Upload } from 'lucide-react'
 import { TRAITS } from '../data/questions.js'
 import { getPersonalityProfile } from '../utils/scoring.js'
 
@@ -132,7 +132,7 @@ const HISTORY_FILTERS = [
   { id: 'careerInterest', label: 'Career Interest' },
 ]
 
-export default function HistoryPage({ history, onOpen, onDelete, onClear, onStart, onOpenMindProfile }) {
+export default function HistoryPage({ history, draftsCount = 0, onOpen, onDelete, onClear, onStart, onOpenMindProfile, onExportBackup, onImportBackup }) {
   const [filterType, setFilterType] = useState('all')
   const [selectedIds, setSelectedIds] = useState([])
 
@@ -181,8 +181,7 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
     <main className="mx-auto max-w-4xl px-4 py-9 pb-28 sm:px-6 sm:py-12">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold tracking-wide text-[#6b5e70]">YOUR SAVED RESULTS</p>
-          <h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">စမ်းသပ်မှုမှတ်တမ်း</h1>
+          <h1 className="text-2xl font-bold text-[#4c3d51]">စမ်းသပ်မှုမှတ်တမ်း</h1>
           <p className="mt-2 text-xs leading-6 text-[#6b5e70]">ဒီ Browser ထဲမှာ သိမ်းထားတဲ့ ပြီးဆုံးသွားသော ရလဒ်များ</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -198,6 +197,21 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
           <span className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#6b5e70] shadow-sm">{history.length} ခု</span>
         </div>
       </div>
+
+      <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="မှတ်တမ်း အကျဉ်းချုပ်">
+        <article className="rounded-2xl border border-[#eee5ed] bg-white p-3.5 shadow-sm">
+          <span className="text-xs font-medium text-[#6b5e70]">ပြီးဆုံးထားသော မှတ်တမ်း</span>
+          <p className="mt-1 text-xl font-bold tabular-nums text-[#80678f] sm:text-2xl">{history.length}</p>
+        </article>
+        <article className="rounded-2xl border border-[#eee5ed] bg-white p-3.5 shadow-sm">
+          <span className="text-xs font-medium text-[#6b5e70]">မပြီးသေးသော အဖြေ</span>
+          <p className="mt-1 text-xl font-bold tabular-nums text-[#865569] sm:text-2xl">{draftsCount}</p>
+        </article>
+        <article className="col-span-2 rounded-2xl border border-[#eee5ed] bg-white p-3.5 shadow-sm sm:col-span-1">
+          <span className="text-xs font-medium text-[#6b5e70]">သိမ်းဆည်းမှု</span>
+          <p className="mt-1 text-sm font-bold text-[#436b4f]">ဒီစက် Browser ထဲတွင်သာ</p>
+        </article>
+      </section>
 
       {history.length === 0 ? (
         <div className="rounded-[2rem] border border-dashed border-[#ded2e1] bg-white/70 px-6 py-14 text-center">
@@ -253,8 +267,7 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
             <section aria-label="ရလဒ် ၂ ခု နှိုင်းယှဉ်ချက်" className="mb-6 rounded-[1.5rem] border border-[#dfd2e4] bg-white p-4 shadow-sm sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#f1ebf2] pb-3">
                 <div>
-                  <p className="text-xs font-semibold tracking-wide text-[#725981]">ATTEMPT COMPARISON</p>
-                  <h2 className="mt-1 text-base font-bold text-[#4c3d51]">အစောပိုင်းနှင့် နောက်ပိုင်း ရလဒ်နှိုင်းယှဉ်ချက်</h2>
+                  <h2 className="text-base font-bold text-[#4c3d51]">အစောပိုင်းနှင့် နောက်ပိုင်း ရလဒ်နှိုင်းယှဉ်ချက်</h2>
                 </div>
                 <button type="button" onClick={() => setSelectedIds([])} className="text-xs font-semibold text-[#6b5e70] hover:text-[#4c3d51]">ပိတ်မယ်</button>
               </div>
@@ -346,6 +359,28 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
           <p className="text-xs leading-6 text-[#6b5e70]">{STORAGE_HINT}</p>
           <button onClick={onClear} className="inline-flex items-center gap-2 text-xs font-semibold text-[#865569] hover:text-[#8e4f68]"><Trash2 size={14} /> မှတ်တမ်းအားလုံးဖျက်မယ်</button>
         </div>
+      )}
+
+      {(onExportBackup || onImportBackup) && (
+        <section className="mt-6 rounded-2xl border border-[#e9e0eb] bg-white p-5 shadow-sm sm:p-6" aria-label="မှတ်တမ်းဖိုင် သိမ်းဆည်းခြင်းနှင့် ပြန်ထည့်ခြင်း">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="max-w-2xl">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f3edf5] text-[#80678f]"><ShieldCheck size={19} /></span>
+              <h2 className="mt-3 text-base font-bold text-[#514357]">သင့်မှတ်တမ်းတွေကို ဖိုင်အဖြစ် သိမ်းထားပါ</h2>
+              <p className="mt-2 text-sm leading-7 text-[#6b5e70]">ဖြေဆိုထားတဲ့ အဖြေတွေ၊ မပြီးသေးတဲ့ အဖြေတွေနဲ့ ရလဒ်မှတ်တမ်းတွေကို မှတ်တမ်းဖိုင်အဖြစ် သိမ်းနိုင်ပါတယ်။ Browser အချက်အလက် ရှင်းမိတာ၊ ဖုန်းပြောင်းတာမျိုးရှိရင် သိမ်းထားတဲ့ မှတ်တမ်းဖိုင်ကနေ ပြန်ထည့်နိုင်ပါတယ်။</p>
+            </div>
+            <span className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full bg-[#f1f6ef] px-3 py-1.5 text-xs font-semibold text-[#436b4f]"><LockKeyhole size={12} /> ဒီဖုန်းရဲ့ Browser ထဲမှာပဲ သိမ်းထားပါတယ်</span>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {onExportBackup && (
+              <button type="button" onClick={onExportBackup} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#80678f] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#725981]"><Download size={16} /> မှတ်တမ်းဖိုင် သိမ်းရန်</button>
+            )}
+            {onImportBackup && (
+              <button type="button" onClick={onImportBackup} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#e5dce6] bg-[#fcfafc] px-4 py-3 text-sm font-semibold text-[#6e5a77] transition hover:bg-[#f7f1f8]"><Upload size={16} /> သိမ်းထားတဲ့ မှတ်တမ်း ပြန်ထည့်ရန်</button>
+            )}
+          </div>
+          <div className="mt-3 flex gap-2 rounded-xl bg-[#fbf6f2] p-3 text-xs leading-7 text-[#825824]"><FileJson size={15} className="mt-1 shrink-0" /><p>မှတ်တမ်းဖိုင်ထဲမှာ သင်ဖြေဆိုထားတဲ့ ကိုယ်ရေးကိုယ်တာအဖြေများနဲ့ ရလဒ်တွေ ပါဝင်နိုင်ပါတယ်။ ကိုယ်ယုံကြည်ရတဲ့နေရာမှာသာ သိမ်းဆည်းပြီး အခြားသူထံ မမျှဝေပါနဲ့။</p></div>
+        </section>
       )}
     </main>
   )

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
 const app = read('src/App.jsx')
+const historyPage = read('src/components/HistoryPage.jsx')
 const career = read('src/components/CareerInterestModule.jsx')
 const logos = read('src/components/AssessmentLogos.jsx')
 const methodology = read('docs/01-project/METHODOLOGY_AND_SOURCES.md')
@@ -27,7 +28,7 @@ assert.ok(app.includes('function InstructionsPage'), 'TraitLens guidance page is
 assert.ok(app.includes('aria-expanded={guideOpen}'), 'TraitLens expandable guide toggle is missing')
 assert.ok(!app.includes('disabled={!acknowledged}'), 'TraitLens start should not be blocked by an acknowledgement gate')
 assert.ok(app.includes('skip') || app.includes('ကျော်'), 'TraitLens guide should explain skipping')
-assert.ok(app.includes('မှတ်တမ်းဖိုင် သိမ်းရန်'), 'App should use plain Burmese for saving records')
+assert.ok(app.includes('မှတ်တမ်းဖိုင် သိမ်းရန်') || historyPage.includes('မှတ်တမ်းဖိုင် သိမ်းရန်'), 'App should use plain Burmese for saving records')
 assert.ok(app.includes('လူဦးရေနဲ့ နှိုင်းယှဉ်ထားတဲ့ အဆင့်သတ်မှတ်ချက် မဟုတ်'), 'TraitLens guide should explain that the index is not a norm/percentile')
 assert.ok(career.includes('aria-expanded={guideOpen}'), 'Career Interest expandable guide toggle is missing')
 assert.ok(!career.includes('disabled={!acknowledged}'), 'Career Interest start should not be blocked by an acknowledgement gate')
