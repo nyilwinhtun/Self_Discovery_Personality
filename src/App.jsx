@@ -10,6 +10,7 @@ import { buildResult, getPersonalityProfile, getScoreBand } from './utils/scorin
 import {
   getTraitLifeDomainSummary, getTraitReportInsight, REPORT_INTERPRETATION_NOTICE,
 } from './utils/resultInterpretations.js'
+import BrandLogo from './components/BrandLogo.jsx'
 import MobileBottomNavigation from './components/MobileBottomNavigation.jsx'
 import MobileQuestionActions from './components/MobileQuestionActions.jsx'
 import PwaInstallBanner from './components/PwaInstallBanner.jsx'
@@ -90,10 +91,12 @@ function TraitIcon({ id, size = 19 }) {
 function Brand({ onClick }) {
   return (
     <button onClick={onClick} className="flex items-center gap-3 text-left" aria-label="ပင်မစာမျက်နှာ">
-      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#80678f] text-white shadow-sm"><Sparkles size={20} /></span>
+      <span className="grid h-10 w-10 place-items-center rounded-2xl border border-[#e7e0d6] bg-[#faf8f5] text-[#1c1917] shadow-xs">
+        <BrandLogo size={26} />
+      </span>
       <span>
-        <span className="block text-[15px] font-bold tracking-tight text-[#45384a]">Self Discovery</span>
-        <span className="block text-xs text-[#6b5e70]">ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း</span>
+        <span className="block text-[15px] font-bold tracking-tight text-[#1c1917]">Self Discovery</span>
+        <span className="block text-xs text-[#57534e]">ကိုယ့်ကိုယ်ကို ရှာဖွေခြင်း</span>
       </span>
     </button>
   )
