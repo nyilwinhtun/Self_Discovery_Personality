@@ -44,7 +44,7 @@ export default function ResultShareCardButton({ getCardConfig, tone = 'plum' }) 
         {busy ? 'ပုံထုတ်နေသည်...' : 'ရလဒ်ပုံ သိမ်းမယ် (PNG)'}
       </button>
       {error && (
-        <p role="status" className="mt-1.5 text-[11px] font-medium text-[#8b3a2b]">
+        <p role="status" className="mt-1.5 text-xs font-medium text-[#8b3a2b]">
           {error}
         </p>
       )}

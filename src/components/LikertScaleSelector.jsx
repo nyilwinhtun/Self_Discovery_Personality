@@ -120,7 +120,7 @@ export default function LikertScaleSelector({
 
   return (
     <div className="rounded-2xl border border-[#ebe5dc] bg-[#faf8f5] p-2.5 sm:rounded-[1.5rem] sm:p-5">
-      <div className="mb-1.5 flex items-center justify-between gap-2 px-0.5 text-[11px] font-semibold text-[#524b59] sm:mb-2.5">
+      <div className="mb-1.5 flex items-center justify-between gap-2 px-0.5 text-xs font-semibold text-[#524b59] sm:mb-2.5">
         <span>{startLabel}</span>
         <span className="text-right">{endLabel}</span>
       </div>
@@ -152,7 +152,7 @@ export default function LikertScaleSelector({
               className={`answer-option group flex min-h-[60px] min-w-0 flex-col items-center justify-center gap-1 rounded-xl border-[1.5px] px-1 py-1.5 text-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b5b4e] focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf8f5] sm:min-h-[68px] sm:gap-1.5 sm:rounded-2xl sm:py-2 ${toneClasses} ${isSelected ? 'scale-105' : 'hover:scale-[1.03]'}`}
             >
               <FaceIcon value={option.value} />
-              <span className="w-full break-words text-[11px] font-semibold leading-[1.2]">
+              <span className="w-full break-words text-xs font-semibold leading-[1.3]">
                 {shortLabel}
               </span>
             </button>
@@ -162,7 +162,7 @@ export default function LikertScaleSelector({
 
       <div
         aria-live="polite"
-        className={`mt-2 flex min-h-9 items-center justify-center rounded-xl border px-3 py-1.5 text-center text-[11px] font-semibold transition-colors sm:mt-2.5 sm:min-h-11 sm:px-3.5 sm:py-2 sm:text-xs ${
+        className={`mt-2 flex min-h-9 items-center justify-center rounded-xl border px-3 py-1.5 text-center text-xs font-semibold transition-colors sm:mt-2.5 sm:min-h-11 sm:px-3.5 sm:py-2 ${
           selectedOption || activeOption
             ? feedbackSelectedClass
             : 'border-[#ebe5dc] bg-[#fffdf9] text-[#524b59]'

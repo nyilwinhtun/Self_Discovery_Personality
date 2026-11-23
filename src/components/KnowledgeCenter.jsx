@@ -85,7 +85,7 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
               <ArrowLeft size={14} /> {returnLabel}
             </button>
           )}
-          <span className="rounded-full border border-[#eadfc9] bg-[#fff7e8] px-3 py-1.5 text-[11px] font-bold text-[#825824]">BETA · မူကြမ်းအကြောင်းအရာ</span>
+          <span className="rounded-full border border-[#eadfc9] bg-[#fff7e8] px-3 py-1.5 text-xs font-bold text-[#825824]">BETA · မူကြမ်းအကြောင်းအရာ</span>
         </div>
       </div>
 
@@ -93,14 +93,14 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
         <div className="flex items-start gap-4">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white text-[#80678f] shadow-sm"><BookOpen size={27} /></span>
           <div className="min-w-0">
-            <p className="text-[11px] font-bold tracking-[0.16em] text-[#6b5e70]">KNOWLEDGE CENTER</p>
+            <p className="text-xs font-bold tracking-[0.16em] text-[#6b5e70]">KNOWLEDGE CENTER</p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#493b50] sm:text-3xl">စိတ်ပညာနဲ့ လူ့အပြုအမူဆိုင်ရာ အသိပညာများ</h1>
             <p className="mt-3 max-w-3xl text-xs leading-7 text-[#786d7d] sm:text-sm">စိတ်ခံစားမှု၊ အတွေးအခေါ်၊ အပြုအမူနဲ့ လူမှုဆက်ဆံရေးဆိုင်ရာ စကားလုံးတွေကို နေ့စဉ်ဘဝ ဥပမာတွေနဲ့ လေ့လာနိုင်ပါတယ်။</p>
           </div>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2 sm:max-w-md">
-          <div className="rounded-xl border border-white/80 bg-white/75 p-3"><p className="text-xl font-bold text-[#80678f]">{glossary.terms.length}</p><p className="mt-1 text-[11px] text-[#6b5e70]">လေ့လာရန် စကားလုံး</p></div>
-          <div className="rounded-xl border border-white/80 bg-white/75 p-3"><p className="text-xl font-bold text-[#80678f]">{glossary.categories.length}</p><p className="mt-1 text-[11px] text-[#6b5e70]">အကြောင်းအရာ အုပ်စု</p></div>
+          <div className="rounded-xl border border-white/80 bg-white/75 p-3"><p className="text-xl font-bold text-[#80678f]">{glossary.terms.length}</p><p className="mt-1 text-xs text-[#6b5e70]">လေ့လာရန် စကားလုံး</p></div>
+          <div className="rounded-xl border border-white/80 bg-white/75 p-3"><p className="text-xl font-bold text-[#80678f]">{glossary.categories.length}</p><p className="mt-1 text-xs text-[#6b5e70]">အကြောင်းအရာ အုပ်စု</p></div>
         </div>
       </section>
 
@@ -108,11 +108,11 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
         <div className="flex items-start gap-3">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f8edd8] text-[#825824]"><ShieldAlert size={19} /></span>
           <div>
-            <div className="flex flex-wrap items-center gap-2"><h2 className="text-sm font-bold text-[#715832]">အရေးကြီးသော သတိပြုရန်</h2><span className="rounded-full bg-[#f8edd8] px-2 py-0.5 text-[11px] font-bold text-[#825824]">DRAFT 0.1.0</span></div>
-            <p className="mt-1.5 text-[11px] leading-6 text-[#806f58]">ဒီစာမျက်နှာရှိ စကားလုံး ၃၀ သည် စမ်းသပ်ဖတ်ရှုနိုင်ရန် ထည့်ထားသော မူကြမ်းများသာ ဖြစ်ပါတယ်။ မြန်မာဘာသာကျွမ်းကျင်သူနဲ့ အရည်အချင်းပြည့်မီတဲ့ စိတ်ပညာပညာရှင်တို့ရဲ့ ပြန်လည်စစ်ဆေးမှု မပြီးသေးပါ။ ထို့ကြောင့် အတည်ပြုထားသော ပညာရေးအကြောင်းအရာအဖြစ် မယူဆပါနှင့်။ ဒီအကြောင်းအရာများသည် ရောဂါရှာဖွေခြင်း သို့မဟုတ် ကုသမှုအတွက် မဟုတ်ပါ။</p>
+            <div className="flex flex-wrap items-center gap-2"><h2 className="text-sm font-bold text-[#715832]">အရေးကြီးသော သတိပြုရန်</h2><span className="rounded-full bg-[#f8edd8] px-2 py-0.5 text-xs font-bold text-[#825824]">DRAFT 0.1.0</span></div>
+            <p className="mt-1.5 text-xs leading-6 text-[#806f58]">ဒီစာမျက်နှာရှိ စကားလုံး ၃၀ သည် စမ်းသပ်ဖတ်ရှုနိုင်ရန် ထည့်ထားသော မူကြမ်းများသာ ဖြစ်ပါတယ်။ မြန်မာဘာသာကျွမ်းကျင်သူနဲ့ အရည်အချင်းပြည့်မီတဲ့ စိတ်ပညာပညာရှင်တို့ရဲ့ ပြန်လည်စစ်ဆေးမှု မပြီးသေးပါ။ ထို့ကြောင့် အတည်ပြုထားသော ပညာရေးအကြောင်းအရာအဖြစ် မယူဆပါနှင့်။ ဒီအကြောင်းအရာများသည် ရောဂါရှာဖွေခြင်း သို့မဟုတ် ကုသမှုအတွက် မဟုတ်ပါ။</p>
           </div>
         </div>
-        <div className="mt-3 grid gap-2 text-[11px] text-[#806f58] sm:grid-cols-2">
+        <div className="mt-3 grid gap-2 text-xs text-[#806f58] sm:grid-cols-2">
           <div className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2"><AlertTriangle size={14} /> ဘာသာစကား စစ်ဆေးမှု — မပြီးသေးပါ</div>
           <div className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2"><AlertTriangle size={14} /> စိတ်ပညာ စစ်ဆေးမှု — မပြီးသေးပါ</div>
         </div>
@@ -122,8 +122,8 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
         <article className="mt-6 space-y-4">
           <div className="rounded-2xl border border-[#eae2eb] bg-white p-5 shadow-sm sm:p-7">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-[#f3edf5] px-3 py-1 text-[11px] font-semibold text-[#80678f]">{selectedTerm.category_name_my}</span>
-              <span className="rounded-full bg-[#fff5e6] px-3 py-1 text-[11px] font-semibold text-[#825824]">မူကြမ်း · {selectedTerm.content_version}</span>
+              <span className="rounded-full bg-[#f3edf5] px-3 py-1 text-xs font-semibold text-[#80678f]">{selectedTerm.category_name_my}</span>
+              <span className="rounded-full bg-[#fff5e6] px-3 py-1 text-xs font-semibold text-[#825824]">မူကြမ်း · {selectedTerm.content_version}</span>
             </div>
             <p className="mt-5 text-xs font-semibold tracking-wide text-[#6b5e70]">{selectedTerm.term_en}</p>
             <h2 className="mt-1 text-2xl font-bold leading-relaxed text-[#493b50]">{selectedTerm.term_my}</h2>
@@ -150,7 +150,7 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
           {relatedTerms.length > 0 && (
             <section className="rounded-2xl border border-[#eae2eb] bg-white p-5 shadow-sm sm:p-6">
               <h3 className="text-sm font-bold text-[#514357]">ဆက်စပ်ဝေါဟာရများ</h3>
-              <p className="mt-1 text-[11px] text-[#6b5e70]">ဆက်စပ်နေသော စိတ်ပညာဆိုင်ရာ စကားလုံးများကို ဆက်လက်ဖတ်ရှုနိုင်ပါသည်။</p>
+              <p className="mt-1 text-xs text-[#6b5e70]">ဆက်စပ်နေသော စိတ်ပညာဆိုင်ရာ စကားလုံးများကို ဆက်လက်ဖတ်ရှုနိုင်ပါသည်။</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {relatedTerms.map((term) => (
                   <button
@@ -163,7 +163,7 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
                     className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-[#ded1e4] bg-[#f8f4fa] px-3.5 py-2 text-xs font-semibold text-[#6e557c] transition hover:border-[#c8b5d2] hover:bg-[#f1e9f5]"
                   >
                     <span>{term.term_my}</span>
-                    <span className="text-[11px] text-[#6b5e70]">({term.term_en})</span>
+                    <span className="text-xs text-[#6b5e70]">({term.term_en})</span>
                   </button>
                 ))}
               </div>
@@ -172,7 +172,7 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
 
           <section className="rounded-2xl border border-[#eae2eb] bg-white p-5 shadow-sm sm:p-6">
             <h3 className="text-sm font-bold text-[#514357]">ကိုးကားရင်းမြစ်များ</h3>
-            <p className="mt-1 text-[11px] leading-5 text-[#6b5e70]">အဓိပ္ပာယ်မူကြမ်းရေးရာတွင် ကိုးကားထားသော အရင်းအမြစ်များ။ အရင်းအမြစ်တစ်ခုစီကို အကြောင်းအရာတစ်ခုလုံးအတွက် အတည်ပြုချက်ဟု မယူဆပါနှင့်။</p>
+            <p className="mt-1 text-xs leading-5 text-[#6b5e70]">အဓိပ္ပာယ်မူကြမ်းရေးရာတွင် ကိုးကားထားသော အရင်းအမြစ်များ။ အရင်းအမြစ်တစ်ခုစီကို အကြောင်းအရာတစ်ခုလုံးအတွက် အတည်ပြုချက်ဟု မယူဆပါနှင့်။</p>
             <div className="mt-3 space-y-2">
               {(selectedTerm.sources || []).map((source) => (
                 <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-[#eee7ef] px-3 py-2 text-xs font-medium text-[#6f5a78] hover:bg-[#faf7fb]">
@@ -185,17 +185,17 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
           <section className="rounded-2xl border border-[#eadfc9] bg-[#fffaf1] p-4">
             <h3 className="text-xs font-bold text-[#715832]">အကြောင်းအရာ စစ်ဆေးမှုအခြေအနေ</h3>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <div className="rounded-lg bg-white/75 p-3"><p className="text-[11px] text-[#825824]">မြန်မာဘာသာ စစ်ဆေးမှု</p><p className="mt-1 text-xs font-semibold text-[#856d45]">စစ်ဆေးရန် ကျန်ရှိ</p></div>
-              <div className="rounded-lg bg-white/75 p-3"><p className="text-[11px] text-[#825824]">စိတ်ပညာဆိုင်ရာ စစ်ဆေးမှု</p><p className="mt-1 text-xs font-semibold text-[#856d45]">စစ်ဆေးရန် ကျန်ရှိ</p></div>
+              <div className="rounded-lg bg-white/75 p-3"><p className="text-xs text-[#825824]">မြန်မာဘာသာ စစ်ဆေးမှု</p><p className="mt-1 text-xs font-semibold text-[#856d45]">စစ်ဆေးရန် ကျန်ရှိ</p></div>
+              <div className="rounded-lg bg-white/75 p-3"><p className="text-xs text-[#825824]">စိတ်ပညာဆိုင်ရာ စစ်ဆေးမှု</p><p className="mt-1 text-xs font-semibold text-[#856d45]">စစ်ဆေးရန် ကျန်ရှိ</p></div>
             </div>
-            <p className="mt-3 text-[11px] leading-5 text-[#825824]">စစ်ဆေးသူအမည်၊ အရည်အချင်းနဲ့ ရက်စွဲတွေကို တကယ်စစ်ဆေးပြီးမှသာ ထည့်သွင်းဖော်ပြပါမယ်။</p>
+            <p className="mt-3 text-xs leading-5 text-[#825824]">စစ်ဆေးသူအမည်၊ အရည်အချင်းနဲ့ ရက်စွဲတွေကို တကယ်စစ်ဆေးပြီးမှသာ ထည့်သွင်းဖော်ပြပါမယ်။</p>
           </section>
         </article>
       ) : (
         <section className="mt-7">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div><p className="text-[11px] font-bold tracking-[0.15em] text-[#6b5e70]">EXPLORE TERMS</p><h2 className="mt-1 text-lg font-bold text-[#514357]">စကားလုံးများကို ရှာဖွေပါ</h2><p className="mt-1 text-[11px] text-[#6b5e70]">မြန်မာ သို့မဟုတ် အင်္ဂလိပ်စကားလုံးနဲ့ ရှာနိုင်ပါတယ်။</p></div>
-            <span className="text-[11px] font-semibold text-[#6b5e70]">တွေ့ရှိမှု {filteredTerms.length} ခု</span>
+            <div><p className="text-xs font-bold tracking-[0.15em] text-[#6b5e70]">EXPLORE TERMS</p><h2 className="mt-1 text-lg font-bold text-[#514357]">စကားလုံးများကို ရှာဖွေပါ</h2><p className="mt-1 text-xs text-[#6b5e70]">မြန်မာ သို့မဟုတ် အင်္ဂလိပ်စကားလုံးနဲ့ ရှာနိုင်ပါတယ်။</p></div>
+            <span className="text-xs font-semibold text-[#6b5e70]">တွေ့ရှိမှု {filteredTerms.length} ခု</span>
           </div>
           <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-[#e7dfe8] bg-white px-4 shadow-sm focus-within:border-[#bba8c4]">
             <Search size={18} className="shrink-0 text-[#6b5e70]" />
@@ -205,14 +205,14 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
 
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             <button onClick={() => setActiveCategory('all')} className={`min-h-11 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${activeCategory === 'all' ? 'border-[#bba8c4] bg-[#f4eef6] text-[#705b7a]' : 'border-[#eae2eb] bg-white text-[#6b5e70] hover:bg-[#faf7fb]'}`}>
-              အမျိုးအစားအားလုံး <span className="ml-1 text-[11px] opacity-70">{glossary.terms.length}</span>
+              အမျိုးအစားအားလုံး <span className="ml-1 text-xs opacity-70">{glossary.terms.length}</span>
             </button>
             {glossary.categories.map((category) => {
               const Icon = CATEGORY_ICONS[category.id] || BookOpen
               const count = glossary.terms.filter((term) => term.category_id === category.id).length
               return (
                 <button key={category.id} onClick={() => setActiveCategory(category.id)} className={`flex min-h-11 items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${activeCategory === category.id ? 'border-[#bba8c4] bg-[#f4eef6] text-[#705b7a]' : 'border-[#eae2eb] bg-white text-[#6b5e70] hover:bg-[#faf7fb]'}`}>
-                  <Icon size={15} className="shrink-0"/><span className="min-w-0 flex-1">{category.name_my}</span><span className="text-[11px] opacity-70">{count}</span>
+                  <Icon size={15} className="shrink-0"/><span className="min-w-0 flex-1">{category.name_my}</span><span className="text-xs opacity-70">{count}</span>
                 </button>
               )
             })}
@@ -222,10 +222,10 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
             <div className="mt-5 grid gap-3 md:grid-cols-2">
               {filteredTerms.map((term) => (
                 <button key={term.id} onClick={() => { setSelectedId(term.id); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="group flex min-h-[132px] flex-col rounded-2xl border border-[#eae2eb] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#cdbdd2] hover:shadow-md sm:p-5">
-                  <div className="flex w-full items-start justify-between gap-2"><span className="text-[11px] font-semibold text-[#6b5e70]">{term.term_en}</span><span className="rounded-full bg-[#fff5e6] px-2 py-1 text-[11px] font-semibold text-[#825824]">မူကြမ်း</span></div>
+                  <div className="flex w-full items-start justify-between gap-2"><span className="text-xs font-semibold text-[#6b5e70]">{term.term_en}</span><span className="rounded-full bg-[#fff5e6] px-2 py-1 text-xs font-semibold text-[#825824]">မူကြမ်း</span></div>
                   <h3 className="mt-2 text-base font-bold leading-relaxed text-[#514357]">{term.term_my}</h3>
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-6 text-[#6b5e70]">{term.definition_simple}</p>
-                  <div className="mt-auto flex items-center justify-between gap-2 pt-3"><span className="text-[11px] text-[#6b5e70]">{term.category_name_my}</span><span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#80678f]">ဖတ်ရန် <ChevronRight size={13}/></span></div>
+                  <p className="mt-1 line-clamp-2 text-xs leading-6 text-[#6b5e70]">{term.definition_simple}</p>
+                  <div className="mt-auto flex items-center justify-between gap-2 pt-3"><span className="text-xs text-[#6b5e70]">{term.category_name_my}</span><span className="inline-flex items-center gap-1 text-xs font-semibold text-[#80678f]">ဖတ်ရန် <ChevronRight size={13}/></span></div>
                 </button>
               ))}
             </div>
@@ -236,8 +236,8 @@ export default function KnowledgeCenter({ onBack, initialTermId = null, returnLa
       )}
 
       <footer className="mt-10 border-t border-[#eae2eb] pt-5 text-center">
-        <p className="text-[11px] font-semibold text-[#6b5e70]">Knowledge Center · Draft Content 0.1.0</p>
-        <p className="mt-1 text-[11px] leading-5 text-[#6b5e70]">အကြောင်းအရာကို ပြန်လည်သုံးသပ်ပြီး အတည်ပြုမှုများ ပြည့်စုံလာသည်နှင့် Version အသစ်များ ထုတ်ပြန်သွားပါမည်။</p>
+        <p className="text-xs font-semibold text-[#6b5e70]">Knowledge Center · Draft Content 0.1.0</p>
+        <p className="mt-1 text-xs leading-5 text-[#6b5e70]">အကြောင်းအရာကို ပြန်လည်သုံးသပ်ပြီး အတည်ပြုမှုများ ပြည့်စုံလာသည်နှင့် Version အသစ်များ ထုတ်ပြန်သွားပါမည်။</p>
       </footer>
     </main>
   )

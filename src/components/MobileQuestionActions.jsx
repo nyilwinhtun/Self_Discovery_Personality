@@ -63,11 +63,11 @@ export default function MobileQuestionActions({
       </div>
       <div className="mx-auto mt-1 flex max-w-3xl items-center justify-between gap-3 pb-[calc(0.45rem+env(safe-area-inset-bottom))]">
         {showSkip ? (
-          <button type="button" onClick={onSkip} className={`inline-flex min-h-8 items-center gap-1 px-1 text-[11px] font-semibold ${theme.link}`}>
+          <button type="button" onClick={onSkip} className={`inline-flex min-h-8 items-center gap-1 px-1 text-xs font-semibold ${theme.link}`}>
             <SkipForward size={13} /> ကျော်မယ်
           </button>
         ) : <span className="min-h-8" />}
-        <button type="button" onClick={onReview} className={`min-h-8 px-1 text-[11px] font-semibold ${theme.link}`}>
+        <button type="button" onClick={onReview} className={`min-h-8 px-1 text-xs font-semibold ${theme.link}`}>
           မေးခွန်းစာရင်း
         </button>
       </div>

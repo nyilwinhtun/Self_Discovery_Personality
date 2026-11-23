@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   AlertTriangle, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, Clock3, Download,
-  LockKeyhole, Printer, RotateCcw, ShieldCheck,
+  LockKeyhole, Printer, RotateCcw, ShieldCheck, Sparkles,
 } from 'lucide-react'
 import {
   PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart,
@@ -64,17 +64,17 @@ function SecondaryButton({ children, onClick, icon: Icon, disabled = false, clas
 }
 
 function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin, onResume, onRestart, storageAlertVisible, onExportBackup, onDismissStorageError }) {
-  const [acknowledged, setAcknowledged] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const answeredCount = Object.keys(draft?.answers || {}).length
   const skippedCount = (draft?.skippedQuestionIds || []).filter((id) => draft?.answers?.[id] === undefined).length
   const progress = questionCount ? Math.round((answeredCount / questionCount) * 100) : 0
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-      <button onClick={onBack} className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#475e4d] hover:text-[#2c4a34]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button>
+    <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
+      <button onClick={onBack} className="mb-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#475e4d] hover:text-[#2c4a34]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="overflow-hidden rounded-[2rem] border border-[#d4e1d7] bg-white card-shadow">
-        <div className="bg-gradient-to-br from-[#eef4ef] via-[#f9fcf9] to-[#eaf2ec] p-6 sm:p-9">
+        <div className="bg-gradient-to-br from-[#eef4ef] via-[#f9fcf9] to-[#eaf2ec] p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-4">
               <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl border border-[#d5e0d7] bg-[#faf8f5] text-[#36593f]"><ValueMapEmblem size={38} /></span>
@@ -84,12 +84,12 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
                 <p className="mt-1 text-xs text-[#475e4d]">မေးခွန်း {level === 120 ? '၁၂၀' : level === 80 ? '၈၀' : level === 40 ? '၄၀' : '၂၀'} · အချက် ၄ ချက် · {level === 120 ? '~၂၀ မိနစ်' : level === 80 ? '~၁၅ မိနစ်' : level === 40 ? '~၈ မိနစ်' : '~၄ မိနစ်'}</p>
               </div>
             </div>
-            <span className="rounded-full border border-[#c6d8ca] bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-[#33573d]">Pilot Reflection · စမ်းသပ်မူကြမ်း</span>
+            <span className="rounded-full border border-[#c6d8ca] bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#33573d]">ကိုယ်တိုင်သုံးသပ်မှု</span>
           </div>
-          <p className="mt-6 text-sm leading-8 text-[#465e4c]">ဆုံးဖြတ်ချက်များ ချမှတ်ရာတွင် ကိုယ့်စိတ်ထဲ အလေးထားမိတတ်သည့် လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ကို ပြန်လည်သုံးသပ်နိုင်ရန် ရေးဆွဲထားသည့် စမ်းသပ်မူကြမ်း ဖြစ်ပါသည်။</p>
+          <p className="mt-4 text-sm leading-7 text-[#465e4c]">ဆုံးဖြတ်ချက်များ ချမှတ်ရာတွင် ကိုယ့်စိတ်ထဲ အလေးထားမိတတ်သည့် လွတ်လပ်မှု၊ တည်ငြိမ်မှု၊ တိုးတက်သင်ယူမှုနှင့် မေတ္တာ/အကျိုးပြုမှုတို့ကို ပြန်လည်သုံးသပ်နိုင်ရန် ရေးဆွဲထားပါသည်။</p>
         </div>
-        <div className="p-6 sm:p-9">
-          <div className="mb-6">
+        <div className="p-6 sm:p-8">
+          <div className="mb-5">
             <h2 className="text-base font-bold text-[#2c4a34]">ဖြေဆိုမည့် မေးခွန်းအဆင့် ရွေးချယ်ပါ</h2>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" role="radiogroup" aria-label="ValueMap မေးခွန်းအဆင့် ရွေးချယ်မှု">
               {VALUEMAP_LEVELS.map((option) => {
@@ -109,13 +109,13 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
                     )}
                   >
                     <div className="flex w-full items-center justify-between gap-2">
-                      <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-semibold', selected ? 'bg-[#3d6347] text-white' : 'bg-[#eef5f0] text-[#33573d]')}>{option.label}</span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#475e4d]"><Clock3 size={12} /> {option.duration}</span>
+                      <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', selected ? 'bg-[#3d6347] text-white' : 'bg-[#eef5f0] text-[#33573d]')}>{option.label}</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#475e4d]"><Clock3 size={12} /> {option.duration}</span>
                     </div>
                     <p className="mt-3 text-sm font-bold text-[#2c4a34]">{option.title}</p>
-                    <p className="mt-1 text-xs leading-6 text-[#465e4c]">{option.subtitle}</p>
+                    <p className="mt-1 text-sm leading-7 text-[#465e4c]">{option.subtitle}</p>
                     {levelDraft && (
-                      <p className="mt-2 text-[11px] font-semibold text-[#3d6347]">မပြီးသေးသော Draft ({levelAnswered}/{option.value})</p>
+                      <p className="mt-2 text-xs font-semibold text-[#3d6347]">မပြီးသေးသော အဖြေ ({levelAnswered}/{option.value})</p>
                     )}
                   </button>
                 )
@@ -123,41 +123,13 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
             </div>
           </div>
 
-          <h2 className="text-base font-bold text-[#2c4a34]">ဒီဆန်းစစ်မှုမှာ လေ့လာမယ့် အဓိက အချက် ၄ ချက်</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {VALUEMAP_DIMENSIONS.map((dimension, index) => (
-              <article key={dimension.id} className="rounded-2xl border border-[#dce6de] bg-[#f7faf8] p-4">
-                <div className="flex items-center gap-2"><span className="grid h-8 w-8 place-items-center rounded-xl bg-white text-xs font-bold text-[#3d6347]">{index + 1}</span><h3 className="text-sm font-bold text-[#2c4a34]">{dimension.name}</h3></div>
-                <p className="mt-2 text-xs leading-6 text-[#465e4c]">{dimension.description}</p>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-6 rounded-2xl border border-[#dce6de] bg-white p-4 sm:p-5">
-            <h2 className="text-base font-bold text-[#2c4a34]">မစတင်မီ သိထားသင့်သော အချက်များ</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <article className="rounded-xl bg-[#f3f8f4] p-3.5"><p className="text-xs font-bold text-[#2c4a34]">ဘယ်လိုဖြေဆိုသင့်သလဲ။</p><p className="mt-1.5 text-xs leading-6 text-[#465e4c]">သူများမျှော်လင့်ထားသည့် ပုံစံထက် လက်ရှိဘဝတွင် ကိုယ်တကယ် ရွေးချယ်တတ်သည့် ဦးစားပေးမှုများကို စဉ်းစား၍ ဖြေပါ။ အဖြေမှန်၊ အဖြေမှား မရှိပါ။</p></article>
-              <article className="rounded-xl bg-[#f3f8f4] p-3.5"><p className="text-xs font-bold text-[#2c4a34]">အဖြေရွေးချယ်ပုံ</p><p className="mt-1.5 text-xs leading-6 text-[#465e4c]">မေးခွန်းတစ်ခုစီအတွက် သင့်အမြင်နှင့် ကိုက်ညီမှုအတိုင်းအတာကို ၅ ဆင့်ထဲမှ တစ်ခု ရွေးချယ်ပါ။</p></article>
-              <article className="rounded-xl bg-[#f3f8f4] p-3.5"><p className="text-xs font-bold text-[#2c4a34]">ကျော်ခြင်းနှင့် ပြန်ဆက်ခြင်း</p><p className="mt-1.5 text-xs leading-6 text-[#465e4c]">မသေချာသေးသော မေးခွန်းကို ကျော်ထားနိုင်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါသည်။ အဖြေရွေးတိုင်း ဒီ Browser ထဲတွင် အလိုအလျောက် သိမ်းဆည်းပါသည်။</p></article>
-              <article className="rounded-xl bg-[#f3f8f4] p-3.5"><p className="text-xs font-bold text-[#2c4a34]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</p><p className="mt-1.5 text-xs leading-6 text-[#465e4c]">ဘဝတန်ဖိုးများသည် အချိန်နှင့် အခြေအနေအလိုက် ပြောင်းလဲနိုင်ပါသည်။ ရမှတ်များသည် လက်ရှိဦးစားပေးပုံကို ပြန်လည်သုံးသပ်ရန် အညွှန်းသာ ဖြစ်ပါသည်။</p></article>
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-2xl border border-[#f0dfc6] bg-[#fffaf2] p-4 sm:p-5">
-            <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-[#825824]" /><div><p className="text-xs font-bold text-[#805b2d]">အရေးကြီးသော သတိပြုချက် (စမ်းသပ်မူကြမ်း)</p><p className="mt-1.5 text-xs leading-7 text-[#6f5e47]">ValueMap သည် ကိုယ်ပိုင်ရေးဆွဲထားသည့် စမ်းသပ်မူကြမ်း (Pilot Reflection) သာ ဖြစ်ပါသည်။ စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု၊ ရောဂါရှာဖွေမှု သို့မဟုတ် ဘဝဆုံးဖြတ်ချက်အတွက် ပညာရှင်အကြံဉာဏ်အစားထိုး မဟုတ်ပါ။</p></div></div>
-          </div>
-
-          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#dce6de] bg-[#f7faf8] p-4">
-            <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#3d6347]" />
-            <div><p className="text-xs font-bold text-[#2c4a34]">ကိုယ်ရေးအချက်အလက်နှင့် သိမ်းဆည်းမှု</p><p className="mt-1 text-xs leading-6 text-[#465e4c]">သင့်အဖြေများကို ဒီ Browser နှင့် ဒီစက်ထဲတွင်သာ သိမ်းဆည်းထားပါသည်။ Browser Data မရှင်းမီ JSON Backup ထုတ်ယူထားပါ။</p></div>
-          </div>
-
-          <div className="mt-5">
-            <CalmingBreathPause theme="valueMap" />
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[#d4e1d7] bg-[#f5f9f6] p-4">
+            <Sparkles size={18} className="mt-0.5 shrink-0 text-[#3d6347]" />
+            <p className="text-sm leading-7 text-[#2c4a34]">အဖြေမှန်၊ အဖြေမှား မရှိပါ — လက်ရှိဘဝမှာ ကိုယ်တကယ် အလေးထားရွေးချယ်တတ်တဲ့ ဦးစားပေးမှုအတိုင်း ဖြေဆိုနိုင်ပါတယ်။</p>
           </div>
 
           {draft ? (
-            <div className="mt-6 rounded-2xl border border-[#cad9ce] bg-[#f5f9f6] p-4 sm:p-5">
+            <div className="rounded-2xl border border-[#cad9ce] bg-[#f5f9f6] p-4 sm:p-5">
               <div className="flex items-center justify-between gap-2"><p className="text-sm font-bold text-[#2c4a34]">မပြီးသေးတဲ့ ဖြေဆိုမှုရှိပါတယ်</p><span className="text-xs font-bold text-[#3d6347]">{progress}%</span></div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#dce7df]"><div className="h-full rounded-full bg-[#3d6347]" style={{ width: `${progress}%` }} /></div>
               <p className="mt-2 text-xs text-[#475e4d]">ဖြေပြီး {answeredCount} ခု · ကျော်ထား {skippedCount} ခု · နောက်ဆုံး {formatDate(draft.updatedAt)}</p>
@@ -167,14 +139,60 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
               </div>
             </div>
           ) : (
-            <div className="mt-6 rounded-2xl border border-[#d4e1d7] bg-[#f7faf8] p-4">
-              <label className="flex cursor-pointer items-start gap-3">
-                <input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-[#3d6347]" />
-                <span className="text-xs leading-6 text-[#465e4c]">ဤစမ်းသပ်မူကြမ်း၏ ရည်ရွယ်ချက်နှင့် ကန့်သတ်ချက်များကို ဖတ်ရှုနားလည်ပါသည်။ ရလဒ်သည် ကိုယ်တိုင်ပြန်လည်သုံးသပ်ရန်သာ ဖြစ်ကြောင်း သိရှိပါသည်။</span>
-              </label>
-              <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><SecondaryButton onClick={onBack}>နောက်သို့</SecondaryButton><PrimaryButton onClick={onBegin} disabled={!acknowledged}>နားလည်ပါပြီ၊ စတင်မယ်</PrimaryButton></div>
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <SecondaryButton onClick={onBack}>နောက်သို့</SecondaryButton>
+              <PrimaryButton onClick={onBegin}>မေးခွန်း ၁ မှ စတင်မယ်</PrimaryButton>
             </div>
           )}
+
+          <div className="mt-6 border-t border-[#dce6de] pt-4">
+            <button
+              type="button"
+              aria-expanded={guideOpen}
+              onClick={() => setGuideOpen((open) => !open)}
+              className="inline-flex min-h-11 items-center gap-2 text-xs font-semibold text-[#33573d] hover:text-[#2c4a34]"
+            >
+              <span>{guideOpen ? 'ဖြေဆိုနည်းအသေးစိတ် ပိတ်ရန်' : 'ဖြေဆိုနည်းနှင့် လေ့လာမည့် အချက် ၄ ချက် ကြည့်ရန်'}</span>
+              <ChevronRight size={15} className={cn('transition-transform', guideOpen && 'rotate-90')} />
+            </button>
+
+            {guideOpen && (
+              <div className="mt-4 space-y-5">
+                <div>
+                  <h2 className="text-base font-bold text-[#2c4a34]">ဒီဆန်းစစ်မှုမှာ လေ့လာမယ့် အဓိက အချက် ၄ ချက်</h2>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {VALUEMAP_DIMENSIONS.map((dimension, index) => (
+                      <article key={dimension.id} className="rounded-2xl border border-[#dce6de] bg-[#f7faf8] p-4">
+                        <div className="flex items-center gap-2"><span className="grid h-8 w-8 place-items-center rounded-xl bg-white text-xs font-bold text-[#3d6347]">{index + 1}</span><h3 className="text-sm font-bold text-[#2c4a34]">{dimension.name}</h3></div>
+                        <p className="mt-2 text-sm leading-7 text-[#465e4c]">{dimension.description}</p>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-[#dce6de] bg-white p-4 sm:p-5">
+                  <h2 className="text-base font-bold text-[#2c4a34]">မစတင်မီ သိထားသင့်သော အချက်များ</h2>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <article className="rounded-xl bg-[#f3f8f4] p-3.5"><p className="text-xs font-bold text-[#2c4a34]">ဘယ်လိုဖြေဆိုသင့်သလဲ။</p><p className="mt-1.5 text-sm leading-7 text-[#465e4c]">သူများမျှော်လင့်ထားသည့် ပုံစံထက် လက်ရှိဘဝတွင် ကိုယ်တကယ် ရွေးချယ်တတ်သည့် ဦးစားပေးမှုများကို စဉ်းစား၍ ဖြေပါ။ အဖြေမှန်၊ အဖြေမှား မရှိပါ။</p></article>
+                    <article className="rounded-xl bg-[#f3f8f4] p-3.5"><p className="text-xs font-bold text-[#2c4a34]">အဖြေရွေးချယ်ပုံ</p><p className="mt-1.5 text-sm leading-7 text-[#465e4c]">မေးခွန်းတစ်ခုစီအတွက် သင့်အမြင်နှင့် ကိုက်ညီမှုအတိုင်းအတာကို ၅ ဆင့်ထဲမှ တစ်ခု ရွေးချယ်ပါ။</p></article>
+                    <article className="rounded-xl bg-[#f3f8f4] p-3.5"><p className="text-xs font-bold text-[#2c4a34]">ကျော်ခြင်းနှင့် ပြန်ဆက်ခြင်း</p><p className="mt-1.5 text-sm leading-7 text-[#465e4c]">မသေချာသေးသော မေးခွန်းကို ကျော်ထားနိုင်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါသည်။ အဖြေရွေးတိုင်း ဒီဖုန်းရဲ့ Browser ထဲတွင် အလိုအလျောက် သိမ်းဆည်းပါသည်။</p></article>
+                    <article className="rounded-xl bg-[#f3f8f4] p-3.5"><p className="text-xs font-bold text-[#2c4a34]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</p><p className="mt-1.5 text-sm leading-7 text-[#465e4c]">ဘဝတန်ဖိုးများသည် အချိန်နှင့် အခြေအနေအလိုက် ပြောင်းလဲနိုင်ပါသည်။ ရမှတ်များသည် လက်ရှိဦးစားပေးပုံကို ပြန်လည်သုံးသပ်ရန် အညွှန်းသာ ဖြစ်ပါသည်။</p></article>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-[#f0dfc6] bg-[#fffaf2] p-4 sm:p-5">
+                  <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-[#825824]" /><div><p className="text-xs font-bold text-[#805b2d]">အရေးကြီးသော သတိပြုချက်</p><p className="mt-1.5 text-sm leading-7 text-[#6f5e47]">ValueMap သည် ကိုယ်ပိုင်ရေးဆွဲထားသည့် ကိုယ်တိုင်သုံးသပ်မှုသာ ဖြစ်ပါသည်။ စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု၊ ရောဂါရှာဖွေမှု သို့မဟုတ် ဘဝဆုံးဖြတ်ချက်အတွက် ပညာရှင်အကြံဉာဏ်အစားထိုး မဟုတ်ပါ။</p></div></div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-2xl border border-[#dce6de] bg-[#f7faf8] p-4">
+                  <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#3d6347]" />
+                  <div><p className="text-xs font-bold text-[#2c4a34]">ကိုယ်ရေးအချက်အလက်နှင့် သိမ်းဆည်းမှု</p><p className="mt-1 text-sm leading-7 text-[#465e4c]">သင့်အဖြေများကို ဒီဖုန်းရဲ့ Browser ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser အချက်အလက် မရှင်းမီ မှတ်တမ်းဖိုင် သိမ်းထားနိုင်ပါတယ်။</p></div>
+                </div>
+
+                <CalmingBreathPause theme="valueMap" />
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </main>
@@ -209,22 +227,22 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
       <div className="mb-7 hidden items-center justify-between gap-3 sm:flex">
         <button onClick={onExit} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#475e4d] hover:text-[#2c4a34]"><ArrowLeft size={16} /> ခဏရပ်ပြီး ထွက်မယ်</button>
         {storageError ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12} /> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-xs font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12} /> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#475e4d] shadow-sm"><LockKeyhole size={12} /> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#475e4d] shadow-sm"><LockKeyhole size={12} /> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
         )}
       </div>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-2xl border border-[#ebe5dc] bg-[#fffdf9] p-3.5 card-shadow sm:rounded-[2rem] sm:p-9">
         <div className="hidden items-end justify-between gap-3 sm:flex">
           <div><p className="text-xs font-semibold tracking-wide text-[#524b59]">VALUEMAP · PILOT {totalQuestions}</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
-          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#3d6347]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / {totalQuestions}</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
+          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#3d6347]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / {totalQuestions}</span></div><p className="text-xs text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
         </div>
-        <div className="mt-5 hidden items-center justify-between text-[11px] text-[#524b59] sm:flex"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
+        <div className="mt-5 hidden items-center justify-between text-xs text-[#524b59] sm:flex"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
         <div className="mt-2 hidden h-2 overflow-hidden rounded-full bg-[#e8ede7] sm:block"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#3d6347] to-[#74a07f]" style={{ width: `${progress}%` }} /></div>
         <div key={question.id} className="question-card-enter">
           <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#ebe5dc] bg-gradient-to-br from-[#f3f8f4] to-[#faf8f5] px-4 py-4 sm:my-7 sm:min-h-32 sm:rounded-[1.5rem] sm:px-7 sm:py-8">
-            <p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p>
+            <p className="text-xs font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p>
             <h2 className="mt-1.5 text-base font-bold leading-[1.7] text-[#242029] sm:mt-3 sm:text-[1.35rem] sm:leading-[1.9]">{question.text}</h2>
           </div>
           <LikertScaleSelector
@@ -241,7 +259,7 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
             <PrimaryButton onClick={isLast ? onReview : onNext} disabled={selectedAnswer === undefined} icon={isLast ? CheckCircle2 : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</PrimaryButton>
           </div>
         </div>
-        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f3f8f4] px-4 py-3 sm:flex"><p className="text-[11px] leading-5 text-[#475e4d]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="min-h-11 text-xs font-semibold text-[#3d6347] hover:text-[#2c4a34]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
+        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f3f8f4] px-4 py-3 sm:flex"><p className="text-xs leading-5 text-[#475e4d]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="min-h-11 text-xs font-semibold text-[#3d6347] hover:text-[#2c4a34]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
       <MobileQuestionActions
         accent="sage"
@@ -254,7 +272,7 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
         showSkip={selectedAnswer === undefined}
         isLast={isLast}
       />
-      <p className="mt-5 hidden text-center text-[11px] leading-6 text-[#475e4d] sm:block">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
+      <p className="mt-5 hidden text-center text-xs leading-6 text-[#475e4d] sm:block">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
     </main>
   )
 }
@@ -277,19 +295,19 @@ function ReviewView({ activeQuestions, answers, skippedQuestionIds, onGoTo, onFi
         <h1 className="mt-2 text-2xl font-bold text-[#2c4a34]">ဖြေဆိုမှုကို ပြန်စစ်ပါ</h1>
         <p className="mt-2 text-xs leading-6 text-[#475e4d]">ကျော်ထားတဲ့မေးခွန်းနဲ့ မဖြေရသေးတဲ့မေးခွန်းကို ရွေးပြီး တိုက်ရိုက်ပြန်ဖြေနိုင်ပါတယ်။</p>
         <div className="mt-6 grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-[#edf6ef] p-3"><p className="text-2xl font-bold text-[#3d6347] tabular-nums">{answered.length}</p><p className="mt-1 text-[11px] text-[#3d6347]">ဖြေပြီး</p></div>
-          <div className="rounded-xl bg-[#fff7ed] p-3"><p className="text-2xl font-bold text-[#825824] tabular-nums">{skipped.length}</p><p className="mt-1 text-[11px] text-[#825824]">ကျော်ထား</p></div>
-          <div className="rounded-xl bg-[#f3f8f4] p-3"><p className="text-2xl font-bold text-[#475e4d] tabular-nums">{unanswered.length}</p><p className="mt-1 text-[11px] text-[#475e4d]">မဖြေရသေး</p></div>
+          <div className="rounded-xl bg-[#edf6ef] p-3"><p className="text-2xl font-bold text-[#3d6347] tabular-nums">{answered.length}</p><p className="mt-1 text-xs text-[#3d6347]">ဖြေပြီး</p></div>
+          <div className="rounded-xl bg-[#fff7ed] p-3"><p className="text-2xl font-bold text-[#825824] tabular-nums">{skipped.length}</p><p className="mt-1 text-xs text-[#825824]">ကျော်ထား</p></div>
+          <div className="rounded-xl bg-[#f3f8f4] p-3"><p className="text-2xl font-bold text-[#475e4d] tabular-nums">{unanswered.length}</p><p className="mt-1 text-xs text-[#475e4d]">မဖြေရသေး</p></div>
         </div>
-        <div className="mt-6 flex flex-wrap gap-2">{[['incomplete', `ပြန်ဖြေရန် (${incomplete.length})`], ['skipped', `ကျော်ထား (${skipped.length})`], ['unanswered', `မဖြေရသေး (${unanswered.length})`], ['answered', `ဖြေပြီး (${answered.length})`]].map(([value, label]) => <button key={value} onClick={() => setFilter(value)} className={cn('min-h-10 rounded-full px-3.5 py-2 text-[11px] font-semibold transition', filter === value ? 'bg-[#3d6347] text-white' : 'bg-[#eaf2ec] text-[#475e4d] hover:bg-[#dce8df]')}>{label}</button>)}</div>
+        <div className="mt-6 flex flex-wrap gap-2">{[['incomplete', `ပြန်ဖြေရန် (${incomplete.length})`], ['skipped', `ကျော်ထား (${skipped.length})`], ['unanswered', `မဖြေရသေး (${unanswered.length})`], ['answered', `ဖြေပြီး (${answered.length})`]].map(([value, label]) => <button key={value} onClick={() => setFilter(value)} className={cn('min-h-10 rounded-full px-3.5 py-2 text-xs font-semibold transition', filter === value ? 'bg-[#3d6347] text-white' : 'bg-[#eaf2ec] text-[#475e4d] hover:bg-[#dce8df]')}>{label}</button>)}</div>
         <div className="mt-4 rounded-2xl border border-[#dce6de] p-3 sm:p-4">
           {visible.length === 0 ? <div className="py-8 text-center"><CheckCircle2 className="mx-auto text-[#3d6347]" size={30} /><p className="mt-2 text-sm font-semibold text-[#3d6347]">ဒီအမျိုးအစားမှာ မေးခွန်းမရှိပါ။</p></div> : <div className="grid gap-2 sm:grid-cols-2">{visible.map((question) => {
             const originalIndex = activeQuestions.findIndex((item) => item.id === question.id)
-            return <button key={question.id} onClick={() => onGoTo(originalIndex)} className="flex min-w-0 items-start gap-3 rounded-xl border border-[#dce6de] bg-white p-3 text-left transition hover:border-[#b5cbb9] hover:bg-[#f7faf8]"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#edf3ee] text-xs font-bold text-[#475e4d]">{originalIndex + 1}</span><span className="min-w-0 flex-1"><span className="block text-[11px] font-semibold leading-5 text-[#2c4a34]">{question.text}</span><span className="mt-1 block text-[11px] text-[#475e4d]">{statusOf(question)}</span></span><ChevronRight size={15} className="mt-1 shrink-0 text-[#475e4d]" /></button>
+            return <button key={question.id} onClick={() => onGoTo(originalIndex)} className="flex min-w-0 items-start gap-3 rounded-xl border border-[#dce6de] bg-white p-3 text-left transition hover:border-[#b5cbb9] hover:bg-[#f7faf8]"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#edf3ee] text-xs font-bold text-[#475e4d]">{originalIndex + 1}</span><span className="min-w-0 flex-1"><span className="block text-xs font-semibold leading-5 text-[#2c4a34]">{question.text}</span><span className="mt-1 block text-xs text-[#475e4d]">{statusOf(question)}</span></span><ChevronRight size={15} className="mt-1 shrink-0 text-[#475e4d]" /></button>
           })}</div>}
         </div>
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between"><SecondaryButton onClick={onBack}>မေးခွန်းဆက်ဖြေမယ်</SecondaryButton><PrimaryButton onClick={onFinish} icon={CheckCircle2}>အဖြေစစ်ပြီး ရလဒ်ကြည့်မယ်</PrimaryButton></div>
-        {incomplete.length > 0 && <p className="mt-3 text-right text-[11px] leading-6 text-[#825824]">မေးခွန်း {incomplete.length} ခု ကျန်နေသေးပါတယ်။ အားလုံးဖြေပြီးမှ အညွှန်းရလဒ်တွက်ချက်နိုင်ပါမယ်။</p>}
+        {incomplete.length > 0 && <p className="mt-3 text-right text-xs leading-6 text-[#825824]">မေးခွန်း {incomplete.length} ခု ကျန်နေသေးပါတယ်။ အားလုံးဖြေပြီးမှ အညွှန်းရလဒ်တွက်ချက်နိုင်ပါမယ်။</p>}
       </section>
     </main>
   )
@@ -371,9 +389,9 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
       <section id="valuemap-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#d4e1d7] bg-gradient-to-br from-[#eef4ef] via-[#f9fcf9] to-[#eaf2ec] p-6 card-shadow sm:p-10">
         <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-xs font-semibold text-[#33573d]"><CheckCircle2 size={14} /> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#3d6347] shadow-sm"><ValueMapLogo size={50} /></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#475e4d]">VALUEMAP · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#2c4a34] sm:text-3xl">သင့်ရဲ့ ဘဝတန်ဖိုးမြေပုံ အကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#475e4d]">မေးခွန်း {questionCountLabel} · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#465e4c]">အောက်ပါရလဒ်များသည် ဤစမ်းသပ်မူကြမ်းအတွင်း သင်ရွေးချယ်ထားသော အဖြေများကို အချက် ၄ ချက်အလိုက် စုစည်းပြသထားခြင်းသာ ဖြစ်ပါသည်။ ဘဝတန်ဖိုးများသည် အချိန်နှင့်အမျှ ပြောင်းလဲနိုင်ပါသည်။</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
-          <div className="rounded-[1.5rem] border border-white/90 bg-white/90 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#2c4a34]">အဓိက တန်ဖိုး ၄ ခု၏ ရမှတ်</h2><span className="text-[11px] text-[#475e4d]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="56%" margin={{ top: 22, right: 44, bottom: 22, left: 44 }}><PolarGrid stroke="#dce6de" /><PolarAngleAxis dataKey="area" tick={<ValueMapPolarTick />} /><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#475e4d', fontSize: 11 }} axisLine={false} /><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#88b393" fillOpacity={0.55} strokeWidth={2} /><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#d4e1d7', fontSize: 12 }} /></RadarChart></ResponsiveContainer></div><p className="text-center text-[11px] leading-5 text-[#475e4d]">ဤအညွှန်းသည် ဖြေဆိုထားသည့်အဖြေများကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါသည်။</p></div>
+          <div className="rounded-[1.5rem] border border-white/90 bg-white/90 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#2c4a34]">အဓိက တန်ဖိုး ၄ ခု၏ ရမှတ်</h2><span className="text-xs text-[#475e4d]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="56%" margin={{ top: 22, right: 44, bottom: 22, left: 44 }}><PolarGrid stroke="#dce6de" /><PolarAngleAxis dataKey="area" tick={<ValueMapPolarTick />} /><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#475e4d', fontSize: 11 }} axisLine={false} /><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#88b393" fillOpacity={0.55} strokeWidth={2} /><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#d4e1d7', fontSize: 12 }} /></RadarChart></ResponsiveContainer></div><p className="text-center text-xs leading-5 text-[#475e4d]">ဤအညွှန်းသည် ဖြေဆိုထားသည့်အဖြေများကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါသည်။</p></div>
           <div className="flex flex-col gap-3">
-            {ordered.slice(0, 2).map((dimension, index) => <article key={dimension.id} className="rounded-[1.5rem] border border-white/90 bg-white/90 p-5"><p className="text-xs font-semibold text-[#475e4d]">လက်ရှိတွင် ပိုမိုအလေးထားနေသော တန်ဖိုး {index + 1}</p><h3 className="mt-2 text-sm font-bold leading-6 text-[#2c4a34]">{dimension.name}</h3><p className="mt-1 text-xl font-bold text-[#3d6347]">{dimension.index} / 100</p><p className="mt-2 text-[11px] font-semibold leading-6 text-[#33573d]">{getValueMapInsight(dimension.id, dimension.index)?.label}</p><p className="mt-2 text-xs leading-7 text-[#465e4c]">{VALUEMAP_DIMENSIONS.find((item) => item.id === dimension.id)?.description}</p></article>)}
+            {ordered.slice(0, 2).map((dimension, index) => <article key={dimension.id} className="rounded-[1.5rem] border border-white/90 bg-white/90 p-5"><p className="text-xs font-semibold text-[#475e4d]">လက်ရှိတွင် ပိုမိုအလေးထားနေသော တန်ဖိုး {index + 1}</p><h3 className="mt-2 text-sm font-bold leading-6 text-[#2c4a34]">{dimension.name}</h3><p className="mt-1 text-xl font-bold text-[#3d6347]">{dimension.index} / 100</p><p className="mt-2 text-xs font-semibold leading-6 text-[#33573d]">{getValueMapInsight(dimension.id, dimension.index)?.label}</p><p className="mt-2 text-xs leading-7 text-[#465e4c]">{VALUEMAP_DIMENSIONS.find((item) => item.id === dimension.id)?.description}</p></article>)}
             <div className="rounded-[1.5rem] border border-[#d4e1d7] bg-white/80 p-5"><p className="text-xs font-bold text-[#2c4a34]">ရလဒ်ကို ဖတ်ရှုရာတွင်</p><p className="mt-2 text-xs leading-7 text-[#465e4c]">တန်ဖိုးတစ်ခု အမှတ်မြင့်ခြင်းသည် လက်ရှိအချိန်တွင် ထိုအရာကို ပိုမိုဦးစားပေးနေကြောင်းသာ ပြသခြင်းဖြစ်ပြီး အခြားတန်ဖိုးများ မရှိဟု မဆိုလိုပါ။</p></div>
           </div>
         </div>
@@ -383,11 +401,11 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
         <div className="grid gap-4 lg:grid-cols-2">
           {dimensionInsights.map((dimension) => (
             <article key={dimension.id} className="rounded-2xl border border-[#dce6de] bg-white p-5 shadow-sm sm:p-6">
-              <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold leading-6 text-[#2c4a34]">{dimension.name}</p><p className="mt-1 text-[11px] leading-5 text-[#475e4d]">{dimension.itemCount} မေးခွန်း · ပျမ်းမျှ {dimension.average}/5</p></div><span className="shrink-0 rounded-xl bg-[#eef5f0] px-3 py-2 text-sm font-bold tabular-nums text-[#3d6347]">{dimension.index}/100</span></div>
+              <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold leading-6 text-[#2c4a34]">{dimension.name}</p><p className="mt-1 text-xs leading-5 text-[#475e4d]">{dimension.itemCount} မေးခွန်း · ပျမ်းမျှ {dimension.average}/5</p></div><span className="shrink-0 rounded-xl bg-[#eef5f0] px-3 py-2 text-sm font-bold tabular-nums text-[#3d6347]">{dimension.index}/100</span></div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e8f0ea]"><div className="h-full rounded-full bg-gradient-to-r from-[#3d6347] to-[#74a07f]" style={{ width: `${dimension.index}%` }} /></div>
               {dimension.insight && (
                 <>
-                  <p className="mt-3 rounded-xl bg-[#f3f8f4] px-3 py-2 text-[11px] font-semibold leading-6 text-[#33573d]">{dimension.insight.label}</p>
+                  <p className="mt-3 rounded-xl bg-[#f3f8f4] px-3 py-2 text-xs font-semibold leading-6 text-[#33573d]">{dimension.insight.label}</p>
                   <div className="mt-4 space-y-3 text-xs leading-7 text-[#465e4c]">
                     <div><p className="font-bold text-[#2c4a34]">ဒီအဖြေတွေက ဘာကို ညွှန်းနိုင်သလဲ။</p><p>{dimension.insight.interpretation}</p></div>
                     <div className="rounded-xl bg-[#f7faf8] p-3"><p className="font-bold text-[#33573d]">နေ့စဉ်ဘဝ ဥပမာ</p><p>{dimension.insight.example}</p></div>
@@ -402,7 +420,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
       </section>
       <ReflectionNotesSection recordId={record.id} theme="valueMap" />
       <section className="no-print mt-8 flex flex-wrap justify-center gap-3"><SecondaryButton onClick={onHome}>ပင်မစာမျက်နှာသို့ ပြန်မယ်</SecondaryButton><PrimaryButton onClick={onRetake} icon={RotateCcw}>ပြန်လည်ဖြေဆိုမယ်</PrimaryButton></section>
-      <p id="valuemap-report-notes" className="mt-5 scroll-mt-28 text-center text-[11px] leading-6 text-[#475e4d]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်မူကြမ်း (Pilot Reflection) အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။</p>
+      <p id="valuemap-report-notes" className="mt-5 scroll-mt-28 text-center text-xs leading-6 text-[#475e4d]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်မူကြမ်း (Pilot Reflection) အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။</p>
     </main>
   )
 }

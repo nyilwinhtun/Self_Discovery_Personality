@@ -10,7 +10,7 @@
 
 * { box-sizing: border-box; }
 html { min-width: 320px; scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: #faf8f5; color: #1c1917; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #faf8f5; color: #1c1917; line-height: 1.75; overflow-x: hidden; }
 button { font: inherit; }
 
 .soft-grid {

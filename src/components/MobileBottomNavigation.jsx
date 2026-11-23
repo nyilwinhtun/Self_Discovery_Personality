@@ -20,7 +20,7 @@ export default function MobileBottomNavigation({ active, onHome, onAssessment, o
               type="button"
               onClick={handlers[id]}
               aria-current={selected ? 'page' : undefined}
-              className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-semibold transition ${selected ? 'bg-[#f4eef6] text-[#725981]' : 'text-[#6b5e70] hover:bg-[#faf7fb] hover:text-[#725981]'}`}
+              className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-xs font-semibold transition ${selected ? 'bg-[#f4eef6] text-[#725981]' : 'text-[#6b5e70] hover:bg-[#faf7fb] hover:text-[#725981]'}`}
             >
               <Icon size={19} strokeWidth={selected ? 2.3 : 1.8} />
               <span>{label}</span>

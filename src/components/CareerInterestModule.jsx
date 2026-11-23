@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   AlertTriangle, ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronRight, ClipboardCheck,
-  Download, Home, LockKeyhole, PauseCircle, RotateCcw, ShieldCheck,
+  Download, Home, LockKeyhole, PauseCircle, RotateCcw, ShieldCheck, Sparkles,
 } from 'lucide-react'
 import {
   PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip,
@@ -22,7 +22,7 @@ import { useAutoAdvance } from '../hooks/useAutoAdvance.js'
 
 const ASSESSMENT_TYPE = 'careerInterest'
 const LEVEL = 30
-const STORAGE_HINT = 'သင့်အဖြေများကို ဒီ Browser နဲ့ ဒီစက်ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser Data ရှင်းလိုက်ရင် အဖြေတွေ ပျောက်နိုင်ပါတယ်။ JSON Backup ကို ပုံမှန်ထုတ်ထားပါ။'
+const STORAGE_HINT = 'သင့်အဖြေများကို ဒီဖုန်းရဲ့ Browser ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser အချက်အလက် ရှင်းလိုက်ရင် အဖြေတွေ ပျောက်နိုင်ပါတယ်။ မှတ်တမ်းဖိုင်ကို ပုံမှန်သိမ်းထားပါ။'
 
 function formatDate(value) {
   if (!value) return 'မသိရှိပါ'
@@ -50,15 +50,15 @@ function CareerPolarTick({ payload, x, y, textAnchor }) {
 }
 
 function IntroView({ draft, onResume, onStart, onHome, storageAlertVisible, onExportBackup, onDismissStorageError }) {
-  const [acknowledged, setAcknowledged] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const answered = Object.keys(draft?.answers || {}).length
   const progress = Math.round((answered / LEVEL) * 100)
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-      <button onClick={onHome} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#716679] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button>
+    <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
+      <button onClick={onHome} className="mb-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#716679] hover:text-[#614b6b]"><ArrowLeft size={16} /> ပင်မစာမျက်နှာ</button>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="overflow-hidden rounded-[2rem] border border-[#e7dfd6] bg-[#fffdf9] card-shadow">
-        <div className="bg-gradient-to-br from-[#f6f1eb] via-[#faf8f5] to-[#f4efe7] px-6 py-8 sm:px-9 sm:py-10">
+        <div className="bg-gradient-to-br from-[#f6f1eb] via-[#faf8f5] to-[#f4efe7] px-6 py-6 sm:px-8 sm:py-8">
           <div className="flex items-center gap-4">
             <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl border border-[#e8dccb] bg-[#faf8f5] text-[#7c5324]"><CareerInterestEmblem size={38} /></span>
             <div>
@@ -66,54 +66,75 @@ function IntroView({ draft, onResume, onStart, onHome, storageAlertVisible, onEx
               <h1 className="mt-1 text-xl font-bold text-[#1c1917] sm:text-2xl">သင် ဘယ်လိုလုပ်ဆောင်မှုမျိုးကို ပိုနှစ်သက်ပါသလဲ။</h1>
             </div>
           </div>
-          <p className="mt-5 max-w-2xl text-sm leading-8 text-[#44403c]">ဒီဆန်းစစ်မှုက သင်လုပ်ရတာကို စိတ်ဝင်စားပြီး ပျော်ရွှင်နိုင်မယ့် အလုပ်ဆိုင်ရာလုပ်ဆောင်မှုတွေကို ရှာဖွေပေးပါတယ်။ လက်ရှိကျွမ်းကျင်မှုနဲ့ အတွေ့အကြုံကို စစ်ဆေးတာမဟုတ်ပါဘူး။</p>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-[#44403c]">ဒီဆန်းစစ်မှုက သင်လုပ်ရတာကို စိတ်ဝင်စားပြီး ပျော်ရွှင်နိုင်မယ့် အလုပ်ဆိုင်ရာလုပ်ဆောင်မှုတွေကို ရှာဖွေပေးပါတယ်။ လက်ရှိကျွမ်းကျင်မှုနဲ့ အတွေ့အကြုံကို စစ်ဆေးတာမဟုတ်ပါဘူး။</p>
         </div>
-        <div className="p-6 sm:p-9">
+        <div className="p-6 sm:p-8">
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl bg-[#faf7fa] p-4"><p className="text-xs text-[#74677b]">မေးခွန်း</p><p className="mt-1 text-2xl font-bold text-[#80678f]">၃၀ ခု</p></div>
             <div className="rounded-2xl bg-[#faf7fa] p-4"><p className="text-xs text-[#74677b]">စိတ်ဝင်စားမှု အမျိုးအစား</p><p className="mt-1 text-2xl font-bold text-[#80678f]">၆ မျိုး</p></div>
             <div className="rounded-2xl bg-[#faf7fa] p-4"><p className="text-xs text-[#74677b]">ကြာချိန် · ဖြေဆိုမှု</p><p className="mt-1 text-sm font-bold leading-6 text-[#80678f]">~၅ မိနစ် · ခဏရပ်၊ ပြန်ဆက်နိုင်</p></div>
           </div>
-          <div className="mt-6 space-y-3">
-            {[
-              ['နှစ်သက်မှုကိုပဲ အခြေခံဖြေပါ', 'ဒီလုပ်ဆောင်မှုကို လုပ်ခွင့်ရရင် ဘယ်လောက်နှစ်သက်မလဲဆိုတာကို စဉ်းစားပါ။ လုပ်တတ်ခြင်း၊ အတွေ့အကြုံရှိခြင်း၊ ဝင်ငွေဘယ်လောက်ရမလဲဆိုတာကို မစဉ်းစားပါနဲ့။'],
-              ['အဖြေမှန်၊ မှား မရှိပါ', 'ကိုယ့်ရဲ့ တကယ့်စိတ်ဝင်စားမှုကို ရွေးချယ်ပါ။ ကိုယ်ဖြစ်ချင်တဲ့ပုံစံနဲ့ မဖြေဘဲ လက်ရှိခံစားချက်ကို အခြေခံပါ။'],
-              ['ကျော်ပြီး နောက်မှပြန်ဖြေနိုင်ပါတယ်', 'မသေချာတဲ့မေးခွန်းကို ကျော်ထားနိုင်ပြီး နောက်ဆုံးမှာ စာရင်းနဲ့ ပြန်စစ်နိုင်ပါတယ်။'],
-              ['ဒီစစ်ဆေးမှုက ဘာကို မတိုင်းတာသလဲ', 'လက်ရှိကျွမ်းကျင်မှု၊ ဉာဏ်ရည်၊ အလုပ်ရရှိနိုင်မှု၊ အောင်မြင်မှု သို့မဟုတ် အနာဂတ်ကို ခန့်မှန်းတာ မဟုတ်ပါ။'],
-              ['အဖြေတွေ အလိုအလျောက်သိမ်းမယ်', 'ခဏရပ်သွားရင် နောက်တစ်ကြိမ် ဒီစက်နဲ့ Browser ကို ပြန်ဖွင့်ပြီး အရင်နေရာကနေ ဆက်ဖြေနိုင်ပါတယ်။'],
-            ].map(([title, body]) => <div key={title} className="flex gap-3 rounded-2xl bg-[#faf7fa] p-4"><span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white text-[#80678f] shadow-sm"><Check size={16}/></span><div><h2 className="text-sm font-bold text-[#5c4c62]">{title}</h2><p className="mt-1 text-xs leading-6 text-[#716679]">{body}</p></div></div>)}
+
+          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#e7dce9] bg-[#faf7fb] p-4">
+            <Sparkles size={18} className="mt-0.5 shrink-0 text-[#80678f]" />
+            <p className="text-sm leading-7 text-[#5c4c62]">လုပ်တတ်ခြင်း၊ အတွေ့အကြုံရှိခြင်းထက် «လုပ်ခွင့်ရရင် ဘယ်လောက်နှစ်သက်မလဲ» ဆိုတာကိုပဲ အခြေခံပြီး ဖြေဆိုနိုင်ပါတယ်။</p>
           </div>
-          <div className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fcfafb] p-4">
-            <h2 className="text-sm font-bold text-[#5c4c62]">အဖြေရွေးချယ်ပုံ (၁ မှ ၅ အထိ)</h2>
-            <p className="mt-1 text-xs leading-6 text-[#716679]">လုပ်ဆောင်မှုတစ်ခုကို ကိုယ်တိုင်လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲဆိုတာ ရွေးပါ။ လုပ်ဖူး/မလုပ်ဖူး၊ တတ်/မတတ်ဆိုတာကို မစဉ်းစားပါနဲ့။</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-5">
-              {CAREER_ANSWER_OPTIONS.map((item) => (
-                <div key={item.value} className="flex items-center gap-2 rounded-xl bg-white p-2.5 shadow-xs sm:flex-col sm:items-start">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#faf7fa] text-xs font-bold text-[#80678f]">{item.value}</span>
-                  <span className="text-[11px] leading-5 text-[#6f6274]">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fcfafb] p-4"><div className="flex gap-3"><ShieldCheck size={18} className="mt-0.5 shrink-0 text-[#6b5e70]"/><p className="text-xs leading-7 text-[#716679]">{STORAGE_HINT} ရလဒ်ရမှတ်များသည် သင်ဖြေဆိုထားသည့် အဖြေများကို အညွှန်းအဖြစ် ဖော်ပြခြင်းသာဖြစ်ပြီး လူအများနှင့် နှိုင်းယှဉ်ထားခြင်း မဟုတ်ပါ။</p></div></div>
-          <div className="mt-5 rounded-2xl border border-[#eadfe9] bg-[#fbf7fb] p-4">
-            <label className="flex cursor-pointer items-start gap-3">
-              <input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-[#80678f]" />
-              <span className="text-xs leading-6 text-[#66576b]">အထက်ပါအချက်များကို ဖတ်ရှုပြီး နားလည်ပါသည်။ ဒီစစ်ဆေးမှုဟာ စိတ်ဝင်စားမှုကိုသာ လေ့လာတာဖြစ်ပြီး လက်ရှိကျွမ်းကျင်မှု သို့မဟုတ် အလုပ်အကိုင်သင့်တော်မှုကို အပြီးသတ်ဆုံးဖြတ်တာ မဟုတ်ကြောင်း သိရှိပါသည်။</span>
-            </label>
-          </div>
-          {draft && (
+
+          {draft ? (
             <div className="mt-6 rounded-2xl border border-[#d8c7df] bg-[#faf6fb] p-4">
               <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-bold text-[#725f7a]">မပြီးသေးတဲ့ ဖြေဆိုမှုရှိပါတယ်</p><span className="text-xs font-semibold text-[#80678f]">{progress}%</span></div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e9e1eb]"><div className="h-full rounded-full bg-[#9c82aa]" style={{ width: `${progress}%` }} /></div>
-              <p className="mt-2 text-[11px] text-[#74677b]">ဖြေပြီး {answered} ခု · ကျော်ထား {(draft.skippedQuestionIds || []).filter((id) => draft.answers?.[id] === undefined).length} ခု · နောက်ဆုံး {formatDate(draft.updatedAt)}</p>
-              <div className="mt-4 flex flex-wrap gap-2"><Button onClick={onResume}>အရင်နေရာက ဆက်ဖြေမယ်</Button><Button secondary icon={RotateCcw} onClick={onStart} disabled={!acknowledged}>အသစ်ပြန်စမယ်</Button></div>
+              <p className="mt-2 text-xs text-[#74677b]">ဖြေပြီး {answered} ခု · ကျော်ထား {(draft.skippedQuestionIds || []).filter((id) => draft.answers?.[id] === undefined).length} ခု · နောက်ဆုံး {formatDate(draft.updatedAt)}</p>
+              <div className="mt-4 flex flex-wrap gap-2"><Button onClick={onResume}>အရင်နေရာက ဆက်ဖြေမယ်</Button><Button secondary icon={RotateCcw} onClick={onStart}>အသစ်ပြန်စမယ်</Button></div>
+            </div>
+          ) : (
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button secondary onClick={onHome}>နောက်မှလုပ်မယ်</Button>
+              <Button onClick={onStart}>မေးခွန်း ၁ မှ စတင်မယ်</Button>
             </div>
           )}
-          {!draft && <div className="mt-7 flex flex-wrap justify-end gap-3"><Button secondary onClick={onHome}>နောက်မှလုပ်မယ်</Button><Button onClick={onStart} disabled={!acknowledged}>နားလည်ပါပြီ၊ စတင်ဖြေဆိုမယ်</Button></div>}
+
+          <div className="mt-6 border-t border-[#f0eaf0] pt-4">
+            <button
+              type="button"
+              aria-expanded={guideOpen}
+              onClick={() => setGuideOpen((open) => !open)}
+              className="inline-flex min-h-11 items-center gap-2 text-xs font-semibold text-[#6f5879] hover:text-[#514357]"
+            >
+              <span>{guideOpen ? 'ဖြေဆိုနည်းအသေးစိတ် ပိတ်ရန်' : 'ဖြေဆိုနည်းနှင့် သိထားသင့်သည်များ ကြည့်ရန်'}</span>
+              <ChevronRight size={15} className={`transition-transform ${guideOpen ? 'rotate-90' : ''}`} />
+            </button>
+
+            {guideOpen && (
+              <div className="mt-4 space-y-4">
+                <div className="space-y-3">
+                  {[
+                    ['နှစ်သက်မှုကိုပဲ အခြေခံဖြေပါ', 'ဒီလုပ်ဆောင်မှုကို လုပ်ခွင့်ရရင် ဘယ်လောက်နှစ်သက်မလဲဆိုတာကို စဉ်းစားပါ။ လုပ်တတ်ခြင်း၊ အတွေ့အကြုံရှိခြင်း၊ ဝင်ငွေဘယ်လောက်ရမလဲဆိုတာကို မစဉ်းစားပါနဲ့။'],
+                    ['အဖြေမှန်၊ မှား မရှိပါ', 'ကိုယ့်ရဲ့ တကယ့်စိတ်ဝင်စားမှုကို ရွေးချယ်ပါ။ ကိုယ်ဖြစ်ချင်တဲ့ပုံစံနဲ့ မဖြေဘဲ လက်ရှိခံစားချက်ကို အခြေခံပါ။'],
+                    ['ကျော်ပြီး နောက်မှပြန်ဖြေနိုင်ပါတယ်', 'မသေချာတဲ့မေးခွန်းကို ကျော်ထားနိုင်ပြီး နောက်ဆုံးမှာ စာရင်းနဲ့ ပြန်စစ်နိုင်ပါတယ်။'],
+                    ['ဒီစစ်ဆေးမှုက ဘာကို မတိုင်းတာသလဲ', 'လက်ရှိကျွမ်းကျင်မှု၊ ဉာဏ်ရည်၊ အလုပ်ရရှိနိုင်မှု၊ အောင်မြင်မှု သို့မဟုတ် အနာဂတ်ကို ခန့်မှန်းတာ မဟုတ်ပါ။'],
+                    ['အဖြေတွေ အလိုအလျောက်သိမ်းမယ်', 'ခဏရပ်သွားရင် နောက်တစ်ကြိမ် ဒီဖုန်းရဲ့ Browser ကို ပြန်ဖွင့်ပြီး အရင်နေရာကနေ ဆက်ဖြေနိုင်ပါတယ်။'],
+                  ].map(([title, body]) => <div key={title} className="flex gap-3 rounded-2xl bg-[#faf7fa] p-4"><span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white text-[#80678f] shadow-sm"><Check size={16}/></span><div><h2 className="text-sm font-bold text-[#5c4c62]">{title}</h2><p className="mt-1 text-sm leading-7 text-[#716679]">{body}</p></div></div>)}
+                </div>
+                <div className="rounded-2xl border border-[#eee4ed] bg-[#fcfafb] p-4">
+                  <h2 className="text-sm font-bold text-[#5c4c62]">အဖြေရွေးချယ်ပုံ (၁ မှ ၅ အထိ)</h2>
+                  <p className="mt-1 text-sm leading-7 text-[#716679]">လုပ်ဆောင်မှုတစ်ခုကို ကိုယ်တိုင်လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲဆိုတာ ရွေးပါ။ လုပ်ဖူး/မလုပ်ဖူး၊ တတ်/မတတ်ဆိုတာကို မစဉ်းစားပါနဲ့။</p>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-5">
+                    {CAREER_ANSWER_OPTIONS.map((item) => (
+                      <div key={item.value} className="flex items-center gap-2 rounded-xl bg-white p-2.5 shadow-xs sm:flex-col sm:items-start">
+                        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[#faf7fa] text-xs font-bold text-[#80678f]">{item.value}</span>
+                        <span className="text-xs leading-5 text-[#6f6274]">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-[#eee4ed] bg-[#fcfafb] p-4"><div className="flex gap-3"><ShieldCheck size={18} className="mt-0.5 shrink-0 text-[#6b5e70]"/><p className="text-sm leading-7 text-[#716679]">{STORAGE_HINT} ရလဒ်ရမှတ်များသည် သင်ဖြေဆိုထားသည့် အဖြေများကို အညွှန်းအဖြစ် ဖော်ပြခြင်းသာဖြစ်ပြီး လူအများနှင့် နှိုင်းယှဉ်ထားခြင်း မဟုတ်ပါ။</p></div></div>
+              </div>
+            )}
+          </div>
         </div>
       </section>
-      <p className="mt-5 text-center text-[11px] leading-6 text-[#74677b]">ဤမေးခွန်းများသည် အလုပ်ဆိုင်ရာ စိတ်ဝင်စားမှု အမျိုးအစားများကို လေ့လာရန် မြန်မာဘာသာဖြင့် ကိုယ်ပိုင်ရေးဆွဲထားသော မူကြမ်းဖြစ်သည်။</p>
+      <p className="mt-5 text-center text-xs leading-6 text-[#74677b]">ဤမေးခွန်းများသည် အလုပ်ဆိုင်ရာ စိတ်ဝင်စားမှု အမျိုးအစားများကို လေ့လာရန် မြန်မာဘာသာဖြင့် ကိုယ်ပိုင်ရေးဆွဲထားသော မေးခွန်းများဖြစ်သည်။</p>
     </main>
   )
 }
@@ -141,13 +162,13 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
           <div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }}/>
         </div>
       </div>
-      <div className="mb-7 hidden items-center justify-between gap-3 sm:flex"><button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={16}/> ခဏရပ်မယ်</button>{storageError ? <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12}/> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span> : <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#6b5e70] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>}</div>
+      <div className="mb-7 hidden items-center justify-between gap-3 sm:flex"><button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70] hover:text-[#614b6b]"><ArrowLeft size={16}/> ခဏရပ်မယ်</button>{storageError ? <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-xs font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12}/> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span> : <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#6b5e70] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>}</div>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-2xl border border-[#ebe5dc] bg-[#fffdf9] p-3.5 card-shadow sm:rounded-[2rem] sm:p-9">
-        <div className="hidden items-end justify-between gap-3 sm:flex"><div><p className="text-xs font-semibold tracking-wide text-[#524b59]">CAREER INTEREST</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">စိတ်ဝင်စားမှုကို ရွေးချယ်ပါ</h1></div><div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(index + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / ၃၀</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answered} · ကျော်ထား {skippedCount}</p></div></div>
-        <div className="mt-5 hidden items-center justify-between text-[11px] text-[#524b59] sm:flex"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div><div className="mt-2 hidden h-2 overflow-hidden rounded-full bg-[#efe9df] sm:block"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }}/></div>
+        <div className="hidden items-end justify-between gap-3 sm:flex"><div><p className="text-xs font-semibold tracking-wide text-[#524b59]">CAREER INTEREST</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">စိတ်ဝင်စားမှုကို ရွေးချယ်ပါ</h1></div><div className="text-right"><div className="text-xl font-bold tabular-nums text-[#80678f]">{String(index + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / ၃၀</span></div><p className="text-xs text-[#524b59]">ဖြေပြီး {answered} · ကျော်ထား {skippedCount}</p></div></div>
+        <div className="mt-5 hidden items-center justify-between text-xs text-[#524b59] sm:flex"><span>စုစုပေါင်း ဖြေဆိုမှု</span><span>{Math.round(progress)}%</span></div><div className="mt-2 hidden h-2 overflow-hidden rounded-full bg-[#efe9df] sm:block"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${progress}%` }}/></div>
         <div key={question.id} className="question-card-enter">
-          <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#ebe5dc] bg-gradient-to-br from-[#faf6f1] to-[#fcf9f5] px-4 py-4 sm:my-7 sm:min-h-36 sm:rounded-[1.5rem] sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {index + 1}</p><h2 className="mt-1.5 text-base font-bold leading-[1.7] text-[#242029] sm:mt-3 sm:text-[1.35rem] sm:leading-[1.9]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></div>
+          <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#ebe5dc] bg-gradient-to-br from-[#faf6f1] to-[#fcf9f5] px-4 py-4 sm:my-7 sm:min-h-36 sm:rounded-[1.5rem] sm:px-7 sm:py-8"><p className="text-xs font-semibold tracking-wide text-[#524b59]">မေးခွန်း {index + 1}</p><h2 className="mt-1.5 text-base font-bold leading-[1.7] text-[#242029] sm:mt-3 sm:text-[1.35rem] sm:leading-[1.9]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="trait" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></div>
           <p className="mb-2 hidden text-xs font-semibold text-[#524b59] sm:mb-3 sm:block">ဒီလုပ်ဆောင်မှုကို လုပ်ရမယ်ဆိုရင် ဘယ်လောက်နှစ်သက်မလဲ။</p>
           <LikertScaleSelector
             options={CAREER_ANSWER_OPTIONS}
@@ -160,7 +181,7 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
           />
         </div>
         <div className="no-print mt-8 hidden flex-wrap items-center justify-between gap-3 border-t border-[#f0eaf0] pt-5 sm:flex"><Button secondary onClick={onPrevious} icon={ArrowLeft} disabled={index === 0}>ယခင်</Button><div className="flex flex-wrap items-center gap-2">{!selected && <button onClick={onSkip} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-dashed border-[#d8c8dc] bg-[#fcf9fc] px-4 py-2.5 text-sm font-semibold text-[#866d90] hover:bg-[#f7f1f8]">ကျော်ထားမယ် <ArrowRight size={15}/></button>}<Button onClick={isLast ? onReview : onNext} disabled={!selected} icon={isLast ? ClipboardCheck : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</Button></div></div>
-        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3 sm:flex"><p className="text-[11px] leading-5 text-[#6b5e70]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ထားပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
+        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#faf7fa] px-4 py-3 sm:flex"><p className="text-xs leading-5 text-[#6b5e70]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ထားပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#80678f] hover:text-[#654e70]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
       <MobileQuestionActions
         onPrevious={onPrevious}
@@ -172,7 +193,7 @@ function QuestionView({ answers, skipped, index, onAnswer, onPrevious, onNext, o
         showSkip={selected === undefined}
         isLast={isLast}
       />
-      <p className="mt-5 hidden text-center text-[11px] leading-6 text-[#6b5e70] sm:block">{STORAGE_HINT}</p>
+      <p className="mt-5 hidden text-center text-xs leading-6 text-[#6b5e70] sm:block">{STORAGE_HINT}</p>
     </main>
   )
 }
@@ -186,10 +207,10 @@ function ReviewView({ answers, skipped, onGoTo, onFinish, onBack, storageAlertVi
   const visible = filter === 'answered' ? answered : filter === 'skipped' ? skippedItems : filter === 'unanswered' ? unanswered : [...skippedItems, ...unanswered]
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12"><button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#6b5e70]"><ArrowLeft size={16}/> မေးခွန်းသို့ ပြန်သွားမယ်</button><StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} /><section className="rounded-[2rem] border border-[#eee4ed] bg-white p-5 card-shadow sm:p-8"><p className="text-xs font-semibold tracking-wide text-[#6b5e70]">CAREER INTEREST REVIEW</p><h1 className="mt-2 text-2xl font-bold text-[#4c3d51]">ဖြေဆိုထားတာတွေကို ပြန်စစ်ပါ</h1><p className="mt-2 text-xs leading-6 text-[#6b5e70]">ကျော်ထားတဲ့ မေးခွန်းနဲ့ မဖြေရသေးတဲ့ မေးခွန်းတွေကို ရွေးပြီး တိုက်ရိုက်ပြန်ဖြေနိုင်ပါတယ်။</p>
-      <div className="mt-6 grid grid-cols-3 gap-2"><div className="rounded-xl bg-[#f1f7f2] p-3"><p className="text-2xl font-bold text-[#436b4f]">{answered.length}</p><p className="mt-1 text-[11px] text-[#436b4f]">ဖြေပြီး</p></div><div className="rounded-xl bg-[#fff7ed] p-3"><p className="text-2xl font-bold text-[#825824]">{skippedItems.length}</p><p className="mt-1 text-[11px] text-[#825824]">ကျော်ထား</p></div><div className="rounded-xl bg-[#f7f3f8] p-3"><p className="text-2xl font-bold text-[#6b5e70]">{unanswered.length}</p><p className="mt-1 text-[11px] text-[#6b5e70]">မဖြေရသေး</p></div></div>
+      <div className="mt-6 grid grid-cols-3 gap-2"><div className="rounded-xl bg-[#f1f7f2] p-3"><p className="text-2xl font-bold text-[#436b4f]">{answered.length}</p><p className="mt-1 text-xs text-[#436b4f]">ဖြေပြီး</p></div><div className="rounded-xl bg-[#fff7ed] p-3"><p className="text-2xl font-bold text-[#825824]">{skippedItems.length}</p><p className="mt-1 text-xs text-[#825824]">ကျော်ထား</p></div><div className="rounded-xl bg-[#f7f3f8] p-3"><p className="text-2xl font-bold text-[#6b5e70]">{unanswered.length}</p><p className="mt-1 text-xs text-[#6b5e70]">မဖြေရသေး</p></div></div>
       <div className="mt-6 flex flex-wrap gap-2">{[['incomplete','မဖြေရသေး'],['skipped','ကျော်ထား'],['unanswered','မရောက်သေး'],['answered','ဖြေပြီး']].map(([value,label]) => <button key={value} onClick={() => setFilter(value)} className={`rounded-full px-3 py-2 text-xs font-semibold ${filter === value ? 'bg-[#80678f] text-white' : 'bg-[#f4eff5] text-[#80678f]'}`}>{label}</button>)}</div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">{visible.length ? visible.map((question) => { const category = categoryFor(question); const done = answers[question.id] !== undefined; return <button key={question.id} onClick={() => onGoTo(CAREER_QUESTIONS.findIndex((item) => item.id === question.id))} className="flex items-start gap-3 rounded-xl border border-[#eee5ed] p-3 text-left hover:bg-[#fcf9fc]"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg text-xs font-bold ${done ? 'bg-[#edf6ef] text-[#436b4f]' : 'bg-[#fff4e8] text-[#825824]'}`}>{question.id}</span><span><span className="block text-[11px] font-semibold text-[#6b5e70]">{category.name}</span><span className="mt-1 block text-xs leading-6 text-[#6f6274]">{question.text}</span><span className="mt-1 block text-[11px] text-[#6b5e70]">{done ? `ဖြေထားသောအဖြေ ${answers[question.id]}` : 'မဖြေရသေးပါ · နှိပ်ပြီးပြန်ဖြေပါ'}</span></span></button> }) : <p className="col-span-full rounded-xl bg-[#faf7fa] p-5 text-center text-xs text-[#6b5e70]">ဒီအမျိုးအစားထဲမှာ မေးခွန်းမရှိပါ။</p>}</div>
-      <div className="mt-7 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><Button secondary onClick={onBack}>မေးခွန်းပြန်ကြည့်မယ်</Button><Button onClick={onFinish} disabled={!complete} icon={CheckCircle2}>ရလဒ်တွက်ချက်မယ်</Button></div>{!complete && <p className="mt-3 text-right text-[11px] text-[#865569]">ရလဒ်ကြည့်ရန် မေးခွန်းအားလုံး ဖြေဆိုပါ။</p>}
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">{visible.length ? visible.map((question) => { const category = categoryFor(question); const done = answers[question.id] !== undefined; return <button key={question.id} onClick={() => onGoTo(CAREER_QUESTIONS.findIndex((item) => item.id === question.id))} className="flex items-start gap-3 rounded-xl border border-[#eee5ed] p-3 text-left hover:bg-[#fcf9fc]"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg text-xs font-bold ${done ? 'bg-[#edf6ef] text-[#436b4f]' : 'bg-[#fff4e8] text-[#825824]'}`}>{question.id}</span><span><span className="block text-xs font-semibold text-[#6b5e70]">{category.name}</span><span className="mt-1 block text-xs leading-6 text-[#6f6274]">{question.text}</span><span className="mt-1 block text-xs text-[#6b5e70]">{done ? `ဖြေထားသောအဖြေ ${answers[question.id]}` : 'မဖြေရသေးပါ · နှိပ်ပြီးပြန်ဖြေပါ'}</span></span></button> }) : <p className="col-span-full rounded-xl bg-[#faf7fa] p-5 text-center text-xs text-[#6b5e70]">ဒီအမျိုးအစားထဲမှာ မေးခွန်းမရှိပါ။</p>}</div>
+      <div className="mt-7 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><Button secondary onClick={onBack}>မေးခွန်းပြန်ကြည့်မယ်</Button><Button onClick={onFinish} disabled={!complete} icon={CheckCircle2}>ရလဒ်တွက်ချက်မယ်</Button></div>{!complete && <p className="mt-3 text-right text-xs text-[#865569]">ရလဒ်ကြည့်ရန် မေးခွန်းအားလုံး ဖြေဆိုပါ။</p>}
     </section></main>
   )
 }
@@ -230,12 +251,12 @@ function CareerResultView({ record, onHome, onRetake, storageAlertVisible, onExp
         { id: 'career-report-notes', label: 'ရလဒ်ဖတ်ရှုရန်' },
       ]} />
       <section id="career-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#eee4ed] bg-gradient-to-br from-[#f0e9f3] via-[#fbf7f6] to-[#f7edf0] p-6 card-shadow sm:p-10"><div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#80678f]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><p className="mt-5 text-xs font-semibold tracking-[0.15em] text-[#6b5e70]">YOUR CAREER INTEREST PROFILE</p><h1 className="mt-3 text-3xl font-bold tracking-[0.18em] text-[#493a4e] sm:text-4xl">{result.code}</h1><p className="mt-2 text-sm font-semibold text-[#725f7a]">သင့်ရဲ့ အဓိကစိတ်ဝင်စားမှု ၃ မျိုး</p><p className="mt-2 text-xs text-[#6b5e70]">{record.questionCount || 30} မေးခွန်း · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#6b5e70]">ဒီအတိုကောက်ဟာ သင့်အဖြေတွေထဲမှာ အညွှန်းရမှတ်အမြင့်ဆုံး ရရှိတဲ့ စိတ်ဝင်စားမှု အမျိုးအစား ၃ ခုကို အစဉ်လိုက်ဖော်ပြတာပါ။ ဒါဟာ သင့်အလုပ်အကိုင်ကို သတ်မှတ်ပေးတာ မဟုတ်ဘဲ ဆက်လက်စူးစမ်းကြည့်ဖို့ လမ်းညွှန်ချက်တစ်ခု ဖြစ်ပါတယ်။ {result.topScoresAreClose ? 'ထိပ်ဆုံး အမျိုးအစားတွေမှာ အမှတ်ကွာခြားမှု နည်းနေတဲ့အတွက် အဲဒီကဏ္ဍတွေကို နီးစပ်တဲ့ စိတ်ဝင်စားမှုများအဖြစ် အတူတကွ စဉ်းစားပါ။' : ''}</p></div>
-        <div className="mt-8 grid gap-3 md:grid-cols-3">{topCategories.map((category, index) => <article key={category.id} className="rounded-2xl border border-white/90 bg-white/85 p-5"><div className="flex items-center justify-between"><span className="text-2xl">{category.icon}</span><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-[11px] font-semibold text-[#80678f]">အဆင့် {index + 1}</span></div><h2 className="mt-3 text-sm font-bold text-[#5b4b60]">{category.name}</h2><p className="mt-1 text-[11px] text-[#6b5e70]">{category.en}</p><p className="mt-3 text-xs leading-7 text-[#6b5e70]">{category.description}</p></article>)}</div>
+        <div className="mt-8 grid gap-3 md:grid-cols-3">{topCategories.map((category, index) => <article key={category.id} className="rounded-2xl border border-white/90 bg-white/85 p-5"><div className="flex items-center justify-between"><span className="text-2xl">{category.icon}</span><span className="rounded-full bg-[#f3edf5] px-2.5 py-1 text-xs font-semibold text-[#80678f]">အဆင့် {index + 1}</span></div><h2 className="mt-3 text-sm font-bold text-[#5b4b60]">{category.name}</h2><p className="mt-1 text-xs text-[#6b5e70]">{category.en}</p><p className="mt-3 text-xs leading-7 text-[#6b5e70]">{category.description}</p></article>)}</div>
       </section>
       <section id="career-report-scores" className="mt-8 scroll-mt-28 rounded-[1.75rem] border border-[#eee4ed] bg-white p-5 sm:p-7"><div className="mb-5"><p className="text-xs font-semibold tracking-wide text-[#6b5e70]">YOUR SIX INTEREST AREAS</p><h2 className="mt-1 text-xl font-bold text-[#514357]">စိတ်ဝင်စားမှု အမျိုးအစား ၆ မျိုး၏ ရမှတ်</h2><p className="mt-2 text-xs leading-6 text-[#6b5e70]">အညွှန်းရမှတ်များကို အမြင့်မှ အနိမ့်သို့ စီထားပါတယ်။ ဒီရမှတ်တွေဟာ သင့်အဖြေများကိုသာ အခြေခံပြီး လူဦးရေစံနှုန်း သို့မဟုတ် Percentile မဟုတ်ပါ။</p></div>
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.15fr] lg:items-center">
           <div className="rounded-[1.5rem] border border-[#eee4ed] bg-[#fcf9fc] p-4 sm:p-5">
-            <div className="flex items-center justify-between"><h3 className="text-sm font-bold text-[#5b4b60]">စိတ်ဝင်စားမှု ၆ မျိုး ပုံကြမ်း</h3><span className="text-[11px] text-[#6b5e70]">0–100</span></div>
+            <div className="flex items-center justify-between"><h3 className="text-sm font-bold text-[#5b4b60]">စိတ်ဝင်စားမှု ၆ မျိုး ပုံကြမ်း</h3><span className="text-xs text-[#6b5e70]">0–100</span></div>
             <div className="mt-2 h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={chartData} outerRadius="58%" margin={{ top: 18, right: 34, bottom: 18, left: 34 }}>
@@ -247,9 +268,9 @@ function CareerResultView({ record, onHome, onRetake, storageAlertVisible, onExp
                 </RadarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-center text-[11px] leading-5 text-[#6b5e70]">ဂရပ်သည် သင့်နှစ်သက်မှု အဖြေများမှ တွက်ချက်ထားသော အညွှန်းရမှတ်များကို ပြထားခြင်းဖြစ်သည်။</p>
+            <p className="text-center text-xs leading-5 text-[#6b5e70]">ဂရပ်သည် သင့်နှစ်သက်မှု အဖြေများမှ တွက်ချက်ထားသော အညွှန်းရမှတ်များကို ပြထားခြင်းဖြစ်သည်။</p>
           </div>
-          <div className="space-y-5">{ranked.map((category) => { const score = result.scores[category.id].score; return <div key={category.id}><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f5eff6] text-lg">{category.icon}</span><div><p className="text-sm font-bold text-[#58495e]">{category.name}</p><p className="mt-0.5 text-[11px] text-[#6b5e70]">{category.en} · {category.id}</p></div></div><div className="shrink-0 text-right"><p className="text-lg font-bold tabular-nums text-[#80678f]">{score}<span className="text-[11px] font-medium text-[#6b5e70]"> / 100</span></p><p className="text-[11px] text-[#6b5e70]">{getCareerScoreBand(score)}</p></div></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-[#f2edf3]"><div className="h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${score}%` }}/></div></div>})}</div>
+          <div className="space-y-5">{ranked.map((category) => { const score = result.scores[category.id].score; return <div key={category.id}><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f5eff6] text-lg">{category.icon}</span><div><p className="text-sm font-bold text-[#58495e]">{category.name}</p><p className="mt-0.5 text-xs text-[#6b5e70]">{category.en} · {category.id}</p></div></div><div className="shrink-0 text-right"><p className="text-lg font-bold tabular-nums text-[#80678f]">{score}<span className="text-xs font-medium text-[#6b5e70]"> / 100</span></p><p className="text-xs text-[#6b5e70]">{getCareerScoreBand(score)}</p></div></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-[#f2edf3]"><div className="h-full rounded-full bg-gradient-to-r from-[#9c82aa] to-[#c59aab]" style={{ width: `${score}%` }}/></div></div>})}</div>
         </div>
       </section>
       <section id="career-report-next" className="mt-8 scroll-mt-28 rounded-[1.75rem] border border-[#eee4ed] bg-white p-5 sm:p-7"><div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f4edf6] text-[#80678f]"><PauseCircle size={18}/></span><div><p className="text-xs font-semibold text-[#6b5e70]">NEXT EXPLORATION</p><h2 className="mt-1 text-lg font-bold text-[#514357]">နောက်တစ်ဆင့် ဘာလုပ်ကြည့်နိုင်မလဲ။</h2></div></div><div className="mt-4 grid gap-3 md:grid-cols-3">{topCategories.map((category) => <article key={category.id} className="rounded-2xl bg-[#faf7fa] p-4"><h3 className="text-sm font-bold text-[#65556a]">{category.name}</h3><p className="mt-2 text-xs leading-7 text-[#6b5e70]">{category.examples}</p></article>)}</div></section>

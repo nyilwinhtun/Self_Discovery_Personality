@@ -253,12 +253,12 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
             <section aria-label="ရလဒ် ၂ ခု နှိုင်းယှဉ်ချက်" className="mb-6 rounded-[1.5rem] border border-[#dfd2e4] bg-white p-4 shadow-sm sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#f1ebf2] pb-3">
                 <div>
-                  <p className="text-[11px] font-semibold tracking-wide text-[#725981]">ATTEMPT COMPARISON</p>
+                  <p className="text-xs font-semibold tracking-wide text-[#725981]">ATTEMPT COMPARISON</p>
                   <h2 className="mt-1 text-base font-bold text-[#4c3d51]">အစောပိုင်းနှင့် နောက်ပိုင်း ရလဒ်နှိုင်းယှဉ်ချက်</h2>
                 </div>
                 <button type="button" onClick={() => setSelectedIds([])} className="text-xs font-semibold text-[#6b5e70] hover:text-[#4c3d51]">ပိတ်မယ်</button>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-3 text-[11px] text-[#5b4b60]">
+              <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-[#5b4b60]">
                 <div className="rounded-xl bg-[#f8f5f9] p-3">
                   <p className="font-bold text-[#6b5e70]">အစောပိုင်း</p>
                   <p className="mt-1 leading-5">{formatDate(comparison.earlier.createdAt)}</p>
@@ -277,13 +277,13 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
                       <p className="text-xs font-semibold leading-5 text-[#4c3d51]">{row.label}</p>
                       <div className="flex items-center justify-between gap-3 sm:justify-end">
                         <span className="text-xs tabular-nums text-[#6b5e70]">{row.before} → <strong className="text-[#4c3d51]">{row.after}</strong></span>
-                        <span className={`min-w-[3.25rem] rounded-full px-2.5 py-1 text-center text-[11px] font-bold tabular-nums ${deltaColor}`}>{deltaText}</span>
+                        <span className={`min-w-[3.25rem] rounded-full px-2.5 py-1 text-center text-xs font-bold tabular-nums ${deltaColor}`}>{deltaText}</span>
                       </div>
                     </div>
                   )
                 })}
               </div>
-              <p className="mt-3 text-[11px] leading-6 text-[#6b5e70]">အမှတ်ကွာခြားချက်သည် အချိန်ကာလ ၂ ခုအကြား သင့်အဖြေရွေးချယ်မှု ပြောင်းလဲပုံကိုသာ ဖော်ပြခြင်းဖြစ်ပြီး အကောင်းအဆိုး တိုင်းတာချက် မဟုတ်ပါ။</p>
+              <p className="mt-3 text-xs leading-6 text-[#6b5e70]">အမှတ်ကွာခြားချက်သည် အချိန်ကာလ ၂ ခုအကြား သင့်အဖြေရွေးချယ်မှု ပြောင်းလဲပုံကိုသာ ဖော်ပြခြင်းဖြစ်ပြီး အကောင်းအဆိုး တိုင်းတာချက် မဟုတ်ပါ။</p>
             </section>
           )}
 
@@ -308,8 +308,8 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
                       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3edf5] text-[#80678f]"><Sparkles size={19} /></span>
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-bold text-[#594a5e]">{isCareer ? `Career Interest · ${record.careerCode || 'စိတ်ဝင်စားမှု'}` : isInnerCompass ? 'InnerCompass · စိတ်နေသဘောထားသုံးသပ်မှု' : isBondSense ? 'BondSense · ဆက်ဆံရေးသုံးသပ်မှု' : isValueMap ? 'ValueMap · ဘဝတန်ဖိုးသုံးသပ်မှု' : isEmotionLens ? 'EmotionLens · စိတ်ခံစားချက်သုံးသပ်မှု' : (profile?.title || 'TraitLens · ပင်ကိုစရိုက်ဆန်းစစ်မှု')}</span>
-                        <span className="mt-1 block text-[11px] text-[#6b5e70]">{formatDate(record.createdAt)}</span>
-                        <span className="mt-1 block text-[11px] text-[#6b5e70]">{record.questionCount || record.level || (isBondSense || isValueMap || isEmotionLens ? 20 : 30)} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : isBondSense ? 'ဆက်ဆံရေး Pilot' : isValueMap ? 'ဘဝတန်ဖိုး Pilot' : isEmotionLens ? 'စိတ်ခံစားချက် Pilot' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span>
+                        <span className="mt-1 block text-xs text-[#6b5e70]">{formatDate(record.createdAt)}</span>
+                        <span className="mt-1 block text-xs text-[#6b5e70]">{record.questionCount || record.level || (isBondSense || isValueMap || isEmotionLens ? 20 : 30)} မေးခွန်း · {isCareer ? 'အလုပ်အကိုင် စိတ်ဝင်စားမှု' : isInnerCompass ? 'ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှု' : isBondSense ? 'ဆက်ဆံရေး Pilot' : isValueMap ? 'ဘဝတန်ဖိုး Pilot' : isEmotionLens ? 'စိတ်ခံစားချက် Pilot' : `အဓိကကဏ္ဍ: ${profile?.primary?.name || 'TraitLens'}`}</span>
                       </span>
                     </button>
                     <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
@@ -320,7 +320,7 @@ export default function HistoryPage({ history, onOpen, onDelete, onClear, onStar
                           onClick={() => toggleSelect(record)}
                           aria-pressed={isSelected}
                           title={incompatible ? 'တူညီသော ဆန်းစစ်မှုအမျိုးအစား (နှင့် မေးခွန်းအရေအတွက်) ကိုသာ နှိုင်းယှဉ်နိုင်ပါသည်' : undefined}
-                          className={`min-h-10 rounded-xl border px-3 text-[11px] font-semibold transition ${isSelected ? 'border-[#80678f] bg-[#f4eef6] text-[#5b4b60]' : 'border-[#e6dce8] bg-white text-[#5b4b60] hover:bg-[#faf7fb]'} ${incompatible ? 'cursor-not-allowed opacity-45' : ''}`}
+                          className={`min-h-10 rounded-xl border px-3 text-xs font-semibold transition ${isSelected ? 'border-[#80678f] bg-[#f4eef6] text-[#5b4b60]' : 'border-[#e6dce8] bg-white text-[#5b4b60] hover:bg-[#faf7fb]'} ${incompatible ? 'cursor-not-allowed opacity-45' : ''}`}
                         >
                           {isSelected ? 'ရွေးထားသည်' : 'နှိုင်းယှဉ်ရန်'}
                         </button>

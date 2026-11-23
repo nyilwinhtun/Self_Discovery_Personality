@@ -80,7 +80,7 @@ export default function ReportSectionNavigation({ items, tone = 'plum' }) {
               data-section-id={item.id}
               aria-current={isActive ? 'true' : undefined}
               onClick={() => goTo(item.id)}
-              className={`min-h-10 shrink-0 rounded-full border px-3.5 text-[11px] font-semibold transition ${isActive ? palette.active : palette.idle} hover:opacity-80`}
+              className={`min-h-10 shrink-0 rounded-full border px-3.5 text-xs font-semibold transition ${isActive ? palette.active : palette.idle} hover:opacity-80`}
             >
               {item.label}
             </button>

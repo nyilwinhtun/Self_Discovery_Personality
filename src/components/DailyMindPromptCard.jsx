@@ -80,15 +80,15 @@ export default function DailyMindPromptCard({ onOpenJournal }) {
     >
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f3edf5] px-3 py-1 text-[11px] font-bold text-[#6e557c]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f3edf5] px-3 py-1 text-xs font-bold text-[#6e557c]">
             <Sparkles size={12} /> နေ့စဉ် စိတ်သတိပြု မေးခွန်း
           </span>
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#6b5e70]">
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-[#6b5e70]">
             <LockKeyhole size={12} /> {formatDisplayDate()} · Local Only
           </span>
         </div>
 
-        <p className="mt-3 text-[11px] font-semibold text-[#6e5570]">{todayPrompt.topic}</p>
+        <p className="mt-3 text-xs font-semibold text-[#6e5570]">{todayPrompt.topic}</p>
         <h3 id="daily-mind-prompt-title" className="mt-1 text-base font-bold leading-7 text-[#493b50]">
           {todayPrompt.question}
         </h3>
@@ -138,9 +138,9 @@ export default function DailyMindPromptCard({ onOpenJournal }) {
         ) : (
           <div className="rounded-xl border border-[#eadfe9] bg-white p-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[11px] font-semibold text-[#6e557c]">ဒီနေ့အတွက် သိမ်းထားသော မှတ်စု</span>
+              <span className="text-xs font-semibold text-[#6e557c]">ဒီနေ့အတွက် သိမ်းထားသော မှတ်စု</span>
               {savedNote?.updatedAt && (
-                <span className="text-[11px] text-[#6b5e70]">
+                <span className="text-xs text-[#6b5e70]">
                   {formatSavedTime(savedNote.updatedAt)}
                 </span>
               )}
@@ -181,7 +181,7 @@ export default function DailyMindPromptCard({ onOpenJournal }) {
         )}
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#efe7f2] pt-3">
-          <p className="text-[11px] leading-5 text-[#6b5e70]">
+          <p className="text-xs leading-5 text-[#6b5e70]">
             {dailyCount > 0
               ? `သိမ်းဆည်းထားသော နေ့စဉ်မှတ်စု ${dailyCount} ခုရှိပြီး JSON Backup ထဲတွင် အလိုအလျောက် ပါဝင်ပါမည်။`
               : 'ဒီစက်ထဲရှိ Browser Storage ထဲတွင်သာ သီးသန့်သိမ်းဆည်းပြီး JSON Backup ထဲတွင် ပါဝင်ပါမည်။'}

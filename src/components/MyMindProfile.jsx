@@ -423,7 +423,7 @@ export default function MyMindProfile({
       <section className="relative overflow-hidden rounded-[2rem] border border-[#e7dce9] bg-gradient-to-br from-[#f4eff7] via-[#fffdf9] to-[#f8f2ef] p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e5d9e8] bg-white/85 px-3 py-1 text-[11px] font-bold tracking-wide text-[#614b6b]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e5d9e8] bg-white/85 px-3 py-1 text-xs font-bold tracking-wide text-[#614b6b]">
               <Sparkles size={13} /> MY MIND PROFILE · စုစည်းမှုပုံရိပ်
             </span>
             <h1 className="mt-3 text-2xl font-bold leading-snug text-[#44364a] sm:text-3xl">
@@ -457,7 +457,7 @@ export default function MyMindProfile({
               </button>
             </div>
             {pngError && (
-              <p role="status" className="text-[11px] font-medium text-[#8b3a2b]">
+              <p role="status" className="text-xs font-medium text-[#8b3a2b]">
                 {pngError}
               </p>
             )}
@@ -508,15 +508,15 @@ export default function MyMindProfile({
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${item.toneBg} ${item.toneText}`}>
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${item.toneBg} ${item.toneText}`}>
                         {item.title}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#436b4f]">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#436b4f]">
                         <CheckCircle2 size={13} /> ပြီးဆုံးပြီး
                       </span>
                     </div>
                     <p className="mt-3 text-sm font-bold text-[#44364a]">{item.topLabel}</p>
-                    <p className="mt-1 text-[11px] text-[#6b5e70]">
+                    <p className="mt-1 text-xs text-[#6b5e70]">
                       {item.subtitle} · {formatDate(item.date)}
                     </p>
                     <div className="mt-3 flex items-center gap-3">
@@ -604,7 +604,7 @@ export default function MyMindProfile({
       <section className="mt-6 rounded-2xl border border-[#eee4ed] bg-[#fbf8fb] p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <CircleHelp size={18} className="mt-0.5 shrink-0 text-[#6b5e70]" />
-          <p className="text-[11px] leading-6 text-[#5d5162]">
+          <p className="text-xs leading-6 text-[#5d5162]">
             ဤစုစည်းမှုသည် ကိုယ်တိုင်ပြန်လည်သုံးသပ်ရန် အထောက်အကူပြုသည့် အညွှန်းသာဖြစ်ပြီး စိတ်ပညာရောဂါရှာဖွေခြင်း၊ ဆေးဘက်ဆိုင်ရာ အကြံဉာဏ် သို့မဟုတ် လူတစ်ဦးကို အပြီးသတ်သတ်မှတ်ခြင်း မဟုတ်ပါ။ အဖြေအားလုံးကို သင့်စက်၏ Browser ထဲတွင်သာ သိမ်းဆည်းထားပါသည်။
           </p>
         </div>

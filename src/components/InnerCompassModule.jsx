@@ -88,32 +88,32 @@ function SecondaryButton({ children, onClick, icon: Icon, disabled = false, clas
 }
 
 function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin, onResume, onRestart, storageAlertVisible, onExportBackup, onDismissStorageError }) {
-  const [acknowledged, setAcknowledged] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const answeredCount = Object.keys(draft?.answers || {}).length
   const skippedCount = (draft?.skippedQuestionIds || []).filter((id) => draft?.answers?.[id] === undefined).length
   const progress = questionCount ? Math.round((answeredCount / questionCount) * 100) : 0
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-      <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#4e6379] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button>
+    <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
+      <button onClick={onBack} className="mb-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#4e6379] hover:text-[#3f5873]"><ArrowLeft size={16}/> ပင်မစာမျက်နှာ</button>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="overflow-hidden rounded-[2rem] border border-[#d4e0ef] bg-white card-shadow">
-        <div className="bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 sm:p-9">
+        <div className="bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-4">
               <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-2xl border border-[#dce3ea] bg-[#faf8f5] text-[#3d5b7a]"><InnerCompassEmblem size={38} /></span>
               <div>
                 <p className="text-xs font-semibold tracking-[0.14em] text-[#4e6379]">INNERCOMPASS</p>
                 <h1 className="mt-1 text-xl font-bold text-[#3f5873] sm:text-2xl">စိတ်နေသဘောထားကို လေ့လာခြင်း</h1>
-                <p className="mt-1 text-xs text-[#4e6379]">မေးခွန်း {formatInnerCompassCountMm(level)} · အချက် ၆ ချက်</p>
+                <p className="mt-1 text-xs text-[#4e6379]">မေးခွန်း {formatInnerCompassCountMm(level)} · အဓိက အချက် ၆ ချက်</p>
               </div>
             </div>
-            <span className="rounded-full border border-[#cbd9e9] bg-white/80 px-3 py-1.5 text-[11px] font-semibold text-[#456d97]">Pilot · စမ်းသပ်အသုံးပြုမှု</span>
+            <span className="rounded-full border border-[#cbd9e9] bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#456d97]">ကိုယ်တိုင်သုံးသပ်မှု</span>
           </div>
-          <p className="mt-6 text-sm leading-8 text-[#596d83]">ဒီမေးခွန်းတွေက သင့်ရဲ့ နေ့စဉ်အပြုအမူ၊ စိတ်ခံစားမှုကို ကိုင်တွယ်ပုံ၊ အခြားသူတွေနဲ့ ဆက်ဆံပုံနဲ့ ကိုယ်ပိုင်စီမံပုံတွေကို ပြန်လည်စဉ်းစားနိုင်ဖို့ ရေးဆွဲထားတဲ့ မေးခွန်းမူကြမ်းဖြစ်ပါတယ်။</p>
+          <p className="mt-4 text-sm leading-7 text-[#596d83]">သင့်ရဲ့ နေ့စဉ်အပြုအမူ၊ စိတ်ခံစားမှုကို ကိုင်တွယ်ပုံ၊ အခြားသူတွေနဲ့ ဆက်ဆံပုံနဲ့ ကိုယ်ပိုင်စီမံပုံတွေကို ပြန်လည်စဉ်းစားနိုင်ဖို့ ရေးဆွဲထားပါတယ်။</p>
         </div>
-        <div className="p-6 sm:p-9">
-          <div className="mb-6">
+        <div className="p-6 sm:p-8">
+          <div className="mb-5">
             <h2 className="text-base font-bold text-[#435a72]">ဖြေဆိုမည့် မေးခွန်းအဆင့် ရွေးချယ်ပါ</h2>
             <div className="mt-3 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="InnerCompass မေးခွန်းအဆင့် ရွေးချယ်မှု">
               {INNERCOMPASS_V02_LEVELS.map((option) => {
@@ -133,54 +133,27 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
                     )}
                   >
                     <div className="flex w-full items-center justify-between gap-2">
-                      <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-semibold', selected ? 'bg-[#446c96] text-white' : 'bg-[#eef3f9] text-[#3f648c]')}>{option.label}</span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#4e6379]"><Clock3 size={12}/> {option.duration}</span>
+                      <span className={cn('rounded-full px-2.5 py-1 text-xs font-semibold', selected ? 'bg-[#446c96] text-white' : 'bg-[#eef3f9] text-[#3f648c]')}>{option.label}</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#4e6379]"><Clock3 size={12}/> {option.duration}</span>
                     </div>
                     <p className="mt-3 text-sm font-bold text-[#3f5873]">{option.title}</p>
-                    <p className="mt-1 text-xs leading-6 text-[#596d83]">{option.subtitle}</p>
+                    <p className="mt-1 text-sm leading-7 text-[#596d83]">{option.subtitle}</p>
                     {levelDraft && (
-                      <p className="mt-2 text-[11px] font-semibold text-[#446c96]">မပြီးသေးသော Draft ({levelAnswered}/{option.value})</p>
+                      <p className="mt-2 text-xs font-semibold text-[#446c96]">မပြီးသေးသော အဖြေ ({levelAnswered}/{option.value})</p>
                     )}
                   </button>
                 )
               })}
             </div>
           </div>
-          <h2 className="text-base font-bold text-[#435a72]">ဒီဆန်းစစ်မှုမှာ လေ့လာမယ့် အဓိက အချက် ၆ ချက်</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {INNERCOMPASS_V02_DIMENSIONS.map((dimension, index) => (
-              <article key={dimension.id} className="rounded-2xl border border-[#e5edf5] bg-[#f9fbfe] p-4">
-                <div className="flex items-center gap-2"><span className="grid h-8 w-8 place-items-center rounded-xl bg-white text-xs font-bold text-[#446c96]">{index + 1}</span><h3 className="text-sm font-bold text-[#4f6680]">{dimension.name}</h3></div>
-                <p className="mt-2 text-xs leading-6 text-[#4e6379]">{dimension.description}</p>
-              </article>
-            ))}
-          </div>
 
-          <div className="mt-6 rounded-2xl border border-[#e2eaf3] bg-white p-4 sm:p-5">
-            <h2 className="text-base font-bold text-[#435a72]">မစတင်မီ သိထားသင့်သော အချက်များ</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <article className="rounded-xl bg-[#f5f8fc] p-3.5"><p className="text-xs font-bold text-[#405f82]">ဘယ်လိုဖြေဆိုသင့်သလဲ။</p><p className="mt-1.5 text-xs leading-6 text-[#596d83]">ကိုယ်ဖြစ်ချင်တဲ့ပုံစံမဟုတ်ဘဲ လတ်တလော နေ့စဉ်ဘဝမှာ ပုံမှန်ပြုမူတတ်တဲ့ပုံစံကို စဉ်းစားပြီး ဖြေပါ။ အဖြေမှန်၊ အဖြေမှား မရှိပါ။</p></article>
-              <article className="rounded-xl bg-[#f5f8fc] p-3.5"><p className="text-xs font-bold text-[#405f82]">အဖြေရွေးချယ်ပုံ</p><p className="mt-1.5 text-xs leading-6 text-[#596d83]">မေးခွန်းတစ်ခုစီအတွက် သင့်အတွေ့အကြုံနဲ့ ဘယ်လောက်ကိုက်ညီသလဲဆိုတာ ၅ ဆင့်ထဲက တစ်ခုကို ရွေးပါ။</p></article>
-              <article className="rounded-xl bg-[#f5f8fc] p-3.5"><p className="text-xs font-bold text-[#405f82]">ကျော်ခြင်းနှင့် ပြန်ဆက်ခြင်း</p><p className="mt-1.5 text-xs leading-6 text-[#596d83]">မသေချာတဲ့မေးခွန်းကို ကျော်ထားနိုင်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။ အဖြေရွေးတိုင်း ဒီ Browser ထဲမှာ အလိုအလျောက်သိမ်းပါတယ်။</p></article>
-              <article className="rounded-xl bg-[#f5f8fc] p-3.5"><p className="text-xs font-bold text-[#405f82]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</p><p className="mt-1.5 text-xs leading-6 text-[#596d83]">ရမှတ်တွေဟာ ဒီမေးခွန်းမူကြမ်းအတွင်း သင့်အဖြေတွေကို စုစည်းပြသတဲ့ အညွှန်းသာဖြစ်ပြီး လူအများနဲ့ နှိုင်းယှဉ်တဲ့ ရမှတ်မဟုတ်ပါ။</p></article>
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-2xl border border-[#f0dfc6] bg-[#fffaf2] p-4 sm:p-5">
-            <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-[#825824]"/><div><p className="text-xs font-bold text-[#805b2d]">အရေးကြီးသော သတိပြုချက်</p><p className="mt-1.5 text-xs leading-7 text-[#806b52]">InnerCompass ဟာ ကိုယ်ပိုင်ရေးဆွဲထားတဲ့ စမ်းသပ်အဆင့် Self-Reflection မေးခွန်းမူကြမ်းဖြစ်ပြီး မူရင်းစံသတ်မှတ်စမ်းသပ်မှုတစ်ခု၏ တရားဝင်ဘာသာပြန် သို့မဟုတ် တူညီသောဗားရှင်း မဟုတ်ပါ။ စိတ်ကျန်းမာရေးရောဂါရှာဖွေခြင်း၊ ကိုယ်ကျင့်တရားအကဲဖြတ်ခြင်း၊ လူတစ်ယောက်ရဲ့ အရည်အချင်းကို အပြီးသတ်ဆုံးဖြတ်ခြင်း မပြုလုပ်ပါ။ ရလဒ်ကို အခြားသူတွေနဲ့ နှိုင်းယှဉ်ရန် မသုံးပါနှင့်။</p></div></div>
-          </div>
-
-          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#e2eaf3] bg-[#f7fafd] p-4">
-            <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#446c96]"/>
-            <div><p className="text-xs font-bold text-[#405f82]">ကိုယ်ရေးအချက်အလက်နှင့် သိမ်းဆည်းမှု</p><p className="mt-1 text-xs leading-6 text-[#596d83]">သင့်အဖြေတွေကို ဒီ Browser နဲ့ ဒီစက်ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser Data ရှင်းလိုက်ရင် ပျောက်နိုင်တာကြောင့် JSON Backup ကို ပုံမှန်ထုတ်ထားပါ။</p></div>
-          </div>
-
-          <div className="mt-5">
-            <CalmingBreathPause theme="innerCompass" />
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-[#dce6f0] bg-[#f5f8fc] p-4">
+            <Sparkles size={18} className="mt-0.5 shrink-0 text-[#446c96]" />
+            <p className="text-sm leading-7 text-[#435a72]">အဖြေမှန်၊ အဖြေမှား မရှိပါ — လတ်တလော နေ့စဉ်ဘဝမှာ ကိုယ်ပုံမှန်ပြုမူတတ်တဲ့ ပုံစံအတိုင်း ရွေးချယ်နိုင်ပါတယ်။</p>
           </div>
 
           {draft ? (
-            <div className="mt-6 rounded-2xl border border-[#cddded] bg-[#f5f9fd] p-4 sm:p-5">
+            <div className="rounded-2xl border border-[#cddded] bg-[#f5f9fd] p-4 sm:p-5">
               <div className="flex items-center justify-between gap-2"><p className="text-sm font-bold text-[#405f82]">မပြီးသေးတဲ့ ဖြေဆိုမှုရှိပါတယ်</p><span className="text-xs font-bold text-[#446c96]">{progress}%</span></div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e1eaf3]"><div className="h-full rounded-full bg-[#446c96]" style={{ width: `${progress}%` }}/></div>
               <p className="mt-2 text-xs text-[#4e6379]">ဖြေပြီး {answeredCount} ခု · ကျော်ထား {skippedCount} ခု · နောက်ဆုံး {formatDate(draft.updatedAt)}</p>
@@ -190,14 +163,60 @@ function GuideView({ level, onSelectLevel, questionCount, draft, onBack, onBegin
               </div>
             </div>
           ) : (
-            <div className="mt-6 rounded-2xl border border-[#dce6f0] bg-[#f8fbfe] p-4">
-              <label className="flex cursor-pointer items-start gap-3">
-                <input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-[#446c96]"/>
-                <span className="text-xs leading-6 text-[#536b84]">ဒီမေးခွန်းမူကြမ်းရဲ့ ရည်ရွယ်ချက်နဲ့ ကန့်သတ်ချက်တွေကို ဖတ်ရှုပြီး နားလည်ပါသည်။ ရလဒ်ဟာ ကိုယ့်ကိုယ်ကို ပြန်လည်သုံးသပ်ရန်အတွက်သာ ဖြစ်ကြောင်း သိရှိပါသည်။</span>
-              </label>
-              <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><SecondaryButton onClick={onBack}>နောက်သို့</SecondaryButton><PrimaryButton onClick={onBegin} disabled={!acknowledged}>နားလည်ပါပြီ၊ စတင်မယ်</PrimaryButton></div>
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <SecondaryButton onClick={onBack}>နောက်သို့</SecondaryButton>
+              <PrimaryButton onClick={onBegin}>မေးခွန်း ၁ မှ စတင်မယ်</PrimaryButton>
             </div>
           )}
+
+          <div className="mt-6 border-t border-[#e5edf5] pt-4">
+            <button
+              type="button"
+              aria-expanded={guideOpen}
+              onClick={() => setGuideOpen((open) => !open)}
+              className="inline-flex min-h-11 items-center gap-2 text-xs font-semibold text-[#3f648c] hover:text-[#2f4e70]"
+            >
+              <span>{guideOpen ? 'ဖြေဆိုနည်းအသေးစိတ် ပိတ်ရန်' : 'ဖြေဆိုနည်းနှင့် လေ့လာမည့် အချက် ၆ ချက် ကြည့်ရန်'}</span>
+              <ChevronRight size={15} className={cn('transition-transform', guideOpen && 'rotate-90')} />
+            </button>
+
+            {guideOpen && (
+              <div className="mt-4 space-y-5">
+                <div>
+                  <h2 className="text-base font-bold text-[#435a72]">ဒီဆန်းစစ်မှုမှာ လေ့လာမယ့် အဓိက အချက် ၆ ချက်</h2>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {INNERCOMPASS_V02_DIMENSIONS.map((dimension, index) => (
+                      <article key={dimension.id} className="rounded-2xl border border-[#e5edf5] bg-[#f9fbfe] p-4">
+                        <div className="flex items-center gap-2"><span className="grid h-8 w-8 place-items-center rounded-xl bg-white text-xs font-bold text-[#446c96]">{index + 1}</span><h3 className="text-sm font-bold text-[#4f6680]">{dimension.name}</h3></div>
+                        <p className="mt-2 text-sm leading-7 text-[#4e6379]">{dimension.description}</p>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-[#e2eaf3] bg-white p-4 sm:p-5">
+                  <h2 className="text-base font-bold text-[#435a72]">မစတင်မီ သိထားသင့်သော အချက်များ</h2>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <article className="rounded-xl bg-[#f5f8fc] p-3.5"><p className="text-xs font-bold text-[#405f82]">ဘယ်လိုဖြေဆိုသင့်သလဲ။</p><p className="mt-1.5 text-sm leading-7 text-[#596d83]">ကိုယ်ဖြစ်ချင်တဲ့ပုံစံမဟုတ်ဘဲ လတ်တလော နေ့စဉ်ဘဝမှာ ပုံမှန်ပြုမူတတ်တဲ့ပုံစံကို စဉ်းစားပြီး ဖြေပါ။ အဖြေမှန်၊ အဖြေမှား မရှိပါ။</p></article>
+                    <article className="rounded-xl bg-[#f5f8fc] p-3.5"><p className="text-xs font-bold text-[#405f82]">အဖြေရွေးချယ်ပုံ</p><p className="mt-1.5 text-sm leading-7 text-[#596d83]">မေးခွန်းတစ်ခုစီအတွက် သင့်အတွေ့အကြုံနဲ့ ဘယ်လောက်ကိုက်ညီသလဲဆိုတာ ၅ ဆင့်ထဲက တစ်ခုကို ရွေးပါ။</p></article>
+                    <article className="rounded-xl bg-[#f5f8fc] p-3.5"><p className="text-xs font-bold text-[#405f82]">ကျော်ခြင်းနှင့် ပြန်ဆက်ခြင်း</p><p className="mt-1.5 text-sm leading-7 text-[#596d83]">မသေချာတဲ့မေးခွန်းကို ကျော်ထားနိုင်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။ အဖြေရွေးတိုင်း ဒီဖုန်းရဲ့ Browser ထဲမှာ အလိုအလျောက်သိမ်းပါတယ်။</p></article>
+                    <article className="rounded-xl bg-[#f5f8fc] p-3.5"><p className="text-xs font-bold text-[#405f82]">ရလဒ်ကို ဘယ်လိုနားလည်ရမလဲ။</p><p className="mt-1.5 text-sm leading-7 text-[#596d83]">ရမှတ်တွေဟာ သင့်အဖြေတွေကို စုစည်းပြသတဲ့ အညွှန်းသာဖြစ်ပြီး လူအများနဲ့ နှိုင်းယှဉ်တဲ့ ရမှတ်မဟုတ်ပါ။</p></article>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-[#f0dfc6] bg-[#fffaf2] p-4 sm:p-5">
+                  <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-[#825824]"/><div><p className="text-xs font-bold text-[#805b2d]">အရေးကြီးသော သတိပြုချက်</p><p className="mt-1.5 text-sm leading-7 text-[#806b52]">InnerCompass ဟာ ကိုယ်ပိုင်ရေးဆွဲထားတဲ့ ကိုယ်တိုင်သုံးသပ်မှု မေးခွန်းများဖြစ်ပြီး မူရင်းစံသတ်မှတ်စမ်းသပ်မှုတစ်ခု၏ တရားဝင်ဘာသာပြန် သို့မဟုတ် တူညီသောဗားရှင်း မဟုတ်ပါ။ စိတ်ကျန်းမာရေးရောဂါရှာဖွေခြင်း၊ ကိုယ်ကျင့်တရားအကဲဖြတ်ခြင်း၊ လူတစ်ယောက်ရဲ့ အရည်အချင်းကို အပြီးသတ်ဆုံးဖြတ်ခြင်း မပြုလုပ်ပါ။</p></div></div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-2xl border border-[#e2eaf3] bg-[#f7fafd] p-4">
+                  <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#446c96]"/>
+                  <div><p className="text-xs font-bold text-[#405f82]">ကိုယ်ရေးအချက်အလက်နှင့် သိမ်းဆည်းမှု</p><p className="mt-1 text-sm leading-7 text-[#596d83]">သင့်အဖြေတွေကို ဒီဖုန်းရဲ့ Browser ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser အချက်အလက် ရှင်းလိုက်ရင် ပျောက်နိုင်တာကြောင့် မှတ်တမ်းဖိုင်ကို ပုံမှန်သိမ်းထားနိုင်ပါတယ်။</p></div>
+                </div>
+
+                <CalmingBreathPause theme="innerCompass" />
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </main>
@@ -232,21 +251,21 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
       <div className="mb-7 hidden items-center justify-between gap-3 sm:flex">
         <button onClick={onExit} className="inline-flex items-center gap-2 text-sm font-semibold text-[#4e6379] hover:text-[#3f5873]"><ArrowLeft size={16}/> ခဏရပ်ပြီး ထွက်မယ်</button>
         {storageError ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-[11px] font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12}/> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e7b8b8] bg-[#fdf2f2] px-3 py-1.5 text-xs font-semibold text-[#9a3b3b] shadow-sm"><AlertTriangle size={12}/> သိမ်းဆည်းမှု မအောင်မြင်ပါ</span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#4e6379] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#4e6379] shadow-sm"><LockKeyhole size={12}/> အလိုအလျောက် သိမ်းဆည်းနေသည်</span>
         )}
       </div>
       <StorageWriteAlert visible={storageAlertVisible} onExportBackup={onExportBackup} onDismiss={onDismissStorageError} />
       <section className="rounded-2xl border border-[#ebe5dc] bg-[#fffdf9] p-3.5 card-shadow sm:rounded-[2rem] sm:p-9">
         <div className="hidden items-end justify-between gap-3 sm:flex">
           <div><p className="text-xs font-semibold tracking-wide text-[#524b59]">INNERCOMPASS · {totalQuestions} QUESTIONS</p><h1 className="mt-2 text-xl font-bold text-[#242029] sm:text-2xl">မေးခွန်းဖြေဆိုခြင်း</h1></div>
-          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#446c96]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / {totalQuestions}</span></div><p className="text-[11px] text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
+          <div className="text-right"><div className="text-xl font-bold tabular-nums text-[#446c96]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-sm font-medium text-[#524b59]"> / {totalQuestions}</span></div><p className="text-xs text-[#524b59]">ဖြေပြီး {answeredCount} · ကျော်ထား {skippedCount}</p></div>
         </div>
-        <div className="mt-5 hidden items-center justify-between text-[11px] text-[#524b59] sm:flex"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
+        <div className="mt-5 hidden items-center justify-between text-xs text-[#524b59] sm:flex"><span>ဖြေဆိုပြီးမှု</span><span>{progress}%</span></div>
         <div className="mt-2 hidden h-2 overflow-hidden rounded-full bg-[#ebe5dc] sm:block"><div className="progress-fill h-full rounded-full bg-gradient-to-r from-[#6b91ba] to-[#9cb8d4]" style={{ width: `${progress}%` }}/></div>
         <div key={question.id} className="question-card-enter">
-          <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#ebe5dc] bg-gradient-to-br from-[#f5f8fc] to-[#faf8f5] px-4 py-4 sm:my-7 sm:min-h-32 sm:rounded-[1.5rem] sm:px-7 sm:py-8"><p className="text-[11px] font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-1.5 text-base font-bold leading-[1.7] text-[#242029] sm:mt-3 sm:text-[1.35rem] sm:leading-[1.9]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="innerCompass" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></div>
+          <div className="my-2.5 min-h-[5.25rem] rounded-2xl border border-[#ebe5dc] bg-gradient-to-br from-[#f5f8fc] to-[#faf8f5] px-4 py-4 sm:my-7 sm:min-h-32 sm:rounded-[1.5rem] sm:px-7 sm:py-8"><p className="text-xs font-semibold tracking-wide text-[#524b59]">မေးခွန်း {questionIndex + 1}</p><h2 className="mt-1.5 text-base font-bold leading-[1.7] text-[#242029] sm:mt-3 sm:text-[1.35rem] sm:leading-[1.9]">{question.text}</h2><KnowledgeInlineHelp questionText={question.text} theme="innerCompass" onOpenKnowledgeTerm={onOpenKnowledgeTerm} /></div>
           <LikertScaleSelector
             options={INNERCOMPASS_V02_ANSWER_OPTIONS}
             value={selectedAnswer}
@@ -261,7 +280,7 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
             <PrimaryButton onClick={isLast ? onReview : onNext} disabled={selectedAnswer === undefined} icon={isLast ? CheckCircle2 : ArrowRight}>{isLast ? 'အဖြေတွေ ပြန်စစ်မယ်' : 'နောက်တစ်ခု'}</PrimaryButton>
           </div>
         </div>
-        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f7fafd] px-4 py-3 sm:flex"><p className="text-[11px] leading-5 text-[#4e6379]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#446c96] hover:text-[#3f648c]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
+        <div className="mt-4 hidden flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f7fafd] px-4 py-3 sm:flex"><p className="text-xs leading-5 text-[#4e6379]">မသေချာသေးတဲ့မေးခွန်းကို ကျော်ပြီး နောက်မှ ပြန်ဖြေနိုင်ပါတယ်။</p><button onClick={onReview} className="text-xs font-semibold text-[#446c96] hover:text-[#3f648c]">မေးခွန်းစာရင်းကြည့်မယ်</button></div>
       </section>
       <MobileQuestionActions
         accent="blue"
@@ -274,7 +293,7 @@ function QuestionView({ activeQuestions, answers, skippedQuestionIds, questionIn
         showSkip={selectedAnswer === undefined}
         isLast={isLast}
       />
-      <p className="mt-5 hidden text-center text-[11px] leading-6 text-[#4e6379] sm:block">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
+      <p className="mt-5 hidden text-center text-xs leading-6 text-[#4e6379] sm:block">အဖြေရွေးချယ်တာနဲ့ ဒီ Browser ထဲမှာ သိမ်းဆည်းပါတယ်။ Browser Data မရှင်းပါနဲ့။</p>
     </main>
   )
 }
@@ -297,19 +316,19 @@ function ReviewView({ activeQuestions, answers, skippedQuestionIds, onGoTo, onFi
         <h1 className="mt-2 text-2xl font-bold text-[#3f5873]">ဖြေဆိုမှုကို ပြန်စစ်ပါ</h1>
         <p className="mt-2 text-xs leading-6 text-[#4e6379]">ကျော်ထားတဲ့မေးခွန်းနဲ့ မဖြေရသေးတဲ့မေးခွန်းကို ရွေးပြီး တိုက်ရိုက်ပြန်ဖြေနိုင်ပါတယ်။</p>
         <div className="mt-6 grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-[#edf6ef] p-3"><p className="text-2xl font-bold text-[#436b4f] tabular-nums">{answered.length}</p><p className="mt-1 text-[11px] text-[#436b4f]">ဖြေပြီး</p></div>
-          <div className="rounded-xl bg-[#fff7ed] p-3"><p className="text-2xl font-bold text-[#825824] tabular-nums">{skipped.length}</p><p className="mt-1 text-[11px] text-[#825824]">ကျော်ထား</p></div>
-          <div className="rounded-xl bg-[#f2f6fa] p-3"><p className="text-2xl font-bold text-[#4e6379] tabular-nums">{unanswered.length}</p><p className="mt-1 text-[11px] text-[#4e6379]">မဖြေရသေး</p></div>
+          <div className="rounded-xl bg-[#edf6ef] p-3"><p className="text-2xl font-bold text-[#436b4f] tabular-nums">{answered.length}</p><p className="mt-1 text-xs text-[#436b4f]">ဖြေပြီး</p></div>
+          <div className="rounded-xl bg-[#fff7ed] p-3"><p className="text-2xl font-bold text-[#825824] tabular-nums">{skipped.length}</p><p className="mt-1 text-xs text-[#825824]">ကျော်ထား</p></div>
+          <div className="rounded-xl bg-[#f2f6fa] p-3"><p className="text-2xl font-bold text-[#4e6379] tabular-nums">{unanswered.length}</p><p className="mt-1 text-xs text-[#4e6379]">မဖြေရသေး</p></div>
         </div>
-        <div className="mt-6 flex flex-wrap gap-2">{[['incomplete', `ပြန်ဖြေရန် (${incomplete.length})`], ['skipped', `ကျော်ထား (${skipped.length})`], ['unanswered', `မဖြေရသေး (${unanswered.length})`], ['answered', `ဖြေပြီး (${answered.length})`]].map(([value, label]) => <button key={value} onClick={() => setFilter(value)} className={cn('rounded-full px-3 py-2 text-[11px] font-semibold transition', filter === value ? 'bg-[#446c96] text-white' : 'bg-[#eef3f8] text-[#4e6379] hover:bg-[#e4edf6]')}>{label}</button>)}</div>
+        <div className="mt-6 flex flex-wrap gap-2">{[['incomplete', `ပြန်ဖြေရန် (${incomplete.length})`], ['skipped', `ကျော်ထား (${skipped.length})`], ['unanswered', `မဖြေရသေး (${unanswered.length})`], ['answered', `ဖြေပြီး (${answered.length})`]].map(([value, label]) => <button key={value} onClick={() => setFilter(value)} className={cn('rounded-full px-3 py-2 text-xs font-semibold transition', filter === value ? 'bg-[#446c96] text-white' : 'bg-[#eef3f8] text-[#4e6379] hover:bg-[#e4edf6]')}>{label}</button>)}</div>
         <div className="mt-4 rounded-2xl border border-[#edf2f7] p-3 sm:p-4">
           {visible.length === 0 ? <div className="py-8 text-center"><CheckCircle2 className="mx-auto text-[#436b4f]" size={30}/><p className="mt-2 text-sm font-semibold text-[#5e7d66]">ဒီအမျိုးအစားမှာ မေးခွန်းမရှိပါ။</p></div> : <div className="grid gap-2 sm:grid-cols-2">{visible.map((question) => {
             const originalIndex = activeQuestions.findIndex((item) => item.id === question.id)
-            return <button key={question.id} onClick={() => onGoTo(originalIndex)} className="flex min-w-0 items-start gap-3 rounded-xl border border-[#edf2f7] bg-white p-3 text-left transition hover:border-[#c5d6e7] hover:bg-[#f9fbfe]"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#f0f4f8] text-xs font-bold text-[#4e6379]">{originalIndex + 1}</span><span className="min-w-0 flex-1"><span className="block text-[11px] font-semibold leading-5 text-[#536b84]">{question.text}</span><span className="mt-1 block text-[11px] text-[#4e6379]">{statusOf(question)}</span></span><ChevronRight size={15} className="mt-1 shrink-0 text-[#4e6379]"/></button>
+            return <button key={question.id} onClick={() => onGoTo(originalIndex)} className="flex min-w-0 items-start gap-3 rounded-xl border border-[#edf2f7] bg-white p-3 text-left transition hover:border-[#c5d6e7] hover:bg-[#f9fbfe]"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#f0f4f8] text-xs font-bold text-[#4e6379]">{originalIndex + 1}</span><span className="min-w-0 flex-1"><span className="block text-xs font-semibold leading-5 text-[#536b84]">{question.text}</span><span className="mt-1 block text-xs text-[#4e6379]">{statusOf(question)}</span></span><ChevronRight size={15} className="mt-1 shrink-0 text-[#4e6379]"/></button>
           })}</div>}
         </div>
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between"><SecondaryButton onClick={onBack}>မေးခွန်းဆက်ဖြေမယ်</SecondaryButton><PrimaryButton onClick={onFinish} icon={CheckCircle2}>အဖြေစစ်ပြီး ရလဒ်ကြည့်မယ်</PrimaryButton></div>
-        {incomplete.length > 0 && <p className="mt-3 text-right text-[11px] leading-6 text-[#825824]">မေးခွန်း {incomplete.length} ခု ကျန်နေသေးပါတယ်။ အားလုံးဖြေပြီးမှ အညွှန်းရလဒ်တွက်ချက်နိုင်ပါမယ်။</p>}
+        {incomplete.length > 0 && <p className="mt-3 text-right text-xs leading-6 text-[#825824]">မေးခွန်း {incomplete.length} ခု ကျန်နေသေးပါတယ်။ အားလုံးဖြေပြီးမှ အညွှန်းရလဒ်တွက်ချက်နိုင်ပါမယ်။</p>}
       </section>
     </main>
   )
@@ -398,9 +417,9 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
       <section id="inner-report-overview" className="scroll-mt-28 print-card overflow-hidden rounded-[2rem] border border-[#d4e0ef] bg-gradient-to-br from-[#eaf1fa] via-[#f8fbff] to-[#edf3f9] p-6 card-shadow sm:p-10">
         <div className="mx-auto max-w-3xl text-center"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#446c96]"><CheckCircle2 size={14}/> ဆန်းစစ်မှု ပြီးဆုံးပါပြီ</span><div className="mt-5 flex justify-center"><span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-[#446c96] shadow-sm"><InnerCompassLogo size={50}/></span></div><p className="mt-4 text-xs font-semibold tracking-[0.15em] text-[#4e6379]">INNERCOMPASS · PILOT REFLECTION</p><h1 className="mt-3 text-2xl font-bold leading-relaxed text-[#3f5873] sm:text-3xl">သင့်ရဲ့ ဖြေဆိုမှုအကျဉ်းချုပ်</h1><p className="mt-2 text-xs text-[#4e6379]">မေးခွန်း {formatInnerCompassCountMm(recordQuestionCount)} · {formatDate(record.createdAt)}</p><p className="mx-auto mt-5 max-w-2xl text-sm leading-8 text-[#5f748b]">အောက်ပါရလဒ်တွေက ဒီမေးခွန်းမူကြမ်းအတွင်း သင်ရွေးချယ်ထားတဲ့ အဖြေတွေကို အချက် ၆ ချက်အလိုက် စုစည်းပြသထားပါတယ်။ ဒါတွေက သင့်ပင်ကိုစရိုက်ကို အပြီးသတ်သတ်မှတ်ပေးတာ မဟုတ်ပါ။</p></div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
-          <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#4f6680]">အဓိက အချက် ၆ ချက်၏ ရမှတ်</h2><span className="text-[11px] text-[#4e6379]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="54%" margin={{ top: 22, right: 42, bottom: 22, left: 42 }}><PolarGrid stroke="#e1eaf3"/><PolarAngleAxis dataKey="area" tick={<InnerCompassPolarTick />}/><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#4e6379', fontSize: 11 }} axisLine={false}/><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#9db9d5" fillOpacity={0.55} strokeWidth={2}/><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#dce6f0', fontSize: 12 }}/></RadarChart></ResponsiveContainer></div><p className="text-center text-[11px] leading-5 text-[#4e6379]">ဒီအညွှန်းဟာ ဖြေဆိုထားတဲ့အဖြေတွေကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါတယ်။</p></div>
+          <div className="rounded-[1.5rem] border border-white/90 bg-white/85 p-4 sm:p-6"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-[#4f6680]">အဓိက အချက် ၆ ချက်၏ ရမှတ်</h2><span className="text-xs text-[#4e6379]">0–100</span></div><div className="mt-2 h-[300px] w-full"><ResponsiveContainer width="100%" height="100%"><RadarChart data={chartData} outerRadius="54%" margin={{ top: 22, right: 42, bottom: 22, left: 42 }}><PolarGrid stroke="#e1eaf3"/><PolarAngleAxis dataKey="area" tick={<InnerCompassPolarTick />}/><PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#4e6379', fontSize: 11 }} axisLine={false}/><Radar name="အညွှန်းရမှတ်" dataKey="score" stroke={ACCENT} fill="#9db9d5" fillOpacity={0.55} strokeWidth={2}/><Tooltip formatter={(value) => [`${value}/100`, 'အညွှန်းရမှတ်']} contentStyle={{ borderRadius: 12, borderColor: '#dce6f0', fontSize: 12 }}/></RadarChart></ResponsiveContainer></div><p className="text-center text-xs leading-5 text-[#4e6379]">ဒီအညွှန်းဟာ ဖြေဆိုထားတဲ့အဖြေတွေကို စကေးအတွင်း ပြောင်းလဲဖော်ပြခြင်းသာ ဖြစ်ပါတယ်။</p></div>
           <div className="flex flex-col gap-3">
-            {ordered.slice(0, 2).map((dimension, index) => <article key={dimension.id} className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#4e6379]">ဒီဖြေဆိုမှုအတွင်း အညွှန်းရမှတ် ပိုမြင့်နေသော အချက် {index + 1}</p><h3 className="mt-2 text-sm font-bold leading-6 text-[#3f5873]">{dimension.name}</h3><p className="mt-1 text-xl font-bold text-[#446c96]">{dimension.index} / 100</p><p className="mt-2 text-[11px] font-semibold leading-6 text-[#446c96]">{getInnerCompassReportInsight(dimension.id, dimension.index)?.label}</p><p className="mt-2 text-xs leading-7 text-[#4e6379]">{INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === dimension.id)?.description}</p></article>)}
+            {ordered.slice(0, 2).map((dimension, index) => <article key={dimension.id} className="rounded-[1.5rem] border border-white/90 bg-white/85 p-5"><p className="text-xs font-semibold text-[#4e6379]">ဒီဖြေဆိုမှုအတွင်း အညွှန်းရမှတ် ပိုမြင့်နေသော အချက် {index + 1}</p><h3 className="mt-2 text-sm font-bold leading-6 text-[#3f5873]">{dimension.name}</h3><p className="mt-1 text-xl font-bold text-[#446c96]">{dimension.index} / 100</p><p className="mt-2 text-xs font-semibold leading-6 text-[#446c96]">{getInnerCompassReportInsight(dimension.id, dimension.index)?.label}</p><p className="mt-2 text-xs leading-7 text-[#4e6379]">{INNERCOMPASS_V02_DIMENSIONS.find((item) => item.id === dimension.id)?.description}</p></article>)}
             <div className="rounded-[1.5rem] border border-[#dce6f0] bg-white/75 p-5"><p className="text-xs font-bold text-[#4f6680]">ရလဒ်ကို ဖတ်ရှုရာတွင်</p><p className="mt-2 text-xs leading-7 text-[#4e6379]">ရမှတ်ပိုမြင့်ခြင်းဟာ ဒီမေးခွန်းအုပ်စုထဲက အပြုသဘောဖော်ပြထားတဲ့ အချက်တွေနဲ့ ပိုမိုကိုက်ညီတဲ့အဖြေတွေ ရှိတယ်လို့သာ အဓိပ္ပာယ်ရပါတယ်။ အခြားသူတွေနဲ့ နှိုင်းယှဉ်ထားတဲ့ ရမှတ်မဟုတ်သလို ကောင်းခြင်း၊ မကောင်းခြင်းကိုလည်း မဆုံးဖြတ်ပါ။</p></div>
           </div>
         </div>
@@ -410,7 +429,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
         <div className="grid gap-4 lg:grid-cols-2">
           {dimensionInsights.map((dimension) => (
             <article key={dimension.id} className="rounded-2xl border border-[#e4edf5] bg-white p-5 shadow-sm sm:p-6">
-              <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold leading-6 text-[#4f6680]">{dimension.name}</p><p className="mt-1 text-[11px] leading-5 text-[#4e6379]">{dimension.itemCount} မေးခွန်း · ပျမ်းမျှ {dimension.average}/5</p></div><span className="shrink-0 rounded-xl bg-[#eef4fa] px-3 py-2 text-sm font-bold tabular-nums text-[#446c96]">{dimension.index}/100</span></div>
+              <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold leading-6 text-[#4f6680]">{dimension.name}</p><p className="mt-1 text-xs leading-5 text-[#4e6379]">{dimension.itemCount} မေးခွန်း · ပျမ်းမျှ {dimension.average}/5</p></div><span className="shrink-0 rounded-xl bg-[#eef4fa] px-3 py-2 text-sm font-bold tabular-nums text-[#446c96]">{dimension.index}/100</span></div>
               <BalancedSpectrumBar
                 score={dimension.index}
                 leftLabel={(INNERCOMPASS_SPECTRUM_POLES[dimension.id] || ['နိမ့်ပိုင်း', 'မြင့်ပိုင်း'])[0]}
@@ -419,7 +438,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
                 ariaLabel={`${dimension.name} — ${dimension.index}/100`}
               />
               {dimension.insight && <>
-                <p className="mt-3 rounded-xl bg-[#f4f8fc] px-3 py-2 text-[11px] font-semibold leading-6 text-[#446c96]">{dimension.insight.label}</p>
+                <p className="mt-3 rounded-xl bg-[#f4f8fc] px-3 py-2 text-xs font-semibold leading-6 text-[#446c96]">{dimension.insight.label}</p>
                 <div className="mt-4 space-y-3 text-xs leading-7 text-[#4e6379]">
                   <div><p className="font-bold text-[#4f6680]">ဒီအဖြေတွေက ဘာကို ညွှန်းနိုင်သလဲ။</p><p>{dimension.insight.interpretation}</p></div>
                   <div className="rounded-xl bg-[#f7fafd] p-3"><p className="font-bold text-[#536f8b]">နေ့စဉ်ဘဝ ဥပမာ</p><p>{dimension.insight.example}</p></div>
@@ -440,12 +459,12 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
         <div className="grid gap-4 md:grid-cols-3">
           {lifeDomains.map((domain) => (
             <article key={domain.id} className="rounded-2xl border border-[#e4edf5] bg-white p-5 shadow-sm">
-              <p className="text-[11px] font-semibold tracking-wide text-[#446c96]">{domain.subtitle}</p>
+              <p className="text-xs font-semibold tracking-wide text-[#446c96]">{domain.subtitle}</p>
               <h3 className="mt-1 text-sm font-bold leading-6 text-[#3f5873]">{domain.title}</h3>
               <p className="mt-3 text-xs leading-7 text-[#4e6379]">{domain.summary}</p>
               <div className="mt-4 rounded-xl bg-[#f4f8fc] p-3">
-                <p className="text-[11px] font-bold text-[#405f82]">ကိုယ့်ကိုယ်ကို ပြန်မေးကြည့်ရန်</p>
-                <p className="mt-1 text-[11px] leading-6 text-[#4e6379]">{domain.prompt}</p>
+                <p className="text-xs font-bold text-[#405f82]">ကိုယ့်ကိုယ်ကို ပြန်မေးကြည့်ရန်</p>
+                <p className="mt-1 text-xs leading-6 text-[#4e6379]">{domain.prompt}</p>
               </div>
             </article>
           ))}
@@ -453,7 +472,7 @@ function ResultView({ record, onHome, onRetake, storageAlertVisible, onExportBac
       </section>
       <ReflectionNotesSection recordId={record.id} theme="innerCompass" />
       <section className="no-print mt-8 flex flex-wrap justify-center gap-3"><SecondaryButton onClick={onHome}>ပင်မစာမျက်နှာသို့ ပြန်မယ်</SecondaryButton><PrimaryButton onClick={onRetake} icon={RotateCcw}>ပြန်လည်ဖြေဆိုမယ်</PrimaryButton></section>
-      <p id="inner-report-notes" className="mt-5 scroll-mt-28 text-center text-[11px] leading-6 text-[#4e6379]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p>
+      <p id="inner-report-notes" className="mt-5 scroll-mt-28 text-center text-xs leading-6 text-[#4e6379]">ဤမေးခွန်းအုပ်စုသည် စမ်းသပ်အဆင့် ကိုယ်တိုင်ပြန်လည်သုံးသပ်မှုဖြစ်ပြီး စိတ်ပညာဆိုင်ရာ အတည်ပြုစမ်းသပ်မှု သို့မဟုတ် ရောဂါရှာဖွေမှု မဟုတ်ပါ။ {REPORT_INTERPRETATION_NOTICE}</p>
     </main>
   )
 }

@@ -155,10 +155,10 @@ export default function CalmingBreathPause({ theme = 'trait' }) {
       className={`rounded-2xl border p-4 sm:p-5 ${style.border} ${style.bg}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ${style.badgeBg} ${style.badgeText}`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${style.badgeBg} ${style.badgeText}`}>
           <Wind size={13} /> စိတ်အေးဆေးတည်ငြိမ်စေရန် ခဏနားခြင်း (ရွေးချယ်နိုင်)
         </span>
-        <span className={`text-[11px] font-semibold ${style.body}`}>
+        <span className={`text-xs font-semibold ${style.body}`}>
           ၄-၄-၄ စည်းချက် · ၄၈ စက္ကန့်
         </span>
       </div>
@@ -188,7 +188,7 @@ export default function CalmingBreathPause({ theme = 'trait' }) {
           <p className={`mt-3 text-sm font-bold ${style.heading}`} aria-live="polite">
             {currentPhase.label}
           </p>
-          <p className={`mt-1 text-[11px] font-semibold ${style.body}`}>
+          <p className={`mt-1 text-xs font-semibold ${style.body}`}>
             အကျော့ {round} / {TOTAL_ROUNDS}
           </p>
         </div>

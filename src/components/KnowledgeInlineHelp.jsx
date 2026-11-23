@@ -36,7 +36,7 @@ export default function KnowledgeInlineHelp({ questionText, theme = 'trait', onO
   return (
     <>
       <div className="mt-4 flex flex-wrap items-center gap-2" aria-label="မေးခွန်းနှင့်ဆက်စပ်သော စကားလုံးရှင်းလင်းချက်များ">
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#6b5e70]">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#6b5e70]">
           <BookOpen size={12} /> စကားလုံးအဓိပ္ပာယ်
         </span>
         {relatedTerms.map((term) => (
@@ -47,7 +47,7 @@ export default function KnowledgeInlineHelp({ questionText, theme = 'trait', onO
             aria-label={`${term.term_my} အဓိပ္ပာယ်ဖတ်ရန်`}
             aria-haspopup="dialog"
             aria-expanded={activeTermId === term.id}
-            className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${style.chip}`}
+            className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${style.chip}`}
           >
             <Info size={13} /> {term.term_my}
           </button>
@@ -71,10 +71,10 @@ export default function KnowledgeInlineHelp({ questionText, theme = 'trait', onO
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-bold ${style.panel} ${style.accent}`}>
+                <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${style.panel} ${style.accent}`}>
                   {activeTerm.category_name_my}
                 </span>
-                <p className="mt-4 text-[11px] font-semibold tracking-wide text-[#6b5e70]">{activeTerm.term_en}</p>
+                <p className="mt-4 text-xs font-semibold tracking-wide text-[#6b5e70]">{activeTerm.term_en}</p>
                 <h3 id={`knowledge-help-title-${activeTerm.id}`} className="mt-1 text-xl font-bold leading-relaxed text-[#493b50]">
                   {activeTerm.term_my}
                 </h3>
@@ -90,36 +90,36 @@ export default function KnowledgeInlineHelp({ questionText, theme = 'trait', onO
             </div>
 
             <div className={`mt-5 rounded-2xl p-4 ${style.panel}`}>
-              <p className="text-[11px] font-bold text-[#6d5878]">အလွယ်နားလည်ရန်</p>
+              <p className="text-xs font-bold text-[#6d5878]">အလွယ်နားလည်ရန်</p>
               <p className="mt-2 text-sm leading-8 text-[#625768]">{activeTerm.definition_simple}</p>
             </div>
 
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <section className="rounded-xl border border-[#e5eee7] bg-[#f8fbf8] p-3.5">
-                <h4 className="text-[11px] font-bold text-[#58715c]">နေ့စဉ်ဘဝ ဥပမာ</h4>
+                <h4 className="text-xs font-bold text-[#58715c]">နေ့စဉ်ဘဝ ဥပမာ</h4>
                 <p className="mt-2 text-xs leading-7 text-[#68766a]">{activeTerm.daily_example}</p>
               </section>
               <section className="rounded-xl border border-[#e7e4ee] bg-[#faf9fc] p-3.5">
-                <h4 className="text-[11px] font-bold text-[#6d6281]">ဆင်တူစကားလုံးနဲ့ ကွာခြားချက်</h4>
+                <h4 className="text-xs font-bold text-[#6d6281]">ဆင်တူစကားလုံးနဲ့ ကွာခြားချက်</h4>
                 <p className="mt-2 text-xs leading-7 text-[#71697a]">{activeTerm.distinction}</p>
               </section>
             </div>
 
             <section className="mt-3 rounded-xl border border-[#f0e2d9] bg-[#fffaf7] p-3.5">
-              <h4 className="text-[11px] font-bold text-[#956d57]">သတိပြုရန်</h4>
+              <h4 className="text-xs font-bold text-[#956d57]">သတိပြုရန်</h4>
               <p className="mt-2 text-xs leading-7 text-[#806d63]">{activeTerm.caution}</p>
             </section>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#eee7ef] pt-4">
-              <span className="rounded-full bg-[#fff5e6] px-3 py-1.5 text-[11px] font-bold text-[#825824]">
+              <span className="rounded-full bg-[#fff5e6] px-3 py-1.5 text-xs font-bold text-[#825824]">
                 မူကြမ်း · {activeTerm.content_version}
               </span>
-              <span className="text-[11px] text-[#6b5e70]">ကျွမ်းကျင်သူ စစ်ဆေးမှု မပြီးသေးပါ</span>
+              <span className="text-xs text-[#6b5e70]">ကျွမ်းကျင်သူ စစ်ဆေးမှု မပြီးသေးပါ</span>
             </div>
 
             {(activeTerm.sources || []).length > 0 && (
               <div className="mt-4">
-                <p className="text-[11px] font-bold text-[#716477]">ကိုးကားရင်းမြစ်</p>
+                <p className="text-xs font-bold text-[#716477]">ကိုးကားရင်းမြစ်</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {activeTerm.sources.slice(0, 2).map((source) => (
                     <a
@@ -127,7 +127,7 @@ export default function KnowledgeInlineHelp({ questionText, theme = 'trait', onO
                       href={source.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-[#e9e1eb] bg-white px-3 py-2 text-[11px] font-semibold text-[#725d7d] hover:bg-[#faf7fb]"
+                      className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-[#e9e1eb] bg-white px-3 py-2 text-xs font-semibold text-[#725d7d] hover:bg-[#faf7fb]"
                     >
                       {source.title} <ExternalLink size={12} />
                     </a>

@@ -79,7 +79,7 @@ export default function BalancedSpectrumBar({
           style={{ left: dotLeft }}
         />
       </div>
-      <div className="mt-2 flex items-start justify-between gap-3 text-[11px] leading-5">
+      <div className="mt-2 flex items-start justify-between gap-3 text-xs leading-5">
         <span className={`max-w-[46%] text-left ${clamped < 45 ? palette.activeText : palette.mutedText}`}>
           {resolvedLeft}
         </span>

@@ -40,12 +40,12 @@ export default class AppErrorBoundary extends Component {
       window.setTimeout(() => URL.revokeObjectURL(url), 1500)
       this.setState({
         backupError: '',
-        backupStatus: `Backup ဖိုင် ထုတ်သိမ်းပြီးပါပြီ (Draft ${snapshot.summary.draftCount} ခု၊ History ${snapshot.summary.historyCount} ခု၊ မှတ်စု ${snapshot.summary.noteCount} ခု)။`,
+        backupStatus: `မှတ်တမ်းဖိုင် ထုတ်သိမ်းပြီးပါပြီ (မပြီးသေးတဲ့ အဖြေ ${snapshot.summary.draftCount} ခု၊ မှတ်တမ်း ${snapshot.summary.historyCount} ခု၊ ကိုယ်ပိုင်မှတ်စု ${snapshot.summary.noteCount} ခု)။`,
       })
     } catch {
       this.setState({
         backupStatus: '',
-        backupError: 'JSON Backup ထုတ်ယူရာတွင် အခက်အခဲ ဖြစ်နေပါသည်။ Browser Storage ကို မရှင်းဘဲ စာမျက်နှာကို ပြန်ဖွင့်ကြည့်ပါ။',
+        backupError: 'မှတ်တမ်းဖိုင် ထုတ်ယူရာတွင် အခက်အခဲ ဖြစ်နေပါသည်။ Browser ထဲက အချက်အလက်ကို မရှင်းဘဲ စာမျက်နှာကို ပြန်ဖွင့်ကြည့်ပါ။',
       })
     }
   }
@@ -67,18 +67,18 @@ export default class AppErrorBoundary extends Component {
           <h1 className="mt-4 text-xl font-bold leading-snug text-[#493b50]">
             စာမျက်နှာ ပြသရာတွင် မမျှော်လင့်ထားသော အမှား ဖြစ်ပွားနေပါသည်
           </h1>
-          <p className="mt-3 text-xs leading-7 text-[#5e5163] sm:text-sm sm:leading-7">
-            စိတ်မပူပါနှင့် — သင့်အဖြေများ၊ Draft များနှင့် ကိုယ်ပိုင်မှတ်စုများသည် ဤ Browser ထဲတွင် ဆက်လက်သိမ်းဆည်းထားဆဲ ဖြစ်နိုင်ပါသည်။ စိတ်ချရစေရန် အောက်ပါခလုတ်မှ JSON Backup အရင်ထုတ်သိမ်းပြီး စာမျက်နှာကို ပြန်ဖွင့်နိုင်ပါသည်။
+          <p className="mt-3 text-sm leading-7 text-[#5e5163]">
+            စိတ်မပူပါနှင့် — သင့်အဖြေများ၊ မပြီးသေးသော အဖြေများနှင့် ကိုယ်ပိုင်မှတ်စုများသည် ဒီဖုန်းရဲ့ Browser ထဲမှာပဲ ဆက်လက်သိမ်းဆည်းထားဆဲ ဖြစ်နိုင်ပါသည်။ စိတ်ချရစေရန် အောက်ပါခလုတ်မှ မှတ်တမ်းဖိုင် အရင်သိမ်းပြီး စာမျက်နှာကို ပြန်ဖွင့်နိုင်ပါသည်။
           </p>
 
           {this.state.backupStatus && (
-            <p className="mt-4 rounded-2xl border border-[#d6e5d8] bg-[#f4faf5] px-4 py-3 text-xs leading-6 text-[#2f5d38]">
+            <p className="mt-4 rounded-2xl border border-[#d6e5d8] bg-[#f4faf5] px-4 py-3 text-xs leading-7 text-[#2f5d38]">
               {this.state.backupStatus}
             </p>
           )}
 
           {this.state.backupError && (
-            <p className="mt-4 rounded-2xl border border-[#e8c6cc] bg-[#fff5f6] px-4 py-3 text-xs leading-6 text-[#8b3d4a]">
+            <p className="mt-4 rounded-2xl border border-[#e8c6cc] bg-[#fff5f6] px-4 py-3 text-xs leading-7 text-[#8b3d4a]">
               {this.state.backupError}
             </p>
           )}
@@ -89,14 +89,14 @@ export default class AppErrorBoundary extends Component {
               onClick={this.handleReload}
               className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-2xl bg-[#80678f] px-4 py-3 text-xs font-bold text-white transition hover:bg-[#725981] sm:text-sm"
             >
-              စာမျက်နှာ ပြန်ဖွင့်မယ် (Reload)
+              စာမျက်နှာ ပြန်ဖွင့်မယ်
             </button>
             <button
               type="button"
               onClick={this.handleEmergencyBackup}
               className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-2xl border border-[#d9c8de] bg-[#faf6fb] px-4 py-3 text-xs font-bold text-[#5f486d] transition hover:bg-[#f2ebf5] sm:text-sm"
             >
-              JSON Backup ထုတ်သိမ်းမယ်
+              မှတ်တမ်းဖိုင် သိမ်းမယ်
             </button>
           </div>
         </section>

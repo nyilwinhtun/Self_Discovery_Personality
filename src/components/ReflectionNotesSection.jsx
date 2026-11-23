@@ -135,7 +135,7 @@ export default function ReflectionNotesSection({ recordId, theme = 'trait' }) {
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ${style.badgeBg} ${style.badgeText}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${style.badgeBg} ${style.badgeText}`}>
             <LockKeyhole size={12} /> ကိုယ်ပိုင်မှတ်စု (Local Only)
           </span>
           <h3 className={`mt-2.5 text-base font-bold ${style.heading}`}>
@@ -143,7 +143,7 @@ export default function ReflectionNotesSection({ recordId, theme = 'trait' }) {
           </h3>
         </div>
         {savedNote?.updatedAt && !isEditing && (
-          <span className={`text-[11px] ${style.muted}`}>
+          <span className={`text-xs ${style.muted}`}>
             နောက်ဆုံးသိမ်းချိန် · {formatNoteDate(savedNote.updatedAt)}
           </span>
         )}
@@ -153,7 +153,7 @@ export default function ReflectionNotesSection({ recordId, theme = 'trait' }) {
         ဒီရလဒ်ကို ဖတ်ပြီး စိတ်ထဲပေါ်လာတဲ့ အတွေး၊ ခံစားချက် ဒါမှမဟုတ် မှတ်ထားချင်တာလေးတွေကို လွတ်လပ်စွာ ရေးသားနိုင်ပါတယ်။ မရေးဘဲလည်း ကျော်သွားနိုင်ပါတယ်။
       </p>
 
-      <p className={`mt-2 text-[11px] leading-6 ${style.muted}`}>
+      <p className={`mt-2 text-xs leading-6 ${style.muted}`}>
         ကိုယ်ရေးလုံခြုံမှု: ဤမှတ်စုကို သင့်လက်ရှိ Browser နှင့် စက်ထဲတွင်သာ သီးသန့်သိမ်းဆည်းထားပြီး မည်သည့် Server သို့မျှ မပို့ပါ။
       </p>
 
@@ -222,12 +222,12 @@ export default function ReflectionNotesSection({ recordId, theme = 'trait' }) {
       )}
 
       {statusMessage && (
-        <p role="status" className={`mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold ${style.badgeText}`}>
+        <p role="status" className={`mt-3 inline-flex items-center gap-1.5 text-xs font-semibold ${style.badgeText}`}>
           <CheckCircle2 size={13} /> {statusMessage}
         </p>
       )}
       {errorMessage && (
-        <p role="alert" className="mt-3 text-[11px] font-semibold text-[#9a3b3b]">
+        <p role="alert" className="mt-3 text-xs font-semibold text-[#9a3b3b]">
           {errorMessage}
         </p>
       )}

@@ -78,7 +78,7 @@ function JournalEntryCard({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${
               isDaily
                 ? 'bg-[#f3edf5] text-[#614b6b]'
                 : 'bg-[#eef4fa] text-[#355679]'
@@ -90,13 +90,13 @@ function JournalEntryCard({
               : entry.moduleLabel}
           </span>
           {isDaily && entry.prompt?.topic && (
-            <span className="text-[11px] font-semibold text-[#5d5162]">
+            <span className="text-xs font-semibold text-[#5d5162]">
               {entry.prompt.topic}
             </span>
           )}
         </div>
         {entry.updatedAt && (
-          <span className="text-[11px] text-[#5d5162]">
+          <span className="text-xs text-[#5d5162]">
             {formatJournalDateTime(entry.updatedAt)}
           </span>
         )}
@@ -109,7 +109,7 @@ function JournalEntryCard({
       )}
 
       {!isDaily && entry.record?.createdAt && (
-        <p className="mt-2 text-[11px] text-[#5d5162]">
+        <p className="mt-2 text-xs text-[#5d5162]">
           စမ်းသပ်မှု ရက်စွဲ — {formatJournalDateTime(entry.record.createdAt)}
         </p>
       )}
@@ -293,7 +293,7 @@ export default function ReflectionJournalPage({ history: propHistory, onBack, on
       <section className="rounded-[2rem] border border-[#e7dce9] bg-gradient-to-br from-[#f6f0f8] via-[#fffdf9] to-[#f8f3f1] p-6 shadow-sm sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e5d9e8] bg-white px-3 py-1 text-[11px] font-bold text-[#614b6b]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e5d9e8] bg-white px-3 py-1 text-xs font-bold text-[#614b6b]">
               <BookOpen size={13} /> REFLECTION JOURNAL · ကိုယ်ပိုင်မှတ်တမ်း
             </span>
             <h1 className="mt-3 text-2xl font-bold leading-snug text-[#44364a] sm:text-3xl">
@@ -304,7 +304,7 @@ export default function ReflectionJournalPage({ history: propHistory, onBack, on
             </p>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#436b4f] shadow-xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#436b4f] shadow-xs">
             <LockKeyhole size={13} /> ဒီစက်ထဲမှာသာ သိမ်းဆည်း
           </span>
         </div>
@@ -312,15 +312,15 @@ export default function ReflectionJournalPage({ history: propHistory, onBack, on
         <div className="mt-5 grid grid-cols-3 gap-2.5 sm:gap-3">
           <div className="rounded-2xl border border-[#ebe3ed] bg-white/90 p-3 text-center">
             <p className="text-lg font-bold text-[#493b50]">{totalCount}</p>
-            <p className="text-[11px] font-medium text-[#5d5162]">စုစုပေါင်း</p>
+            <p className="text-xs font-medium text-[#5d5162]">စုစုပေါင်း</p>
           </div>
           <div className="rounded-2xl border border-[#ebe3ed] bg-white/90 p-3 text-center">
             <p className="text-lg font-bold text-[#614b6b]">{dailyEntries.length}</p>
-            <p className="text-[11px] font-medium text-[#5d5162]">နေ့စဉ်မှတ်စု</p>
+            <p className="text-xs font-medium text-[#5d5162]">နေ့စဉ်မှတ်စု</p>
           </div>
           <div className="rounded-2xl border border-[#ebe3ed] bg-white/90 p-3 text-center">
             <p className="text-lg font-bold text-[#355679]">{assessmentEntries.length}</p>
-            <p className="text-[11px] font-medium text-[#5d5162]">စမ်းသပ်မှုမှတ်စု</p>
+            <p className="text-xs font-medium text-[#5d5162]">စမ်းသပ်မှုမှတ်စု</p>
           </div>
         </div>
       </section>
@@ -410,7 +410,7 @@ export default function ReflectionJournalPage({ history: propHistory, onBack, on
                 <h2 id="journal-daily-heading" className="text-base font-bold text-[#44364a]">
                   နေ့စဉ် စိတ်မှတ်စုများ (Daily Check-Ins)
                 </h2>
-                <span className="rounded-full bg-[#f3edf5] px-2.5 py-0.5 text-[11px] font-bold text-[#614b6b]">
+                <span className="rounded-full bg-[#f3edf5] px-2.5 py-0.5 text-xs font-bold text-[#614b6b]">
                   {filteredDaily.length} ခု
                 </span>
               </div>
@@ -444,7 +444,7 @@ export default function ReflectionJournalPage({ history: propHistory, onBack, on
                 <h2 id="journal-assessment-heading" className="text-base font-bold text-[#44364a]">
                   စမ်းသပ်မှု မှတ်စုများ (Assessment Notes)
                 </h2>
-                <span className="rounded-full bg-[#eef4fa] px-2.5 py-0.5 text-[11px] font-bold text-[#355679]">
+                <span className="rounded-full bg-[#eef4fa] px-2.5 py-0.5 text-xs font-bold text-[#355679]">
                   {filteredAssessment.length} ခု
                 </span>
               </div>
